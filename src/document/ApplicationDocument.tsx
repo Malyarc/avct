@@ -780,17 +780,12 @@ function SkillsTable({
 }
 
 function PageFive({ data }: { data: ApplicationData }) {
+  // Section (11) skills was two pages; the whole checklist now fits on one, so
+  // sections (12)–(17) shift up a page. The form's own "8 pages" statement on
+  // page 1 is left as printed — it is the official .docx wording.
   return (
     <Page number={5}>
-      <SkillsTable data={data} from={0} to={7} withHeader />
-    </Page>
-  );
-}
-
-function PageSix({ data }: { data: ApplicationData }) {
-  return (
-    <Page number={6}>
-      <SkillsTable data={data} from={7} to={SKILL_CATEGORIES.length} withHeader />
+      <SkillsTable data={data} from={0} to={SKILL_CATEGORIES.length} withHeader />
     </Page>
   );
 }
@@ -826,7 +821,7 @@ function PageSeven({ data }: { data: ApplicationData }) {
   const availability = new Set<AvailabilitySlot>(data.availability);
 
   return (
-    <Page number={7}>
+    <Page number={6}>
       <table className="doc-table doc-table--tight" style={{ marginBottom: "3.5mm" }}>
         <colgroup>
           <col style={{ width: "18%" }} />
@@ -1060,7 +1055,7 @@ function PageEight({ data }: { data: ApplicationData }) {
   const signedOn = data.signedAt ? new Date(data.signedAt) : null;
 
   return (
-    <Page number={8}>
+    <Page number={7}>
       <table className="doc-table doc-table--tight" style={{ marginBottom: "3mm" }}>
         <colgroup>
           <col style={{ width: "58%" }} />
@@ -1246,7 +1241,6 @@ export function ApplicationDocument({
       <PageThree data={data} />
       <PageFour data={data} />
       <PageFive data={data} />
-      <PageSix data={data} />
       <PageSeven data={data} />
       <PageEight data={data} />
     </div>

@@ -1,7 +1,7 @@
 /**
  * The reproduced form.
  *
- * These assertions are the contract with Tzu Chi headquarters: eight pages,
+ * These assertions are the contract with Tzu Chi headquarters: seven pages,
  * the applicant's answers in the right boxes, the right ticks, and section
  * (17) hidden from the applicant but present in the official rendering.
  */
@@ -75,10 +75,13 @@ describe("splitDate / splitMonth", () => {
 });
 
 describe("ApplicationDocument", () => {
-  it("renders exactly eight A4 pages", () => {
+  it("renders exactly seven A4 pages", () => {
+    // Section (11) skills was merged from two pages onto one, so the form is
+    // now seven physical pages. Page 1 still prints the official "8 pages"
+    // statement verbatim — that is the .docx wording, checked by fidelity.
     const { container } = render(<ApplicationDocument data={filled()} />);
     expect(pages(container)).toHaveLength(PAGE_COUNT);
-    expect(PAGE_COUNT).toBe(8);
+    expect(PAGE_COUNT).toBe(7);
   });
 
   it("numbers each page in the official footer", () => {
@@ -219,7 +222,7 @@ describe("ApplicationDocument", () => {
         })}
       />,
     );
-    const page = container.querySelectorAll(".avct-page")[7] as HTMLElement;
+    const page = container.querySelectorAll(".avct-page")[6] as HTMLElement;
     expect(within(page).getByText("60%")).toBeInTheDocument();
     expect(within(page).getByText("85%")).toBeInTheDocument();
   });

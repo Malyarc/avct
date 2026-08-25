@@ -258,6 +258,7 @@ function validateExperience(data: ApplicationData): FieldErrors {
   if (!anyArea) errors.communityArea = D.experience.areasRequired;
 
   require_(errors, data, "certificationFunctionalGroups");
+  require_(errors, data, "fundraisingNumber");
 
   return errors;
 }

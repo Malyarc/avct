@@ -32,7 +32,10 @@ export const D = {
       "Tzu Chi Commissioner / Faith Corps Training Application Form, 1 Feb 2023 overseas edition",
       "佛教慈濟基金會「委員慈誠培訓報名表」2023年2月1日海外版",
     ),
-    programme: p("Advanced Certification Training", "委員慈誠培訓"),
+    programme: p(
+      "Advanced Volunteer Certification Training (TCCA Alumni Only)",
+      "慈青學長姊委員慈誠培訓",
+    ),
     contactName: p("Ashley Yong", "楊妤緗"),
     contactRole: p(
       "Deputy Director, Talent Cultivation Department",
@@ -86,11 +89,9 @@ export const D = {
    * Landing
    * ------------------------------------------------------------------ */
   landing: {
-    eyebrow: p("2026–2027 Cohort · TCCA Alumni", "2026–2027 學年・慈青學長"),
-    title: p("Advanced Certification Training", "委員慈誠培訓報名"),
-    lede: p(
-      "The path to becoming a certified Tzu Chi Commissioner or Faith Corps member begins with one form. We have rebuilt it — the eight-page bilingual application is now nine guided steps you can finish in about twenty minutes.",
-      "受證為慈濟委員或慈誠，是從一份報名表開始。我們重新設計了這份表單——原本正反八頁的中英文報名表，現在是九個步驟，大約二十分鐘就能填完。",
+    title: p(
+      "Advanced Volunteer Certification Training (TCCA Alumni Only)",
+      "慈青學長姊委員慈誠培訓報名",
     ),
     statTime: p("~20 min", "約 20 分鐘"),
     statTimeLabel: p("to complete", "即可填完"),
@@ -98,33 +99,6 @@ export const D = {
     statStepsLabel: p("instead of 8 pages", "取代正反八頁"),
     statDate: p("Sept 27", "9 月 27 日"),
     statDateLabel: p("first class, in person", "首堂課・總會實體上課"),
-
-    filledForYou: p("Filled in for you", "已為您預先填好"),
-    filledForYouDetail: p(
-      "Team, mentor and training details are pre-set.",
-      "組隊、直屬委員與培訓資料皆已預設。",
-    ),
-
-    howItWorks: p("How it works", "填寫流程"),
-    autosaveNote: p(
-      "Your answers are saved on this device as you go.",
-      "填寫內容會即時儲存在您這台裝置上。",
-    ),
-    step1Title: p("Answer nine steps", "回答九個步驟"),
-    step1Body: p(
-      "Plain questions in English and Chinese, grouped the way a person thinks — not the way the paper form is printed. Every field is checked as you type.",
-      "以中英文提問，依照人的思考順序分組，而不是照著紙本表格的版面排列。每個欄位都會即時檢查。",
-    ),
-    step2Title: p("Review the real form", "檢視正式表單"),
-    step2Body: p(
-      "We fill the official bilingual application for you. Read it through, jump back to fix anything, then sign with your mouse or finger.",
-      "系統會為您填好正式的中英文報名表。您可以逐頁確認，隨時回去修改，最後用滑鼠或手指簽名。",
-    ),
-    step3Title: p("Send and keep a copy", "送出並保留副本"),
-    step3Body: p(
-      "Your application goes straight to the Talent Cultivation Team, and you download a signed PDF for your own records.",
-      "報名表會直接送到人才培育團隊，您也可以下載已簽名的 PDF 留存。",
-    ),
 
     readyTitle: p("Have these ready", "請先準備好"),
     ready1: p("A 2-inch headshot", "二吋大頭照一張"),
@@ -136,8 +110,8 @@ export const D = {
     ready2Detail: p("Driver license or passport.", "駕照或護照號碼皆可。"),
     ready3: p("When you started serving", "投入社區志工的時間"),
     ready3Detail: p(
-      "The month and year you began community volunteering.",
-      "請記得開始承擔社區志工的年月。",
+      "The month and year you began volunteering with Tzu Chi.",
+      "請記得您開始投入慈濟志工的年月。",
     ),
     ready4: p("An emergency contact", "緊急聯絡人"),
     ready4Detail: p(
@@ -145,18 +119,13 @@ export const D = {
       "姓名、關係與聯絡電話。",
     ),
 
-    separateTitle: p("Sent separately", "另行繳交"),
+    separateTitle: p("Upload Separately", "另行上傳"),
     separateBody: p(
-      "Two items are not part of this form. Email or upload them for your training coordinator alongside your application.",
-      "以下兩項不在本表單內，請另外以電子郵件寄送或上傳給人事幹事。",
+      "Two items are not part of this form. Please upload them through the link below.",
+      "以下兩項不在本表單內，請透過下方連結上傳。",
     ),
-    separate1: p("A 600-word autobiography", "600 字以上自傳"),
-    separate1Detail: p(
-      "In Word format, plus one printed copy.",
-      "請以 Word 編輯，並列印紙本一份。",
-    ),
+    separate1: p("A 600-word autobiography (Word doc)", "600 字以上自傳（Word 檔）"),
     separate2: p("Your uniform headshot", "制服大頭照"),
-    separate2Detail: p("Also uploaded here, in Step 2.", "第 2 步驟也會請您上傳一次。"),
     questions: p("Questions?", "有問題嗎？"),
   },
 
@@ -250,14 +219,6 @@ export const D = {
     openTo: p("Open to %s applicants", "限%s報名"),
     female: p("female", "女眾"),
     male: p("male", "男眾"),
-    commissionerBlurb: p(
-      "Certification as a Tzu Chi Commissioner (委員) — the lay volunteer who carries the mission into the community and cultivates donor households.",
-      "受證成為慈濟委員——在社區中承擔慈濟志業、勸募會員的居家志工。",
-    ),
-    faithCorpsBlurb: p(
-      "Certification as a Faith Corps member (慈誠) — the brothers’ corps that anchors logistics, construction, disaster relief and event support.",
-      "受證成為慈濟慈誠——承擔勤務、營建、賑災與活動護持的男眾志工。",
-    ),
     note: p(
       "This choice decides which fields on the official form apply to you, and which mentor and recommending person are recorded. You can change it later.",
       "此選擇會決定正式表單上適用的欄位，以及所登錄的直屬委員或推薦人。之後仍可修改。",
@@ -479,8 +440,8 @@ export const D = {
     ),
     started: p("Started", "起於"),
     startedHint: p(
-      "Year and month you began community volunteering.",
-      "請填寫開始承擔社區志工的年月。",
+      "Year and month you began volunteering with Tzu Chi.",
+      "請填寫您開始投入慈濟志工的年月。",
     ),
     startedRequired: p("Use the month picker.", "請使用月份選擇器。"),
     areas: p("Areas you serve with", "所屬區域"),
@@ -492,6 +453,11 @@ export const D = {
     harmony: p("Harmony", "和氣"),
     mutualLove: p("Mutual Love", "互愛"),
     concertedEffort: p("Concerted Effort", "協力"),
+    // (5) 勸募編號 / 會員編號 — the applicant's Tzu Chi number. The form asks
+    // Commissioners for a fundraising number and Faith Corps for a member number.
+    fundraisingNumber: p("Fundraising Number", "勸募編號"),
+    donatingNumber: p("Donating Member Number", "會員編號"),
+    numberHint: p("As it appears on your Tzu Chi record.", "如您慈濟資料上所載。"),
     certificationTitle: p("Certification training", "培訓委員慈誠"),
     certificationBlurb: p(
       "Your 2026–2027 cohort details are already recorded — you do not need to enter them.",
@@ -675,17 +641,13 @@ export const D = {
    * ------------------------------------------------------------------ */
   guidelines: {
     pageTitle: p(
-      "Program Guidelines · Advanced Certification Training",
-      "培訓辦法・委員慈誠培訓",
+      "Program Guidelines · Advanced Volunteer Certification Training (TCCA Alumni Only)",
+      "培訓辦法・慈青學長姊委員慈誠培訓",
     ),
-    eyebrow: p("Program Guidelines · Draft", "培訓辦法・草案"),
+    eyebrow: p("Program Guidelines", "培訓辦法"),
     title: p(
-      "Advanced Certification Training for TCCA (Tzu Ching) Alumni",
+      "Advanced Volunteer Certification Training (AVCT) for TCCA Alumni",
       "慈青學長委員慈誠培訓辦法",
-    ),
-    lede: p(
-      "Standards for alumni recommended for Certified Training as a Committee Member or Faith Corps member, for the 2026–2027 cohort.",
-      "2026–2027 梯次，慈青學長推薦參加委員慈誠培訓的標準。",
     ),
     onThisPage: p("On this page", "本頁內容"),
     navEligibility: p("Eligibility", "推薦資格"),
@@ -737,12 +699,11 @@ export const D = {
       "灰衣白領、白長褲、慈濟藍腰帶、白鞋白襪。女眾請梳慈濟包頭或慈青學長辮。",
     ),
     linkRegistrationForm: p("Registration Form", "線上報名表"),
-    linkPaperForm: p("Original paper form", "紙本報名表原件"),
     linkAutobiography: p("Autobiography upload", "自傳上傳"),
 
     scheduleTitle: p("Class Schedule", "課程時間"),
     inPerson: p("In person · Headquarters", "實體・總會"),
-    onZoom: p("Zoom, local centre", "線上・各地會所"),
+    onZoom: p("Zoom, local center", "線上・各地會所"),
     classHours: p("Class hours", "上課時間"),
     classHoursValue: p("12:00 PM – 4:00 PM", "中午 12:00 至下午 4:00"),
     conductedBy: p("Conducted by", "授課單位"),
@@ -818,8 +779,8 @@ export const D = {
 
     applications: p("Applications", "報名表"),
     cohort: p(
-      "2026–2027 Advanced Certification Training cohort",
-      "2026–2027 委員慈誠培訓梯次",
+      "Advanced Volunteer Certification Training (TCCA Alumni Only)",
+      "慈青學長姊委員慈誠培訓",
     ),
     search: p("Search name, email or reference", "搜尋姓名、信箱或編號"),
     searchLabel: p("Search applications", "搜尋報名表"),

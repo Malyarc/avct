@@ -5,7 +5,7 @@
 
 import type { ReactNode } from "react";
 
-export const PAGE_COUNT = 8;
+export const PAGE_COUNT = 7;
 
 export function Page({
   number,

@@ -45,10 +45,17 @@ would make the preview and the PDF differ is a bug.
 A4 at 210 × 297 mm with the source's 12.7 mm margins, type in points. Screen
 units do not belong in it. The on-screen preview only applies a CSS transform.
 
-**Eight pages, fixed.** The form says "資料為正反八頁 / This document contains
-8 pages" on page 1, and the renderer produces exactly eight. Every text input
-carries a `maxLength` and family rows are capped at 8 so no answer can overflow
-a page. If a page ever needs more room, shorten the cap — do not let it grow.
+**Seven physical pages; the form still says eight.** Page 1 prints "資料為正反
+八頁 / This document contains 8 pages" — that is the official .docx wording and
+stays verbatim (fidelity checks it). The renderer produces seven `.avct-page`
+elements: section (11) skills was merged from two pages onto one at the
+department's request, shifting sections (12)–(17) up a page. `PAGE_COUNT` is 7
+and `tests/document.test.tsx` asserts seven. So the printed "8 pages" is
+deliberately one more than the physical count — do not "fix" it, and if HQ ever
+needs the physical count to match, split skills back across two pages rather
+than editing the .docx text. Every text input still carries a `maxLength` and
+family rows are capped at 8 so no answer can overflow a page. If a page ever
+needs more room, shorten the cap — do not let it grow.
 
 **◎ is Commissioner, ㊣ is Faith Corps.** The form gives each role a parallel
 pair of blocks. `usesCommissionerFields()` decides which pair is filled; the

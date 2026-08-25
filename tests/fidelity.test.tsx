@@ -102,12 +102,12 @@ describe("official form fidelity", () => {
     }
   });
 
-  it("prints the official footer on all eight pages", () => {
+  it("prints the official footer on every page", () => {
     const { container } = render(
       <ApplicationDocument data={createEmptyApplication()} mode="official" />,
     );
     const footers = container.querySelectorAll(".avct-page__footer");
-    expect(footers).toHaveLength(8);
+    expect(footers).toHaveLength(7);
     footers.forEach((footer, index) => {
       const text = normalise(footer.textContent ?? "");
       expect(text).toContain(normalise("佛教慈濟基金會「委員慈誠培訓報名表」2023年2月1日海外版"));

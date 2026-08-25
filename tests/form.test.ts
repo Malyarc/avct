@@ -364,6 +364,7 @@ describe("validation", () => {
     ["skills", { skills: createEmptyApplication().skills }],
     ["communityStart", { communityStart: "" }],
     ["certificationFunctionalGroups", { certificationFunctionalGroups: "" }],
+    ["fundraisingNumber", { fundraisingNumber: "" }],
     ["availability", { availability: [] }],
     ["vestSize", { vestSize: "" }],
     ["beadsSize", { beadsSize: "" }],

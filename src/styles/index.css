@@ -184,7 +184,7 @@ iframe[id^="nl-badge"],
   appearance: none;
   width: 100%;
   /* A 44 px box gives a finger something to land on; the visible track
-     stays 8 px and the browser centres it inside the box. */
+     stays 8 px and the browser centers it inside the box. */
   height: 2.75rem;
   background: transparent;
   cursor: pointer;

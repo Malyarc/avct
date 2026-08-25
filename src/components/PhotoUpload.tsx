@@ -25,7 +25,7 @@ export class PhotoError extends Error {
   override readonly name = "PhotoError";
 }
 
-/** Reads a file into a bitmap, centre-crops to portrait, returns a data URL. */
+/** Reads a file into a bitmap, center-crops to portrait, returns a data URL. */
 /** Codes the caller maps to a localised message. */
 export type PhotoErrorCode = "tooBig" | "notImage" | "unreadable" | "unsupported";
 

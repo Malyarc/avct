@@ -48,7 +48,13 @@ const CERTIFICATION: { text: Phrase; strong?: Phrase }[] = [
   { text: D.guidelines.certification6 },
 ];
 
-const CLASSES = [
+const CLASSES: {
+  year: string;
+  month: number;
+  day: number;
+  inPerson: boolean;
+  closing?: boolean;
+}[] = [
   { year: "2026", month: 9, day: 27, inPerson: true },
   { year: "2026", month: 10, day: 18, inPerson: false },
   { year: "2026", month: 11, day: 15, inPerson: false },
@@ -56,7 +62,7 @@ const CLASSES = [
   { year: "2027", month: 2, day: 21, inPerson: false },
   { year: "2027", month: 4, day: 18, inPerson: false },
   { year: "2027", month: 5, day: 16, inPerson: false },
-  { year: "2027", month: 6, day: 27, inPerson: true },
+  { year: "2027", month: 6, day: 27, inPerson: true, closing: true },
 ];
 
 const EN_MONTHS = [
@@ -74,8 +80,6 @@ const EN_MONTHS = [
   "Dec",
 ];
 
-const PAPER_FORM_URL =
-  "https://docs.google.com/document/d/1OUu_qJcyfOhMHdc8PplMe87w7WD-AoXb/edit?usp=sharing&ouid=112914057863618865457&rtpof=true&sd=true";
 const AUTOBIOGRAPHY_UPLOAD_URL =
   "https://drive.google.com/drive/folders/1S0dKuZ9pDc6kTzV1kFBzhOerJVv2CQ1G?usp=sharing";
 
@@ -128,8 +132,13 @@ export default function Guidelines() {
     return () => observer.disconnect();
   }, []);
 
-  const dateLabel = (entry: (typeof CLASSES)[number]) =>
-    isZh ? `${entry.month} 月 ${entry.day} 日` : `${EN_MONTHS[entry.month - 1]} ${entry.day}`;
+  const dateLabel = (entry: (typeof CLASSES)[number]) => {
+    const base = isZh
+      ? `${entry.month} 月 ${entry.day} 日`
+      : `${EN_MONTHS[entry.month - 1]} ${entry.day}`;
+    if (!entry.closing) return base;
+    return isZh ? `${base}（圓緣）` : `${base} (Closing Ceremony)`;
+  };
 
   return (
     <div className="flex min-h-dvh flex-col bg-paper">
@@ -184,9 +193,6 @@ export default function Guidelines() {
             >
               {s(D.guidelines.title)}
             </h1>
-            <p className="max-w-2xl text-[1.0625rem] leading-relaxed text-muted">
-              {s(D.guidelines.lede)}
-            </p>
           </header>
 
           {/* ── Eligibility ────────────────────────────────────── */}
@@ -227,13 +233,11 @@ export default function Guidelines() {
                 </NumberedItem>
               ))}
               <NumberedItem index={4}>
-                <strong className="font-semibold text-ink">
-                  {s(D.guidelines.registration4Label)}
-                </strong>{" "}
+                {s(D.guidelines.registration4Label)}{" "}
                 {s(D.guidelines.registration4)}
               </NumberedItem>
             </ol>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2">
               <Link
                 to="/apply/track"
                 className="flex min-h-14 items-center gap-2.5 rounded-xl border border-green-300 bg-card px-4 text-[0.84rem] font-semibold text-accent-text no-underline transition-colors hover:bg-accent-soft hover:no-underline"
@@ -241,15 +245,6 @@ export default function Guidelines() {
                 <ArrowRightIcon size={15} />
                 {s(D.guidelines.linkRegistrationForm)}
               </Link>
-              <a
-                href={PAPER_FORM_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex min-h-14 items-center gap-2.5 rounded-xl border border-line bg-card px-4 text-[0.84rem] text-muted no-underline transition-colors hover:border-green-300 hover:no-underline"
-              >
-                <ExternalIcon size={15} />
-                {s(D.guidelines.linkPaperForm)}
-              </a>
               <a
                 href={AUTOBIOGRAPHY_UPLOAD_URL}
                 target="_blank"

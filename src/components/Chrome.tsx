@@ -131,9 +131,6 @@ export function SiteFooter() {
     <footer className="mt-auto border-t border-line-soft">
       <div className="mx-auto flex max-w-[84rem] flex-col gap-2 px-5 py-6 text-[0.78125rem] text-faint sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <span>{s(D.org.footer)}</span>
-        <span lang="zh-Hant" className="font-zh">
-          {D.org.formEdition.zh}
-        </span>
       </div>
     </footer>
   );

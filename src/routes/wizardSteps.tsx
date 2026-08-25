@@ -31,7 +31,7 @@ import {
   WEEKDAYS,
   type Choice,
 } from "../form/catalog";
-import { defaultsFor } from "../form/defaults";
+import { defaultsFor, usesCommissionerFields } from "../form/defaults";
 import {
   createFamilyMember,
   type ApplicationData,
@@ -139,11 +139,6 @@ function Section({
  * 1 — Training track
  * ================================================================== */
 
-const TRACK_BLURBS: Record<string, Phrase> = {
-  commissioner: D.track.commissionerBlurb,
-  faithCorps: D.track.faithCorpsBlurb,
-};
-
 export function TrackStep({ errors }: StepProps): ReactElement {
   const { data, update } = useApplication();
   const tr = useT();
@@ -196,9 +191,6 @@ export function TrackStep({ errors }: StepProps): ReactElement {
               <span className="w-fit rounded-full border border-line bg-paper px-3 py-1 text-[0.75rem] font-semibold text-muted">
                 {format(tr.s(D.track.openTo), audience)}
               </span>
-              <p className="text-[0.875rem] leading-relaxed text-muted">
-                {tr.s(TRACK_BLURBS[track.key])}
-              </p>
             </button>
           );
         })}
@@ -1013,6 +1005,20 @@ export function ExperienceStep({ errors }: StepProps): ReactElement {
         description={D.experience.communityBlurb}
         tr={tr}
       >
+        <Field
+          label={tr.t(
+            usesCommissionerFields(data.track)
+              ? D.experience.fundraisingNumber
+              : D.experience.donatingNumber,
+          )}
+          required
+          error={errors.fundraisingNumber}
+          hint={tr.s(D.experience.numberHint)}
+          className="max-w-xs"
+        >
+          <TextInput {...bind("fundraisingNumber")} maxLength={MAX.medium} />
+        </Field>
+
         <Field
           label={tr.t(D.experience.started)}
           required
