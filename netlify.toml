@@ -18,13 +18,16 @@
   # everything that matters means there is nothing to deploy.
   #
   # $CACHED_COMMIT_REF is the last commit Netlify built successfully, so a push
-  # of several commits at once is compared as a whole. On the very first build
-  # it is unset, git errors, and the build runs — which is the safe default.
+  # of several commits at once is compared as a whole. It is EMPTY on a new
+  # site and whenever the cache is cleared, and an empty ref must mean "build":
+  # left unguarded it collapses to a diff against the working tree, which in a
+  # fresh checkout is clean, returns 0, and would skip the build forever. The
+  # `test -n` guard fails in that case, short-circuits the &&, and builds.
   #
   # To force a skip on a commit this rule would otherwise build, put [skip ci]
   # in the commit message. To force a build, touch any file outside the
   # exclusions.
-  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':(exclude)design' ':(exclude)*.md' ':(exclude).claude' ':(exclude)scripts' ':(exclude).shots'"
+  ignore = "test -n \"$CACHED_COMMIT_REF\" && git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- . ':(exclude)design' ':(exclude)*.md' ':(exclude).claude' ':(exclude)scripts' ':(exclude).shots'"
 
 [build.environment]
   NODE_VERSION = "22"

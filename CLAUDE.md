@@ -6,6 +6,26 @@ Live at https://tzuchi-acvt.netlify.app · repo `Malyarc/avct`.
 Read `README.md` first for what the project is and how to run it. This file is
 the set of things that are easy to break and expensive to get wrong.
 
+## Never push without being asked
+
+**Do all the work first. Push only when John explicitly says to.** Not at every
+turn, not to back work up, not because a change looks worth it. Local commits
+are free; the push is the thing to withhold.
+
+`main` is the Netlify production branch, and Netlify bills a flat **15 credits
+per successful production deploy** against a **300-credit monthly free-plan
+allowance**. Twelve pushes consumed 180 credits — 99% of everything the account
+had spent. That is 20 deploys a month, total, for the whole site.
+
+What is free, per Netlify's docs: **branch deploys and deploy previews (0
+credits)**, failed deploys, and rollbacks. So prefer a working branch — pushing
+there costs nothing — and let John merge to `main` when he wants to publish.
+Whether a build skipped by the `ignore` rule below costs credits is *not*
+documented; do not rely on it.
+
+Read remaining credits at **app.netlify.com → the team → Usage → Credit usage
+breakdown**.
+
 ## Invariants
 
 **The official form is a contract, not a design.** `src/document/` reproduces
@@ -77,23 +97,28 @@ if it goes missing the scripts fail loudly rather than reporting success.
 
 ## Deploys cost money
 
-The site is on Netlify's free tier and **every push to `main` rebuilds it**.
-Build minutes are the scarce resource, so batch work into one push rather than
-committing and pushing each small change.
+Every push to `main` deploys, and every successful production deploy costs 15
+of the 300 monthly credits — see "Never push without being asked" at the top of
+this file, which is the rule that matters. This section is about the secondary
+guard.
 
 `netlify.toml` carries an `ignore` rule that skips the build when a commit
 touched only `design/`, `*.md`, `.claude/` or `scripts/` — none of which the
-deployed site is made of. Two consequences worth knowing:
+deployed site is made of. Three consequences worth knowing:
 
+- Netlify does **not** document whether a skipped build still consumes a deploy
+  credit. Treat the rule as a convenience, never as the reason it is safe to
+  push.
 - A commit that changes only tooling under `scripts/` is **not** type-checked
   by Netlify, even though `tsc -b` covers it. Run the green bar locally, which
   you should be doing anyway.
 - `[skip ci]` in a commit message skips the build outright, for the case the
   rule would build and you know it does not need to.
 
-Check remaining quota at **app.netlify.com → the team → Usage**. Bandwidth,
-build minutes and function invocations each have their own meter and their own
-reset date.
+The `ignore` rule guards against an empty `$CACHED_COMMIT_REF` with a `test -n`
+prefix. Without it the command collapses to a diff against a clean working
+tree, returns 0, and skips **every** build — which would silently freeze the
+site the first time someone cleared the build cache.
 
 ## Known limitations
 
