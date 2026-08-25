@@ -11,6 +11,20 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  # Every push to main rebuilds, and free-tier build minutes are finite. Skip
+  # the build when a commit touched nothing the deployed site is made of: the
+  # design canvas, documentation, the handoff, and local-only tooling under
+  # scripts/. Exit 0 skips the build, exit 1 runs it — so an empty diff over
+  # everything that matters means there is nothing to deploy.
+  #
+  # $CACHED_COMMIT_REF is the last commit Netlify built successfully, so a push
+  # of several commits at once is compared as a whole. On the very first build
+  # it is unset, git errors, and the build runs — which is the safe default.
+  #
+  # To force a skip on a commit this rule would otherwise build, put [skip ci]
+  # in the commit message. To force a build, touch any file outside the
+  # exclusions.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':(exclude)design' ':(exclude)*.md' ':(exclude).claude' ':(exclude)scripts' ':(exclude).shots'"
 
 [build.environment]
   NODE_VERSION = "22"

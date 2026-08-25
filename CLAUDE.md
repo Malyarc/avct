@@ -75,6 +75,26 @@ in that count, so it can gate a commit rather than relying on someone reading
 it. Both audit and shots need `playwright`, which is a declared devDependency;
 if it goes missing the scripts fail loudly rather than reporting success.
 
+## Deploys cost money
+
+The site is on Netlify's free tier and **every push to `main` rebuilds it**.
+Build minutes are the scarce resource, so batch work into one push rather than
+committing and pushing each small change.
+
+`netlify.toml` carries an `ignore` rule that skips the build when a commit
+touched only `design/`, `*.md`, `.claude/` or `scripts/` — none of which the
+deployed site is made of. Two consequences worth knowing:
+
+- A commit that changes only tooling under `scripts/` is **not** type-checked
+  by Netlify, even though `tsc -b` covers it. Run the green bar locally, which
+  you should be doing anyway.
+- `[skip ci]` in a commit message skips the build outright, for the case the
+  rule would build and you know it does not need to.
+
+Check remaining quota at **app.netlify.com → the team → Usage**. Bandwidth,
+build minutes and function invocations each have their own meter and their own
+reset date.
+
 ## Known limitations
 
 - **The PDF is rasterised**, not vector: each page is a 288 dpi JPEG. It prints
