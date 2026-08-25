@@ -4,6 +4,7 @@
  * scans before printing the official form.
  */
 
+import type { ReactNode } from "react";
 import {
   ACTIVITIES,
   BEADS_SIZES,
@@ -18,28 +19,40 @@ import {
   TRACKS,
   VEST_SIZES,
   WEEKDAYS,
-  choiceLabel,
+  choiceLabelIn,
   findChoice,
   type Choice,
 } from "../form/catalog";
 import { defaultsFor } from "../form/defaults";
 import type { ApplicationData, AvailabilitySlot } from "../form/model";
+import { useT, type Translate } from "../i18n/language";
+import { D } from "../i18n/dictionary";
+import type { Phrase } from "../i18n/types";
 
 const EMPTY = "—";
 
-function labelOf(choices: readonly Choice[], key: string, other?: string): string {
+function labelOf(
+  choices: readonly Choice[],
+  key: string,
+  lang: "en" | "zh",
+  other?: string,
+): string {
   const choice = findChoice(choices, key);
   if (!choice) return EMPTY;
-  const label = choiceLabel(choice) || "Other";
+  const label = choiceLabelIn(choice, lang) || "Other";
   return choice.specify && other ? `${label} (${other})` : label;
 }
 
-function listOf(choices: readonly Choice[], keys: readonly string[]): string {
+function listOf(
+  choices: readonly Choice[],
+  keys: readonly string[],
+  lang: "en" | "zh",
+): string {
   if (keys.length === 0) return EMPTY;
-  return keys.map((key) => labelOf(choices, key)).join(", ");
+  return keys.map((key) => labelOf(choices, key, lang)).join(", ");
 }
 
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
+function Row({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="grid grid-cols-[10rem_minmax(0,1fr)] gap-4 border-b border-line-soft py-2.5 last:border-b-0">
       <dt className="text-[0.78125rem] text-faint">{label}</dt>
@@ -48,7 +61,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-function Group({ title, children }: { title: string; children: React.ReactNode }) {
+function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-1">
       <h3 className="mb-1 text-[0.9375rem]">{title}</h3>
@@ -58,6 +71,9 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
 }
 
 export function AdminAnswers({ data }: { data: ApplicationData }) {
+  const tr: Translate = useT();
+  const lang = tr.lang;
+  const L = (phrase: Phrase) => tr.s(phrase);
   const d = defaultsFor(data.track);
   const track = TRACKS.find((candidate) => candidate.key === data.track);
   const availability = new Set<AvailabilitySlot>(data.availability);
@@ -65,77 +81,80 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
   const availabilityText = TIME_SLOTS.map((slot) => {
     const days = WEEKDAYS.filter((day) =>
       availability.has(`${day.key}:${slot.key}` as AvailabilitySlot),
-    ).map((day) => day.short);
-    return days.length ? `${slot.en}: ${days.join(", ")}` : null;
+    ).map((day) => (lang === "zh" ? day.zh : day.short));
+    return days.length ? `${lang === "zh" ? slot.zh : slot.en}: ${days.join(", ")}` : null;
   }).filter(Boolean) as string[];
 
   const skills = SKILL_CATEGORIES.map((category) => {
     const picked = data.skills[category.key];
     if (picked.length === 0) return null;
-    return `${category.en}: ${listOf(category.choices, picked)}`;
+    return `${lang === "zh" ? category.zh : category.en}: ${listOf(category.choices, picked, lang)}`;
   }).filter(Boolean) as string[];
 
   return (
     <div className="flex flex-col gap-6">
-      <Group title="Application">
+      <Group title={L(D.answers.application)}>
         <Row
-          label="Track"
-          value={track ? `${track.zh} ${track.en} (${track.audience})` : EMPTY}
+          label={L(D.answers.track)}
+          value={track ? (lang === "zh" ? track.zh : `${track.zh} ${track.en}`) : EMPTY}
         />
         <Row
           label={
-            data.track === "faithCorps" ? "Donating member no." : "Fundraising no."
+            data.track === "faithCorps" ? L(D.answers.memberNo) : L(D.answers.fundraisingNo)
           }
           value={data.fundraisingNumber}
         />
       </Group>
 
-      <Group title="Personal">
+      <Group title={L(D.answers.personal)}>
         <Row
-          label="Name"
+          label={L(D.answers.name)}
           value={`${data.firstName} ${data.surname}${data.chineseName ? ` · ${data.chineseName}` : ""}`}
         />
-        <Row label="Dharma name" value={d.dharmaName} />
-        <Row label="Email" value={data.email} />
-        <Row label="Birthday" value={data.birthday.replace(/-/g, " / ")} />
-        <Row label="Gender" value={data.gender === "male" ? "男 Male" : "女 Female"} />
+        <Row label={L(D.answers.dharmaName)} value={d.dharmaName} />
+        <Row label={L(D.answers.email)} value={data.email} />
+        <Row label={L(D.answers.birthday)} value={data.birthday.replace(/-/g, " / ")} />
         <Row
-          label="Blood type"
-          value={labelOf(BLOOD_TYPES, data.bloodType, data.bloodTypeOther)}
+          label={L(D.answers.gender)}
+          value={data.gender === "male" ? (lang === "zh" ? "男" : "男 Male") : lang === "zh" ? "女" : "女 Female"}
         />
-        <Row label="ID number" value={data.idNumber} />
         <Row
-          label="Marital status"
-          value={labelOf(MARITAL_STATUSES, data.maritalStatus, data.maritalStatusOther)}
+          label={L(D.answers.bloodType)}
+          value={labelOf(BLOOD_TYPES, data.bloodType, lang, data.bloodTypeOther)}
         />
-        <Row label="Education" value={labelOf(EDUCATION_LEVELS, data.education)} />
-        <Row label="School" value={data.school} />
-        <Row label="Major" value={data.major} />
-        <Row label="Employer" value={data.employer} />
-        <Row label="Position" value={data.position} />
+        <Row label={L(D.answers.idNumber)} value={data.idNumber} />
         <Row
-          label="Emergency contact"
+          label={L(D.answers.maritalStatus)}
+          value={labelOf(MARITAL_STATUSES, data.maritalStatus, lang, data.maritalStatusOther)}
+        />
+        <Row label={L(D.answers.education)} value={labelOf(EDUCATION_LEVELS, data.education, lang)} />
+        <Row label={L(D.answers.school)} value={data.school} />
+        <Row label={L(D.answers.major)} value={data.major} />
+        <Row label={L(D.answers.employer)} value={data.employer} />
+        <Row label={L(D.answers.position)} value={data.position} />
+        <Row
+          label={L(D.answers.emergencyContact)}
           value={`${data.emergencyName}${data.emergencyRelationship ? ` (${data.emergencyRelationship})` : ""} · ${data.emergencyTel}`}
         />
       </Group>
 
-      <Group title="Contact">
-        <Row label="Home address" value={data.homeAddress} />
-        <Row label="Business address" value={data.businessAddress} />
-        <Row label="Mobile" value={data.telMobile} />
-        <Row label="Home phone" value={data.telHome} />
-        <Row label="Company phone" value={data.telCompany} />
-        <Row label="Fax" value={data.telFax} />
+      <Group title={L(D.answers.contact)}>
+        <Row label={L(D.answers.homeAddress)} value={data.homeAddress} />
+        <Row label={L(D.answers.businessAddress)} value={data.businessAddress} />
+        <Row label={L(D.answers.mobile)} value={data.telMobile} />
+        <Row label={L(D.answers.homePhone)} value={data.telHome} />
+        <Row label={L(D.answers.companyPhone)} value={data.telCompany} />
+        <Row label={L(D.answers.fax)} value={data.telFax} />
       </Group>
 
-      <Group title="Family">
+      <Group title={L(D.answers.family)}>
         {data.family.length === 0 ? (
-          <Row label="Members" value="None provided (voluntary section)" />
+          <Row label={L(D.answers.members)} value={L(D.answers.noneProvided)} />
         ) : (
           data.family.map((member, index) => (
             <Row
               key={member.id || index}
-              label={member.relationship || `Member ${index + 1}`}
+              label={member.relationship || `${L(D.answers.members)} ${index + 1}`}
               value={[
                 member.name,
                 member.birthDate,
@@ -151,12 +170,12 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
         )}
       </Group>
 
-      <Group title="Involvement">
+      <Group title={L(D.answers.involvement)}>
         <Row
-          label="Activities"
+          label={L(D.answers.activities)}
           value={
             data.activities.length
-              ? `${listOf(ACTIVITIES, data.activities)}${
+              ? `${listOf(ACTIVITIES, data.activities, lang)}${
                   data.activitiesOther ? ` (${data.activitiesOther})` : ""
                 }`
               : EMPTY
@@ -165,19 +184,19 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
         {MISSIONS.map((mission) => (
           <Row
             key={mission.key}
-            label={mission.en}
+            label={lang === "zh" ? mission.zh : mission.en}
             value={
               mission.key === "medicine" && data.freeClinicProfession
-                ? `${listOf(mission.choices, data.missions[mission.key])} — profession: ${data.freeClinicProfession}`
-                : listOf(mission.choices, data.missions[mission.key])
+                ? `${listOf(mission.choices, data.missions[mission.key], lang)} — ${L(D.answers.profession)}: ${data.freeClinicProfession}`
+                : listOf(mission.choices, data.missions[mission.key], lang)
             }
           />
         ))}
       </Group>
 
-      <Group title="Skills">
+      <Group title={L(D.answers.skills)}>
         {skills.length === 0 ? (
-          <Row label="Skills" value={EMPTY} />
+          <Row label={L(D.answers.skills)} value={EMPTY} />
         ) : (
           skills.map((line) => {
             const [category, rest] = line.split(": ");
@@ -185,23 +204,23 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
           })
         )}
         {data.skillLanguageOther ? (
-          <Row label="Other language" value={data.skillLanguageOther} />
+          <Row label={L(D.answers.otherLanguage)} value={data.skillLanguageOther} />
         ) : null}
         {data.skillMusicInstrument ? (
-          <Row label="Instrument" value={data.skillMusicInstrument} />
+          <Row label={L(D.answers.instrument)} value={data.skillMusicInstrument} />
         ) : null}
         {data.skillTranslationOther ? (
-          <Row label="Other translation" value={data.skillTranslationOther} />
+          <Row label={L(D.answers.otherTranslation)} value={data.skillTranslationOther} />
         ) : null}
         {data.skillOtherSpecify ? (
-          <Row label="Other skill" value={data.skillOtherSpecify} />
+          <Row label={L(D.answers.otherSkill)} value={data.skillOtherSpecify} />
         ) : null}
       </Group>
 
-      <Group title="Experience">
-        <Row label="Community from" value={data.communityStart.replace("-", " / ")} />
+      <Group title={L(D.answers.experience)}>
+        <Row label={L(D.answers.communityFrom)} value={data.communityStart.replace("-", " / ")} />
         <Row
-          label="Areas"
+          label={L(D.answers.areas)}
           value={[
             data.communityAreaHarmony && `和氣 ${data.communityAreaHarmony}`,
             data.communityAreaMutualLove && `互愛 ${data.communityAreaMutualLove}`,
@@ -211,19 +230,19 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
             .join(" · ")}
         />
         <Row
-          label="Recommended by"
+          label={L(D.answers.recommendedBy)}
           value={`${d.communityRecommender.name} · ${d.communityRecommender.badgeNumber}`}
         />
         <Row
-          label="Certification from"
+          label={L(D.answers.certificationFrom)}
           value={d.certificationStart.replace("-", " / ")}
         />
-        <Row label="Functional groups" value={data.certificationFunctionalGroups} />
+        <Row label={L(D.answers.functionalGroups)} value={data.certificationFunctionalGroups} />
       </Group>
 
-      <Group title="Availability & sizing">
+      <Group title={L(D.answers.availabilitySizing)}>
         <Row
-          label="Available"
+          label={L(D.answers.available)}
           value={
             availabilityText.length ? (
               <span className="flex flex-col gap-0.5">
@@ -236,11 +255,11 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
             )
           }
         />
-        <Row label="Vest" value={labelOf(VEST_SIZES, data.vestSize)} />
-        <Row label="Beads" value={labelOf(BEADS_SIZES, data.beadsSize)} />
+        <Row label={L(D.answers.vest)} value={labelOf(VEST_SIZES, data.vestSize, lang)} />
+        <Row label={L(D.answers.beads)} value={labelOf(BEADS_SIZES, data.beadsSize, lang)} />
       </Group>
 
-      <Group title="Self-reflection">
+      <Group title={L(D.answers.selfReflection)}>
         {PRECEPTS.map((precept) => (
           <Row
             key={precept.key}
@@ -251,34 +270,38 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
           />
         ))}
         <Row
-          label="Practical training"
-          value={labelOf(PRACTICAL_DURATIONS, data.practicalDuration)}
+          label={L(D.answers.practicalTraining)}
+          value={labelOf(PRACTICAL_DURATIONS, data.practicalDuration, lang)}
         />
       </Group>
 
-      <Group title="Mentors on file">
-        <Row label="Unity team 合心" value={d.unityTeam} />
-        <Row label="Harmony team 和氣" value={d.harmonyTeam} />
-        <Row label="Mutual love 互愛" value={d.mutualLoveTeam} />
-        <Row label="Concerted effort 協力" value={d.concertedEffortTeam} />
+      <Group title={L(D.answers.mentors)}>
+        <Row label={L(D.answers.unityTeam)} value={d.unityTeam} />
+        <Row label={L(D.answers.harmonyTeam)} value={d.harmonyTeam} />
+        <Row label={L(D.answers.mutualLoveTeam)} value={d.mutualLoveTeam} />
+        <Row label={L(D.answers.concertedTeam)} value={d.concertedEffortTeam} />
         <Row
-          label={data.track === "faithCorps" ? "Recommending person" : "Commissioner mentor"}
+          label={
+            data.track === "faithCorps"
+              ? L(D.answers.recommendingPerson)
+              : L(D.answers.commissionerMentor)
+          }
           value={`${d.directMentor.name} · ${d.directMentor.badgeNumber} · ${d.directMentor.tel}`}
         />
         <Row
-          label="Mutual love mentor"
+          label={L(D.answers.mutualLoveMentor)}
           value={`${d.mutualLoveMentor.name} · ${d.mutualLoveMentor.badgeNumber}`}
         />
-        <Row label="Team leader 協力組隊長" value={d.concertedEffortTeamLeader.name} />
+        <Row label={L(D.answers.teamLeader)} value={d.concertedEffortTeamLeader.name} />
       </Group>
 
-      <Group title="Consent">
-        <Row label="Agreed" value={data.consent ? "Yes" : "No"} />
+      <Group title={L(D.answers.consent)}>
+        <Row label={L(D.answers.agreed)} value={data.consent ? L(D.answers.yes) : L(D.answers.no)} />
         <Row
-          label="Signed at"
+          label={L(D.answers.signedAt)}
           value={
             data.signedAt
-              ? new Date(data.signedAt).toLocaleString(undefined, {
+              ? new Date(data.signedAt).toLocaleString(lang === "zh" ? "zh-Hant" : undefined, {
                   dateStyle: "long",
                   timeStyle: "short",
                 })

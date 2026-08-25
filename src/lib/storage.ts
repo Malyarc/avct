@@ -12,9 +12,6 @@ import type { ApplicationData } from "../form/model";
 import { normalizeApplication } from "../form/normalize";
 
 const DRAFT_KEY = "avct.draft.v1";
-const THEME_KEY = "avct.theme";
-
-export type ThemeChoice = "light" | "dark" | "system";
 
 function safeLocalStorage(): Storage | null {
   try {
@@ -55,16 +52,4 @@ export function saveDraft(data: ApplicationData): boolean {
 
 export function clearDraft(): void {
   safeLocalStorage()?.removeItem(DRAFT_KEY);
-}
-
-export function loadTheme(): ThemeChoice {
-  const stored = safeLocalStorage()?.getItem(THEME_KEY);
-  return stored === "dark" || stored === "light" ? stored : "system";
-}
-
-export function saveTheme(theme: ThemeChoice): void {
-  const store = safeLocalStorage();
-  if (!store) return;
-  if (theme === "system") store.removeItem(THEME_KEY);
-  else store.setItem(THEME_KEY, theme);
 }

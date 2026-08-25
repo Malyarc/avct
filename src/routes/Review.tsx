@@ -16,7 +16,10 @@ import { rememberSubmission } from "../lib/submission";
 import { clearDraft } from "../lib/storage";
 import { DocumentViewer } from "../components/DocumentViewer";
 import { SignaturePad } from "../components/SignaturePad";
-import { BrandLockup, ThemeToggle } from "../components/Chrome";
+import { BrandLockup, LanguageToggle } from "../components/Chrome";
+import { useT } from "../i18n/language";
+import { D, format } from "../i18n/dictionary";
+import type { Phrase } from "../i18n/types";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -28,26 +31,27 @@ import {
 } from "../components/ui";
 
 /** Which wizard step to jump to for each printed section of the form. */
-const JUMP_TARGETS: { label: string; stepId: string }[] = [
-  { label: "1 Track", stepId: "track" },
-  { label: "6 Personal", stepId: "personal" },
-  { label: "7 Contact", stepId: "contact" },
-  { label: "8 Family", stepId: "family" },
-  { label: "9–10 Involvement", stepId: "involvement" },
-  { label: "11 Skills", stepId: "skills" },
-  { label: "12 Experience", stepId: "experience" },
-  { label: "13–14 Availability", stepId: "availability" },
-  { label: "15–16 Reflection", stepId: "reflection" },
+const JUMP_TARGETS: { label: Phrase; stepId: string }[] = [
+  { label: D.review.jumpTrack, stepId: "track" },
+  { label: D.review.jumpPersonal, stepId: "personal" },
+  { label: D.review.jumpContact, stepId: "contact" },
+  { label: D.review.jumpFamily, stepId: "family" },
+  { label: D.review.jumpInvolvement, stepId: "involvement" },
+  { label: D.review.jumpSkills, stepId: "skills" },
+  { label: D.review.jumpExperience, stepId: "experience" },
+  { label: D.review.jumpAvailability, stepId: "availability" },
+  { label: D.review.jumpReflection, stepId: "reflection" },
 ];
 
 export default function Review() {
   const navigate = useNavigate();
   const { data, set, markAttempted } = useApplication();
+  const { s } = useT();
   const documentRef = useRef<HTMLDivElement>(null);
 
   const [confirmed, setConfirmed] = useState(data.consent);
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<Phrase | null>(null);
   const [showGate, setShowGate] = useState(false);
 
   const incompleteIndex = useMemo(() => firstIncompleteStep(data), [data]);
@@ -60,12 +64,9 @@ export default function Review() {
         if (Object.keys(step.validate(data)).length > 0) markAttempted(step.id);
       });
     }
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     // Only on mount: later edits are handled by the wizard itself.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, []);
 
   const canSubmit = complete && confirmed && Boolean(data.signature) && !submitting;
@@ -103,14 +104,13 @@ export default function Review() {
       <div className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-paper px-6 py-16 text-center">
         <DocumentIcon size={34} className="text-faint" />
         <div className="flex max-w-md flex-col gap-2">
-          <h1 className="text-[1.75rem]">Almost there</h1>
+          <h1 className="text-[1.75rem]">{s(D.review.almostThere)}</h1>
           <p className="text-[1rem] leading-relaxed text-muted">
-            A few answers on <strong className="font-semibold text-ink">{step.title}</strong>{" "}
-            still need filling in before we can build your form.
+            {format(s(D.review.incomplete), s(step.title))}
           </p>
         </div>
         <Button onClick={() => navigate(`/apply/${step.id}`)}>
-          Go to {step.title}
+          {format(s(D.review.goToStep), s(step.title))}
           <ArrowRightIcon size={15} />
         </Button>
       </div>
@@ -118,33 +118,33 @@ export default function Review() {
   }
 
   const gateMessage = !confirmed
-    ? "Please confirm the form is correct."
+    ? s(D.review.confirmFirst)
     : !data.signature
-      ? "Please sign in the box above."
+      ? s(D.review.signFirst)
       : null;
 
   return (
     <div className="flex min-h-dvh flex-col bg-sunken">
       <header className="sticky top-0 z-40 border-b border-line bg-card">
         <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex min-w-0 items-center gap-4">
-            <Link to="/" className="no-underline hover:no-underline">
-              <BrandLockup subtitle="Review your application" compact />
-            </Link>
-          </div>
+          <Link to="/" className="min-w-0 no-underline hover:no-underline">
+            <BrandLockup subtitle={s(D.review.header)} compact />
+          </Link>
           <div className="flex items-center gap-2 sm:gap-3">
-            <span className="hidden text-[0.78125rem] text-faint md:inline">
-              Nothing is sent until you press Submit
+            <span className="hidden text-[0.78125rem] text-faint xl:inline">
+              {s(D.review.notSentYet)}
             </span>
-            <ThemeToggle />
+            <LanguageToggle />
             <Button
               variant="secondary"
               size="sm"
               onClick={() => navigate(`/apply/${STEPS[STEPS.length - 1].id}`)}
             >
               <ArrowLeftIcon size={14} />
-              <span className="hidden sm:inline">Back to Step {STEPS.length}</span>
-              <span className="sm:hidden">Back</span>
+              <span className="hidden sm:inline">
+                {format(s(D.review.backToStep), STEPS.length)}
+              </span>
+              <span className="sm:hidden">{s(D.action.back)}</span>
             </Button>
           </div>
         </div>
@@ -160,8 +160,8 @@ export default function Review() {
             toolbarExtra={
               <span className="flex items-center gap-2 text-[0.8125rem] text-muted">
                 <DocumentIcon size={15} className="text-accent-text" />
-                Official form, filled from your answers ·{" "}
-                <strong className="font-semibold text-ink">8 pages</strong>
+                {s(D.review.officialForm)} ·{" "}
+                <strong className="font-semibold text-ink">{s(D.review.pages)}</strong>
               </span>
             }
           />
@@ -170,33 +170,29 @@ export default function Review() {
         {/* ── Confirm & sign ───────────────────────────────────── */}
         <aside className="flex flex-col gap-6 border-line bg-card px-5 py-7 sm:px-7 xl:border-l">
           <div className="flex flex-col gap-2.5">
-            <h1 className="text-[1.5rem]">Confirm &amp; sign</h1>
-            <p className="text-[0.9rem] leading-relaxed text-muted">
-              Read the form through. If anything is wrong, jump to the step, fix it, and come
-              straight back here.
-            </p>
+            <h1 className="text-[1.5rem]">{s(D.review.title)}</h1>
+            <p className="text-[0.9rem] leading-relaxed text-muted">{s(D.review.blurb)}</p>
           </div>
 
           <div className="flex flex-col gap-2 rounded-xl border border-line p-2.5">
-            <span className="eyebrow px-1.5 pt-1 text-faint">Jump to a section</span>
+            <span className="eyebrow px-1.5 pt-1 text-faint">{s(D.review.jumpTo)}</span>
             <div className="flex flex-wrap gap-1.5">
               {JUMP_TARGETS.map((target) => (
                 <Link
-                  key={target.label}
+                  key={target.stepId}
                   to={`/apply/${target.stepId}`}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-line px-2.5 py-1.5 text-[0.75rem] text-muted no-underline transition-colors hover:border-green-300 hover:bg-accent-soft hover:text-accent-text hover:no-underline"
                 >
                   <PencilIcon size={11} className="opacity-60" />
-                  {target.label}
+                  {s(target.label)}
                 </Link>
               ))}
             </div>
           </div>
 
           <Callout tone="info">
-            Section <strong className="font-semibold text-ink">(17) Mentor Signatures</strong>{" "}
-            is not shown here — the Talent Cultivation Team completes it by hand. It is
-            included, blank, in your PDF.
+            <strong className="font-semibold text-ink">{s(D.review.section17Label)}</strong>{" "}
+            {s(D.review.section17Notice)}
           </Callout>
 
           <div className="h-px bg-line-soft" />
@@ -221,7 +217,7 @@ export default function Review() {
             <span
               aria-hidden="true"
               className={`mt-0.5 flex size-5 flex-none items-center justify-center rounded-md border transition-colors ${
-                confirmed ? "border-accent bg-accent text-white dark:text-green-950" : "border-line bg-card"
+                confirmed ? "border-accent bg-accent text-white" : "border-line bg-card"
               }`}
             >
               {confirmed ? <CheckIcon size={12} /> : null}
@@ -231,21 +227,17 @@ export default function Review() {
                 confirmed ? "text-accent-text" : "text-muted"
               }`}
             >
-              I have read the completed form and confirm it is correct. I agree for the above
-              personal information to be used for contact whenever needed for Tzu Chi-related
-              activities, volunteer team operations, and development of volunteer services.
+              {s(D.review.consent)}
             </span>
           </button>
 
           <div className="flex flex-col gap-2">
-            <div className="flex items-baseline justify-between">
-              <span className="text-[0.8125rem] font-semibold text-ink">
-                Your signature{" "}
-                <span className="text-rose-ink" aria-hidden="true">
-                  *
-                </span>
+            <span className="text-[0.8125rem] font-semibold text-ink">
+              {s(D.review.signature)}{" "}
+              <span className="text-rose-ink" aria-hidden="true">
+                *
               </span>
-            </div>
+            </span>
             <SignaturePad
               value={data.signature}
               onChange={(signature) => set("signature", signature)}
@@ -253,17 +245,17 @@ export default function Review() {
             />
           </div>
 
-          {submitError ? <Callout tone="error">{submitError}</Callout> : null}
+          {submitError ? <Callout tone="error">{s(submitError)}</Callout> : null}
           {showGate && gateMessage && !submitError ? (
             <Callout tone="notice">{gateMessage}</Callout>
           ) : null}
 
           <Button size="lg" busy={submitting} onClick={() => void submit()} className="w-full">
-            {submitting ? "Sending your application…" : "Submit application"}
+            {submitting ? s(D.action.submitting) : s(D.action.submit)}
             {submitting ? null : <ArrowRightIcon size={16} />}
           </Button>
           <p className="-mt-3 text-center text-[0.75rem] text-faint">
-            You will be able to download a signed PDF straight after.
+            {s(D.review.afterSubmit)}
           </p>
         </aside>
       </div>

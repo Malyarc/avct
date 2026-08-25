@@ -7,15 +7,20 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { adminLogin, adminSession } from "../lib/api";
+import { LanguageToggle } from "../components/Chrome";
+import { useT } from "../i18n/language";
+import { D } from "../i18n/dictionary";
+import type { Phrase } from "../i18n/types";
 import { AdminDashboard } from "./AdminDashboard";
 import { ArrowRightIcon, Button, Callout, LockIcon, SpinnerIcon } from "../components/ui";
 
 type Phase = "checking" | "signedOut" | "signedIn";
 
 export default function Admin() {
+  const { s: str } = useT();
   const [phase, setPhase] = useState<Phase>("checking");
   const [code, setCode] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Phrase | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -32,7 +37,7 @@ export default function Admin() {
 
   const signIn = useCallback(async () => {
     if (!code.trim()) {
-      setError("Enter the access code.");
+      setError(D.admin.accessCodeMissing);
       return;
     }
     setBusy(true);
@@ -52,7 +57,7 @@ export default function Admin() {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-green-950 text-white">
         <SpinnerIcon size={26} />
-        <span className="sr-only-focusable">Checking your session…</span>
+        <span className="sr-only-focusable">{str(D.admin.checkingSession)}</span>
       </div>
     );
   }
@@ -76,6 +81,10 @@ export default function Admin() {
         id="main"
         className="relative flex w-full max-w-[26rem] flex-col gap-7"
       >
+        <div className="absolute right-0 top-0 -translate-y-14">
+          <LanguageToggle tone="dark" />
+        </div>
+
         <div className="flex flex-col items-center gap-3.5 text-center">
           <img
             src="/brand/tzuchi-lotus.png"
@@ -85,9 +94,9 @@ export default function Admin() {
             height={312}
           />
           <div className="flex flex-col gap-1.5">
-            <h1 className="text-[1.6875rem] text-white">AVCT Admin</h1>
+            <h1 className="text-[1.6875rem] text-white">{str(D.admin.title)}</h1>
             <p className="text-[0.875rem] leading-relaxed text-green-200/80">
-              Talent Cultivation Department · Internal access only
+              {str(D.admin.internalOnly)}
             </p>
           </div>
         </div>
@@ -104,7 +113,7 @@ export default function Admin() {
               htmlFor="admin-code"
               className="text-[0.8125rem] font-semibold text-green-100"
             >
-              Access code
+              {str(D.admin.accessCode)}
             </label>
             <input
               id="admin-code"
@@ -125,28 +134,27 @@ export default function Admin() {
 
           {error ? (
             <Callout tone="error" className="border-rose-line/40 bg-rose-ink/15 text-rose-100">
-              <span id="admin-code-error">{error}</span>
+              <span id="admin-code-error">{str(error)}</span>
             </Callout>
           ) : null}
 
           <Button
             type="submit"
             busy={busy}
-            className="w-full bg-leaf text-green-950 hover:bg-leaf/90 dark:text-green-950"
+            className="w-full bg-leaf text-green-950 hover:bg-leaf/90"
           >
-            Sign in
+            {str(D.action.signIn)}
             {busy ? null : <ArrowRightIcon size={16} />}
           </Button>
 
           <p className="mt-1 flex items-start gap-2.5 border-t border-white/10 pt-4 text-[0.78125rem] leading-relaxed text-green-200/70">
             <LockIcon size={15} className="mt-0.5 flex-none" />
-            This page is reachable by direct link only. It is never linked from the applicant
-            site.
+            {str(D.admin.directLinkOnly)}
           </p>
         </form>
 
         <p className="text-center text-[0.78125rem] text-green-200/50">
-          Buddhist Tzu Chi Foundation · National Headquarters
+          {str(D.org.foundation)} · {str(D.org.headquarters)}
         </p>
       </main>
     </div>

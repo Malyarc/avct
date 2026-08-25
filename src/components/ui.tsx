@@ -13,7 +13,10 @@ import {
   type TextareaHTMLAttributes,
 } from "react";
 import type { Choice } from "../form/catalog";
-import { choiceLabel } from "../form/catalog";
+import { choiceLabelIn } from "../form/catalog";
+import { useT } from "../i18n/language";
+import type { Phrase } from "../i18n/types";
+import { D } from "../i18n/dictionary";
 
 /* ------------------------------------------------------------------ *
  * Icons — stroked, 24-grid, one family
@@ -213,9 +216,7 @@ const BUTTON_BASE =
   "disabled:cursor-not-allowed disabled:opacity-55 active:translate-y-px select-none";
 
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-  primary:
-    "bg-accent text-white shadow-raised hover:bg-accent-hover disabled:hover:bg-accent " +
-    "dark:text-green-950",
+  primary: "bg-accent text-white shadow-raised hover:bg-accent-hover disabled:hover:bg-accent",
   secondary:
     "border border-line bg-card text-ink hover:border-accent-soft-line hover:bg-accent-soft",
   ghost: "text-muted hover:text-ink hover:bg-accent-soft",
@@ -276,7 +277,7 @@ export function useFieldContext(): FieldContextValue | null {
 export interface FieldProps {
   label: ReactNode;
   hint?: ReactNode;
-  error?: string;
+  error?: Phrase;
   required?: boolean;
   optional?: boolean;
   children: ReactNode;
@@ -295,6 +296,7 @@ export function Field({
   className = "",
   asGroup = false,
 }: FieldProps) {
+  const { t, s: str } = useT();
   const base = useId();
   const inputId = `${base}-input`;
   const hintId = hint ? `${base}-hint` : undefined;
@@ -311,7 +313,7 @@ export function Field({
       ) : null}
       {optional ? (
         <span className="rounded border border-line px-1.5 py-px text-[0.6875rem] font-medium text-faint">
-          optional
+          {str(D.field.optional)}
         </span>
       ) : null}
     </span>
@@ -331,7 +333,7 @@ export function Field({
           className="flex items-center gap-1.5 text-[0.78125rem] text-rose-ink"
         >
           <AlertIcon size={13} />
-          {error}
+          {t(error)}
         </span>
       ) : null}
       {hint ? (
@@ -417,14 +419,15 @@ export function TextArea({
 }
 
 /** A small pill button that fills a field with a fixed value. */
-export function QuickFill({ onClick, label = "N/A" }: { onClick: () => void; label?: string }) {
+export function QuickFill({ onClick, label }: { onClick: () => void; label?: string }) {
+  const { s: str } = useT();
   return (
     <button
       type="button"
       onClick={onClick}
-      className="rounded-md border border-accent-soft-line bg-accent-soft px-2.5 py-1 text-[0.72rem] font-semibold text-accent-text transition-colors hover:bg-green-100 dark:hover:bg-green-900"
+      className="rounded-md border border-accent-soft-line bg-accent-soft px-2.5 py-1 text-[0.72rem] font-semibold text-accent-text transition-colors hover:bg-green-100"
     >
-      {label}
+      {label ?? str(D.field.notApplicable)}
     </button>
   );
 }
@@ -438,15 +441,17 @@ export function PillGroup({
   value,
   onChange,
   name,
-  labelFor = choiceLabel,
+  labelFor,
 }: {
   choices: readonly Choice[];
   value: string;
   onChange: (key: string) => void;
   name: string;
-  labelFor?: (choice: Choice) => string;
+  labelFor?: (choice: Choice, lang: "en" | "zh") => string;
 }) {
   const field = useFieldContext();
+  const { lang } = useT();
+  const label = labelFor ?? ((choice: Choice) => choiceLabelIn(choice, lang));
   return (
     <div
       role="radiogroup"
@@ -466,13 +471,13 @@ export function PillGroup({
             onClick={() => onChange(choice.key)}
             className={`min-h-11 rounded-full border px-4 text-[0.9rem] transition-colors duration-150 ${
               selected
-                ? "border-accent bg-accent font-semibold text-white dark:text-green-950"
+                ? "border-accent bg-accent font-semibold text-white"
                 : field?.invalid
                   ? "border-rose-line bg-rose-bg text-muted hover:border-rose-ink"
                   : "border-line bg-card text-muted hover:border-green-300 hover:text-ink"
             }`}
           >
-            {labelFor(choice)}
+            {label(choice, lang)}
           </button>
         );
       })}
@@ -510,7 +515,7 @@ export function CheckOption({
       <span
         aria-hidden="true"
         className={`flex size-[1.0625rem] flex-none items-center justify-center rounded-[5px] border transition-colors ${
-          checked ? "border-accent bg-accent text-white dark:text-green-950" : "border-line bg-card"
+          checked ? "border-accent bg-accent text-white" : "border-line bg-card"
         }`}
       >
         {checked ? <CheckIcon size={10} /> : null}
@@ -533,6 +538,7 @@ export function CheckGroup({
 }) {
   const set = new Set(selected);
   const field = useFieldContext();
+  const { lang, s: str } = useT();
   return (
     <div
       role="group"
@@ -546,7 +552,7 @@ export function CheckGroup({
           checked={set.has(choice.key)}
           onToggle={() => onToggle(choice.key)}
         >
-          {choiceLabel(choice) || "Other"}
+          {choiceLabelIn(choice, lang) || str(D.involvement.activitiesOther)}
         </CheckOption>
       ))}
     </div>

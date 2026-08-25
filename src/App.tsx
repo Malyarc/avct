@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ApplicationProvider } from "./form/ApplicationContext";
+import { LanguageProvider } from "./i18n/language";
 import { SpinnerIcon } from "./components/ui";
 import Landing from "./routes/Landing";
 import Apply from "./routes/Apply";
@@ -25,20 +26,22 @@ function RouteFallback() {
 export default function App() {
   return (
     <BrowserRouter>
-      <ApplicationProvider>
-        <Suspense fallback={<RouteFallback />}>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/apply" element={<Navigate to="/apply/track" replace />} />
-            <Route path="/apply/review" element={<Review />} />
-            <Route path="/apply/:stepId" element={<Apply />} />
-            <Route path="/submitted" element={<Submitted />} />
-            <Route path="/guidelines" element={<Guidelines />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </ApplicationProvider>
+      <LanguageProvider>
+        <ApplicationProvider>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/apply" element={<Navigate to="/apply/track" replace />} />
+              <Route path="/apply/review" element={<Review />} />
+              <Route path="/apply/:stepId" element={<Apply />} />
+              <Route path="/submitted" element={<Submitted />} />
+              <Route path="/guidelines" element={<Guidelines />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </ApplicationProvider>
+      </LanguageProvider>
     </BrowserRouter>
   );
 }

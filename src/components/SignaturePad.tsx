@@ -16,6 +16,8 @@ import {
   type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from "react";
+import { useT } from "../i18n/language";
+import { D } from "../i18n/dictionary";
 
 const STROKE_COLOR = "#0a3f8f";
 const STROKE_WIDTH = 2.6;
@@ -37,7 +39,7 @@ export function SignaturePad({
   value,
   invalid,
   handleRef,
-  label = "Sign here with your mouse, trackpad or finger",
+  label,
 }: {
   onChange: (dataUrl: string | null) => void;
   value: string | null;
@@ -45,6 +47,8 @@ export function SignaturePad({
   handleRef?: RefObject<SignaturePadHandle | null>;
   label?: string;
 }) {
+  const { s: str } = useT();
+  const hint = label ?? str(D.review.signHere);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const strokes = useRef<Point[][]>([]);
   const current = useRef<Point[]>([]);
@@ -222,7 +226,7 @@ export function SignaturePad({
           onPointerUp={end}
           onPointerCancel={end}
           onPointerLeave={end}
-          aria-label={label}
+          aria-label={hint}
           role="img"
           className="absolute inset-0 size-full cursor-crosshair touch-none"
         />
@@ -235,13 +239,13 @@ export function SignaturePad({
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-6 bottom-2.5 text-[0.6875rem] text-faint"
           >
-            <span className="font-zh">同意人簽名</span> · {label}
+  <span lang="zh-Hant" className="font-zh">同意人簽名</span> · {hint}
           </div>
         ) : null}
       </div>
       <div className="flex items-center justify-between">
         <span className="text-[0.78125rem] text-faint">
-          {hasInk ? "Signature captured." : "Draw your signature above."}
+          {hasInk ? str(D.review.signatureCaptured) : str(D.review.signaturePrompt)}
         </span>
         <button
           type="button"
@@ -249,7 +253,7 @@ export function SignaturePad({
           disabled={!hasInk}
           className="rounded-lg px-2 py-1 text-[0.8125rem] font-semibold text-accent-text transition-opacity disabled:opacity-40"
         >
-          Clear
+          {str(D.action.clear)}
         </button>
       </div>
     </div>

@@ -10,6 +10,8 @@
 
 import { useCallback, useId, useRef, useState } from "react";
 import { AlertIcon, ImageIcon, TrashIcon } from "./ui";
+import { useT } from "../i18n/language";
+import { D } from "../i18n/dictionary";
 
 const TARGET_WIDTH = 640;
 const TARGET_ASPECT = 2 / 2.6;
@@ -24,12 +26,13 @@ export class PhotoError extends Error {
 }
 
 /** Reads a file into a bitmap, centre-crops to portrait, returns a data URL. */
+/** Codes the caller maps to a localised message. */
+export type PhotoErrorCode = "tooBig" | "notImage" | "unreadable" | "unsupported";
+
 export async function processPhoto(file: File): Promise<string> {
-  if (file.size > MAX_INPUT_BYTES) {
-    throw new PhotoError("That image is over 25 MB. Please choose a smaller photo.");
-  }
+  if (file.size > MAX_INPUT_BYTES) throw new PhotoError("tooBig");
   if (file.type && !ACCEPTED.includes(file.type) && !file.type.startsWith("image/")) {
-    throw new PhotoError("Please choose an image file (JPG, PNG or HEIC).");
+    throw new PhotoError("notImage");
   }
 
   const url = URL.createObjectURL(file);
@@ -38,14 +41,12 @@ export async function processPhoto(file: File): Promise<string> {
       const element = new Image();
       element.onload = () => resolve(element);
       element.onerror = () =>
-        reject(new PhotoError("That image could not be read. Please try another file."));
+        reject(new PhotoError("unreadable"));
       element.src = url;
     });
 
     const source = { width: image.naturalWidth, height: image.naturalHeight };
-    if (!source.width || !source.height) {
-      throw new PhotoError("That image could not be read. Please try another file.");
-    }
+    if (!source.width || !source.height) throw new PhotoError("unreadable");
 
     // Centre-crop the source to the portrait aspect the form prints at.
     const sourceAspect = source.width / source.height;
@@ -65,7 +66,7 @@ export async function processPhoto(file: File): Promise<string> {
     canvas.width = TARGET_WIDTH;
     canvas.height = TARGET_HEIGHT;
     const context = canvas.getContext("2d");
-    if (!context) throw new PhotoError("Your browser could not process the image.");
+    if (!context) throw new PhotoError("unsupported");
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.imageSmoothingQuality = "high";
@@ -86,6 +87,7 @@ export function PhotoUpload({
   onChange: (dataUrl: string | null) => void;
   invalid?: boolean;
 }) {
+  const { s: str } = useT();
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -100,17 +102,20 @@ export function PhotoUpload({
       try {
         onChange(await processPhoto(file));
       } catch (cause) {
-        setError(
-          cause instanceof PhotoError
-            ? cause.message
-            : "That image could not be processed. Please try another file.",
-        );
+        const code = cause instanceof PhotoError ? cause.message : "unreadable";
+        const messages = {
+          tooBig: D.personal.photoTooBig,
+          notImage: D.personal.photoNotImage,
+          unreadable: D.personal.photoUnreadable,
+          unsupported: D.personal.photoUnsupported,
+        } as const;
+        setError(str(messages[code as keyof typeof messages] ?? D.personal.photoUnreadable));
       } finally {
         setBusy(false);
         if (inputRef.current) inputRef.current.value = "";
       }
     },
-    [onChange],
+    [onChange, str],
   );
 
   return (
@@ -128,7 +133,7 @@ export function PhotoUpload({
         <div className="flex flex-col gap-2.5 rounded-2xl border border-green-300 bg-card p-3.5 shadow-card">
           <img
             src={value}
-            alt="Your uploaded headshot"
+            alt={str(D.personal.photoUploaded)}
             className="aspect-[2/2.6] w-full rounded-lg object-cover"
           />
           <div className="flex gap-2">
@@ -136,7 +141,7 @@ export function PhotoUpload({
               htmlFor={inputId}
               className="flex min-h-10 flex-1 cursor-pointer items-center justify-center rounded-lg border border-line text-[0.8125rem] font-semibold text-muted transition-colors hover:border-green-300 hover:text-ink"
             >
-              {busy ? "Working…" : "Replace"}
+              {busy ? str(D.action.preparing) : str(D.personal.photoReplace)}
             </label>
             <button
               type="button"
@@ -144,7 +149,7 @@ export function PhotoUpload({
                 onChange(null);
                 setError(null);
               }}
-              aria-label="Remove photo"
+              aria-label={str(D.personal.photoRemove)}
               className="flex min-h-10 w-11 items-center justify-center rounded-lg border border-line text-rose-ink transition-colors hover:border-rose-line hover:bg-rose-bg"
             >
               <TrashIcon size={15} />
@@ -176,10 +181,10 @@ export function PhotoUpload({
             <ImageIcon size={19} />
           </span>
           <span className="text-[0.8125rem] font-semibold text-ink">
-            {busy ? "Processing…" : "Add your photo"}
+            {busy ? str(D.personal.photoProcessing) : str(D.personal.photoAdd)}
           </span>
           <span className="text-[0.75rem] leading-snug text-faint">
-            Tap to choose, or drop an image here
+            {str(D.personal.photoDrop)}
           </span>
         </label>
       )}

@@ -2,72 +2,76 @@
  * Program guidelines — the Talent Cultivation Department's AVCT standards
  * document, set as a readable web page. Content is transcribed from
  * "[DRAFT] Advanced Certification Training Guidelines for TCCA (Tzu Ching)
- * Alumni".
+ * Alumni" and translated in `i18n/dictionary.ts`.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { SiteFooter, SiteHeader, SkipLink } from "../components/Chrome";
+import { useT } from "../i18n/language";
+import { D } from "../i18n/dictionary";
+import type { Phrase } from "../i18n/types";
 import { ArrowRightIcon, ExternalIcon, MailIcon } from "../components/ui";
 
-const SECTIONS = [
-  { id: "eligibility", label: "Eligibility" },
-  { id: "registration", label: "Registration" },
-  { id: "schedule", label: "Class schedule" },
-  { id: "certification", label: "Certification eligibility" },
-  { id: "contact", label: "Contact" },
-] as const;
+const SECTIONS: { id: string; label: Phrase }[] = [
+  { id: "eligibility", label: D.guidelines.navEligibility },
+  { id: "registration", label: D.guidelines.navRegistration },
+  { id: "schedule", label: D.guidelines.navSchedule },
+  { id: "certification", label: D.guidelines.navCertification },
+  { id: "contact", label: D.guidelines.navContact },
+];
 
-const ELIGIBILITY = [
-  "Served as a TCCA (Tzu Ching) officer or cadre and was issued the TCCA (Tzu Ching) uniform while participating in a TCCA (Tzu Ching) club at a U.S. university.",
-  "Participated as a student or as staff in a national or overseas TCCA (Tzu Ching) Retreat or Conference at least two (2) times.",
-  "As a TCCA (Tzu Ching) alumnus or alumna after graduation, served at least once as staff for a chapter, national, or overseas TCCA (Tzu Ching) Retreat or Conference.",
+const ELIGIBILITY: Phrase[] = [
+  D.guidelines.eligibility1,
+  D.guidelines.eligibility2,
+  D.guidelines.eligibility3,
+];
+
+const REGISTRATION: Phrase[] = [
+  D.guidelines.registration1,
+  D.guidelines.registration2,
+  D.guidelines.registration3,
+];
+
+const CLASS_NOTES: Phrase[] = [
+  D.guidelines.classNote1,
+  D.guidelines.classNote2,
+  D.guidelines.classNote3,
+];
+
+const CERTIFICATION: { text: Phrase; strong?: Phrase }[] = [
+  { text: D.guidelines.certification1, strong: D.guidelines.certification1Strong },
+  { text: D.guidelines.certification2, strong: D.guidelines.certification2Strong },
+  { text: D.guidelines.certification3 },
+  { text: D.guidelines.certification4, strong: D.guidelines.certification4Strong },
+  { text: D.guidelines.certification5 },
+  { text: D.guidelines.certification6 },
 ];
 
 const CLASSES = [
-  { year: "2026", date: "Sept 27", where: "In person · Headquarters", highlight: true },
-  { year: "2026", date: "Oct 18", where: "Zoom, local centre" },
-  { year: "2026", date: "Nov 15", where: "Zoom, local centre" },
-  { year: "2027", date: "Jan 17", where: "Zoom, local centre" },
-  { year: "2027", date: "Feb 21", where: "Zoom, local centre" },
-  { year: "2027", date: "Apr 18", where: "Zoom, local centre" },
-  { year: "2027", date: "May 16", where: "Zoom, local centre" },
-  { year: "2027", date: "Jun 27", where: "In person · Headquarters", highlight: true },
+  { year: "2026", month: 9, day: 27, inPerson: true },
+  { year: "2026", month: 10, day: 18, inPerson: false },
+  { year: "2026", month: 11, day: 15, inPerson: false },
+  { year: "2027", month: 1, day: 17, inPerson: false },
+  { year: "2027", month: 2, day: 21, inPerson: false },
+  { year: "2027", month: 4, day: 18, inPerson: false },
+  { year: "2027", month: 5, day: 16, inPerson: false },
+  { year: "2027", month: 6, day: 27, inPerson: true },
 ];
 
-const CERTIFICATION: { text: string; strong?: string }[] = [
-  {
-    text: "Complete at least 80% of the AVCT courses (6 sessions in English). In-person attendance at the Closing Ceremony is mandatory.",
-    strong: "80% of the AVCT courses",
-  },
-  {
-    text: "Actively engage in the Tzu Chi Four Missions and Eight Footprints (四大八法); complete at least 300 hours of volunteer service.",
-    strong: "300 hours",
-  },
-  {
-    text: "Report your volunteer hours to your designated Concerted Effort Team Leader by the end of each month.",
-  },
-  {
-    text: "Cultivate at least 20 donor households (not including yourself) through fundraising. Redeem your fundraising and donation record book from the Finance Department at your local region.",
-    strong: "20 donor households",
-  },
-  { text: "Complete the Training Handbook." },
-  {
-    text: "Hold Right Understanding and Right View (正知正見), and fully embody the Tzu Chi spirit and philosophy.",
-  },
-];
-
-const REGISTRATION = [
-  "Complete the registration form.",
-  "Upload your 600-word (or more) autobiography.",
-  "Upload an electronic headshot of you wearing the Tzu Chi grey shirt with white collar, for use in producing the Training ID card.",
-  "Training attire: grey shirt with white collar, white trousers, Tzu Chi blue belt, white shoes and white socks. Sisters should wear their hair in the Tzu Chi bun or TCCA (Tzu Ching) alumni braids.",
-];
-
-const CLASS_NOTES = [
-  "Attend all classes together at your local Tzu Chi centre, via the Zoom link provided by DAW. Expect email reminders and calendar invitations directly from DAW.",
-  "Wear the required uniform during class, and turn your camera on during small-group discussions.",
-  "The Talent Cultivation Department can arrange accommodation for participants travelling from outside the Headquarters region.",
+const EN_MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sept",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 const PAPER_FORM_URL =
@@ -75,7 +79,7 @@ const PAPER_FORM_URL =
 const AUTOBIOGRAPHY_UPLOAD_URL =
   "https://drive.google.com/drive/folders/1S0dKuZ9pDc6kTzV1kFBzhOerJVv2CQ1G?usp=sharing";
 
-function NumberedItem({ index, children }: { index: number; children: React.ReactNode }) {
+function NumberedItem({ index, children }: { index: number; children: ReactNode }) {
   return (
     <li className="flex items-start gap-3.5">
       <span className="mt-0.5 flex size-[1.5625rem] flex-none items-center justify-center rounded-full border border-accent-soft-line bg-accent-soft font-display text-[0.75rem] font-bold text-accent-text">
@@ -86,11 +90,28 @@ function NumberedItem({ index, children }: { index: number; children: React.Reac
   );
 }
 
+/** Renders `text` with `strong` bolded in place, in whichever language. */
+function Emphasised({ text, strong }: { text: string; strong?: string }) {
+  if (!strong || !text.includes(strong)) return <>{text}</>;
+  const [before, ...rest] = text.split(strong);
+  return (
+    <>
+      {before}
+      <strong className="font-semibold text-ink">{strong}</strong>
+      {rest.join(strong)}
+    </>
+  );
+}
+
 export default function Guidelines() {
+  const { s, isZh } = useT();
   const [active, setActive] = useState<string>(SECTIONS[0].id);
 
   useEffect(() => {
-    document.title = "Program Guidelines · Advanced Certification Training";
+    document.title = s(D.guidelines.pageTitle);
+  }, [s]);
+
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
@@ -107,6 +128,9 @@ export default function Guidelines() {
     return () => observer.disconnect();
   }, []);
 
+  const dateLabel = (entry: (typeof CLASSES)[number]) =>
+    isZh ? `${entry.month} 月 ${entry.day} 日` : `${EN_MONTHS[entry.month - 1]} ${entry.day}`;
+
   return (
     <div className="flex min-h-dvh flex-col bg-paper">
       <SkipLink />
@@ -114,9 +138,9 @@ export default function Guidelines() {
         action={
           <Link
             to="/apply/track"
-            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-accent px-5 text-[0.875rem] font-semibold text-white no-underline transition-colors hover:bg-accent-hover hover:no-underline dark:text-green-950"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-accent px-5 text-[0.875rem] font-semibold text-white no-underline transition-colors hover:bg-accent-hover hover:no-underline"
           >
-            Begin Application
+            {s(D.nav.begin)}
             <ArrowRightIcon size={14} />
           </Link>
         }
@@ -124,11 +148,11 @@ export default function Guidelines() {
 
       <div className="mx-auto flex w-full max-w-[76rem] flex-1 gap-0 px-0">
         <nav
-          aria-label="On this page"
+          aria-label={s(D.guidelines.onThisPage)}
           className="hidden w-60 flex-none border-r border-line-soft px-5 py-12 lg:block"
         >
           <div className="sticky top-28 flex flex-col gap-1">
-            <span className="eyebrow px-3 pb-2 text-faint">On this page</span>
+            <span className="eyebrow px-3 pb-2 text-faint">{s(D.guidelines.onThisPage)}</span>
             {SECTIONS.map((section) => (
               <a
                 key={section.id}
@@ -139,7 +163,7 @@ export default function Guidelines() {
                     : "text-muted hover:text-ink"
                 }`}
               >
-                {section.label}
+                {s(section.label)}
               </a>
             ))}
           </div>
@@ -152,43 +176,41 @@ export default function Guidelines() {
           <header className="flex flex-col gap-4">
             <div className="flex items-center gap-2.5">
               <span aria-hidden="true" className="block h-px w-5 bg-green-500" />
-              <span className="eyebrow text-accent-text">Program Guidelines · Draft</span>
+              <span className="eyebrow text-accent-text">{s(D.guidelines.eyebrow)}</span>
             </div>
-            <h1 className="max-w-3xl text-[2.25rem] leading-[1.1] sm:text-[2.75rem]">
-              Advanced Certification Training for TCCA (Tzu Ching) Alumni
+            <h1
+              lang={isZh ? "zh-Hant" : undefined}
+              className={`max-w-3xl text-[2.25rem] leading-[1.1] sm:text-[2.75rem] ${isZh ? "font-zh" : ""}`}
+            >
+              {s(D.guidelines.title)}
             </h1>
             <p className="max-w-2xl text-[1.0625rem] leading-relaxed text-muted">
-              Standards for alumni recommended for Certified Training as a Committee Member or
-              Faith Corps member, for the 2026–2027 cohort.
+              {s(D.guidelines.lede)}
             </p>
           </header>
 
           {/* ── Eligibility ────────────────────────────────────── */}
           <section id="eligibility" className="flex max-w-3xl scroll-mt-28 flex-col gap-5">
-            <h2 className="text-[1.6875rem]">AVCT Eligibility</h2>
+            <h2 className="text-[1.6875rem]">{s(D.guidelines.eligibilityTitle)}</h2>
             <p className="text-[0.96rem] leading-relaxed text-muted">
-              TCCA (Tzu Ching) alumni recommended for Certified Training as Committee Member or
-              Faith Corps must meet all of the following requirements:
+              {s(D.guidelines.eligibilityLede)}
             </p>
             <ol className="flex list-none flex-col gap-3.5 p-0">
               {ELIGIBILITY.map((item, index) => (
-                <NumberedItem key={item} index={index + 1}>
-                  {item}
+                <NumberedItem key={item.en} index={index + 1}>
+                  {s(item)}
                 </NumberedItem>
               ))}
             </ol>
             <div className="flex flex-col gap-2 rounded-2xl border border-accent-soft-line bg-accent-soft px-6 py-5">
               <h3 className="text-[1rem] text-accent-text">
-                Flexibility for the Headquarters Region
+                {s(D.guidelines.flexibilityTitle)}
               </h3>
               <p className="text-[0.9rem] leading-relaxed text-accent-text/85">
-                Recommendations are generally based on meeting all three conditions above. In
-                view of the different environments for TCCA (Tzu Ching) recruitment and
-                activities across chapters, and with input from the Chapter CEO, the Chapter CEO
-                and team retain flexibility to make further adjustments. The Headquarters Region
-                has adjusted the requirement so that meeting{" "}
-                <strong className="font-semibold">any two of the three</strong> conditions is
-                sufficient.
+                <Emphasised
+                  text={s(D.guidelines.flexibilityBody)}
+                  strong={s(D.guidelines.flexibilityStrong)}
+                />
               </p>
             </div>
           </section>
@@ -197,20 +219,19 @@ export default function Guidelines() {
 
           {/* ── Registration ───────────────────────────────────── */}
           <section id="registration" className="flex max-w-3xl scroll-mt-28 flex-col gap-5">
-            <h2 className="text-[1.6875rem]">Registration</h2>
+            <h2 className="text-[1.6875rem]">{s(D.guidelines.registrationTitle)}</h2>
             <ol className="flex list-none flex-col gap-3.5 p-0">
               {REGISTRATION.map((item, index) => (
-                <NumberedItem key={item} index={index + 1}>
-                  {index === 3 ? (
-                    <>
-                      <strong className="font-semibold text-ink">Training attire:</strong>
-                      {item.slice("Training attire:".length)}
-                    </>
-                  ) : (
-                    item
-                  )}
+                <NumberedItem key={item.en} index={index + 1}>
+                  {s(item)}
                 </NumberedItem>
               ))}
+              <NumberedItem index={4}>
+                <strong className="font-semibold text-ink">
+                  {s(D.guidelines.registration4Label)}
+                </strong>{" "}
+                {s(D.guidelines.registration4)}
+              </NumberedItem>
             </ol>
             <div className="grid gap-3 sm:grid-cols-3">
               <Link
@@ -218,7 +239,7 @@ export default function Guidelines() {
                 className="flex min-h-14 items-center gap-2.5 rounded-xl border border-green-300 bg-card px-4 text-[0.84rem] font-semibold text-accent-text no-underline transition-colors hover:bg-accent-soft hover:no-underline"
               >
                 <ArrowRightIcon size={15} />
-                Registration Form
+                {s(D.guidelines.linkRegistrationForm)}
               </Link>
               <a
                 href={PAPER_FORM_URL}
@@ -227,7 +248,7 @@ export default function Guidelines() {
                 className="flex min-h-14 items-center gap-2.5 rounded-xl border border-line bg-card px-4 text-[0.84rem] text-muted no-underline transition-colors hover:border-green-300 hover:no-underline"
               >
                 <ExternalIcon size={15} />
-                Original paper form
+                {s(D.guidelines.linkPaperForm)}
               </a>
               <a
                 href={AUTOBIOGRAPHY_UPLOAD_URL}
@@ -236,7 +257,7 @@ export default function Guidelines() {
                 className="flex min-h-14 items-center gap-2.5 rounded-xl border border-line bg-card px-4 text-[0.84rem] text-muted no-underline transition-colors hover:border-green-300 hover:no-underline"
               >
                 <ExternalIcon size={15} />
-                Autobiography upload
+                {s(D.guidelines.linkAutobiography)}
               </a>
             </div>
           </section>
@@ -245,57 +266,56 @@ export default function Guidelines() {
 
           {/* ── Schedule ───────────────────────────────────────── */}
           <section id="schedule" className="flex max-w-3xl scroll-mt-28 flex-col gap-5">
-            <h2 className="text-[1.6875rem]">Class Schedule</h2>
+            <h2 className="text-[1.6875rem]">{s(D.guidelines.scheduleTitle)}</h2>
             <div className="overflow-hidden rounded-2xl border border-line bg-card shadow-card">
               <ul className="grid list-none grid-cols-2 p-0 sm:grid-cols-4">
                 {CLASSES.map((entry, index) => (
                   <li
-                    key={`${entry.year}-${entry.date}`}
-                    className={`flex flex-col gap-0.5 border-line-soft px-4 py-4 ${
-                      index % 4 !== 3 ? "sm:border-r" : ""
-                    } ${index % 2 !== 1 ? "border-r sm:border-r" : ""} border-b ${
-                      entry.highlight ? "bg-accent-soft" : ""
+                    key={`${entry.year}-${entry.month}`}
+                    className={`flex flex-col gap-0.5 border-b border-line-soft px-4 py-4 ${
+                      index % 2 === 0 ? "border-r" : ""
+                    } ${index % 4 !== 3 ? "sm:border-r" : "sm:border-r-0"} ${
+                      entry.inPerson ? "bg-accent-soft" : ""
                     }`}
                   >
                     <span
-                      className={`text-[0.72rem] ${entry.highlight ? "text-accent-text" : "text-faint"}`}
+                      className={`text-[0.72rem] ${entry.inPerson ? "text-accent-text" : "text-faint"}`}
                     >
                       {entry.year}
                     </span>
                     <span
-                      className={`text-[1rem] font-semibold ${entry.highlight ? "text-accent-text" : ""}`}
+                      className={`text-[1rem] font-semibold ${entry.inPerson ? "text-accent-text" : ""}`}
                     >
-                      {entry.date}
+                      {dateLabel(entry)}
                     </span>
                     <span
-                      className={`text-[0.72rem] ${entry.highlight ? "text-accent-text" : "text-muted"}`}
+                      className={`text-[0.72rem] ${entry.inPerson ? "text-accent-text" : "text-muted"}`}
                     >
-                      {entry.where}
+                      {s(entry.inPerson ? D.guidelines.inPerson : D.guidelines.onZoom)}
                     </span>
                   </li>
                 ))}
               </ul>
               <div className="flex flex-wrap gap-x-6 gap-y-2 px-4 py-4">
-                <span className="text-[0.84rem] text-muted">
-                  <strong className="font-semibold text-ink">Class hours</strong> 12:00 PM – 4:00 PM
-                </span>
-                <span className="text-[0.84rem] text-muted">
-                  <strong className="font-semibold text-ink">Conducted by</strong> the DAW team
-                </span>
-                <span className="text-[0.84rem] text-muted">
-                  <strong className="font-semibold text-ink">Closing Ceremony 圓緣</strong> 8:00 AM
-                  – 4:00 PM at Headquarters (mandatory)
-                </span>
+                {[
+                  [D.guidelines.classHours, D.guidelines.classHoursValue],
+                  [D.guidelines.conductedBy, D.guidelines.conductedByValue],
+                  [D.guidelines.closingCeremony, D.guidelines.closingCeremonyValue],
+                ].map(([label, value]) => (
+                  <span key={label.en} className="text-[0.84rem] text-muted">
+                    <strong className="font-semibold text-ink">{s(label)}</strong> {s(value)}
+                  </span>
+                ))}
               </div>
             </div>
             <ul className="flex list-none flex-col gap-3 p-0">
               {CLASS_NOTES.map((note) => (
-                <li key={note} className="flex items-start gap-3.5">
+                <li key={note.en} className="flex items-start gap-3.5">
                   <span
                     aria-hidden="true"
                     className="mt-2 size-1.5 flex-none rounded-full bg-green-300"
                   />
-                  <p className="text-[0.96rem] leading-relaxed text-muted">{note}</p>
+                  <p className="text-[0.96rem] leading-relaxed text-muted">{s(note)}</p>
                 </li>
               ))}
             </ul>
@@ -305,19 +325,14 @@ export default function Guidelines() {
 
           {/* ── Certification ──────────────────────────────────── */}
           <section id="certification" className="flex max-w-3xl scroll-mt-28 flex-col gap-5">
-            <h2 className="text-[1.6875rem]">Certification Eligibility</h2>
+            <h2 className="text-[1.6875rem]">{s(D.guidelines.certificationTitle)}</h2>
             <ol className="flex list-none flex-col gap-3.5 p-0">
               {CERTIFICATION.map((item, index) => (
-                <NumberedItem key={item.text} index={index + 1}>
-                  {item.strong ? (
-                    <>
-                      {item.text.split(item.strong)[0]}
-                      <strong className="font-semibold text-ink">{item.strong}</strong>
-                      {item.text.split(item.strong)[1]}
-                    </>
-                  ) : (
-                    item.text
-                  )}
+                <NumberedItem key={item.text.en} index={index + 1}>
+                  <Emphasised
+                    text={s(item.text)}
+                    strong={item.strong ? s(item.strong) : undefined}
+                  />
                 </NumberedItem>
               ))}
             </ol>
@@ -329,11 +344,9 @@ export default function Guidelines() {
             className="flex max-w-3xl scroll-mt-28 flex-col gap-5 rounded-2xl bg-green-900 px-9 py-8 text-white sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="flex flex-col gap-1.5">
-              <h2 className="text-[1.25rem] text-white">
-                Questions about registration or eligibility?
-              </h2>
+              <h2 className="text-[1.25rem] text-white">{s(D.guidelines.contactTitle)}</h2>
               <p className="text-[0.9rem] text-green-200">
-                Ashley Yong · Deputy Director, Talent Cultivation Department
+                {s(D.org.contactName)} · {s(D.org.contactRole)}
               </p>
             </div>
             <a

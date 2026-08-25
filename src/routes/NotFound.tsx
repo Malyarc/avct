@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { SiteFooter, SiteHeader } from "../components/Chrome";
+import { useT } from "../i18n/language";
+import { D } from "../i18n/dictionary";
 import { ArrowRightIcon } from "../components/ui";
 
 export default function NotFound() {
+  const { s } = useT();
   return (
     <div className="flex min-h-dvh flex-col bg-paper">
       <SiteHeader />
@@ -14,16 +17,14 @@ export default function NotFound() {
           404
         </span>
         <div className="flex max-w-md flex-col gap-2">
-          <h1 className="text-[1.75rem]">This page does not exist</h1>
-          <p className="text-[1rem] leading-relaxed text-muted">
-            The link may be out of date. Everything starts from the application home page.
-          </p>
+          <h1 className="text-[1.75rem]">{s(D.error.notFoundTitle)}</h1>
+          <p className="text-[1rem] leading-relaxed text-muted">{s(D.error.notFoundBody)}</p>
         </div>
         <Link
           to="/"
-          className="inline-flex min-h-11 items-center gap-2.5 rounded-full bg-accent px-6 text-[0.9375rem] font-semibold text-white no-underline transition-colors hover:bg-accent-hover hover:no-underline dark:text-green-950"
+          className="inline-flex min-h-11 items-center gap-2.5 rounded-full bg-accent px-6 text-[0.9375rem] font-semibold text-white no-underline transition-colors hover:bg-accent-hover hover:no-underline"
         >
-          Go to the application
+          {s(D.error.goToApplication)}
           <ArrowRightIcon size={15} />
         </Link>
       </main>

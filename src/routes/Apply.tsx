@@ -9,7 +9,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { STEPS, isStepComplete } from "../form/steps";
 import { useApplication } from "../form/ApplicationContext";
 import { STEP_COMPONENTS } from "./wizardSteps";
-import { BrandLockup, ThemeToggle } from "../components/Chrome";
+import { BrandLockup, LanguageToggle } from "../components/Chrome";
+import { useT } from "../i18n/language";
+import { D, format } from "../i18n/dictionary";
 import {
   AlertIcon,
   ArrowLeftIcon,
@@ -25,12 +27,14 @@ function RailItem({
   index,
   title,
   optional,
+  optionalLabel,
   state,
   onClick,
 }: {
   index: number;
-  title: string;
+  title: React.ReactNode;
   optional?: boolean;
+  optionalLabel: string;
   state: "done" | "current" | "todo";
   onClick: () => void;
 }) {
@@ -51,7 +55,7 @@ function RailItem({
           state === "done"
             ? "bg-green-700 text-white"
             : state === "current"
-              ? "bg-accent text-white dark:text-green-950"
+              ? "bg-accent text-white"
               : "border-[1.5px] border-line text-faint"
         }`}
       >
@@ -66,7 +70,7 @@ function RailItem({
       </span>
       {optional ? (
         <span className="flex-none rounded border border-line px-1.5 py-px text-[0.6875rem] text-faint">
-          optional
+          {optionalLabel}
         </span>
       ) : null}
     </button>
@@ -76,6 +80,7 @@ function RailItem({
 export default function Apply() {
   const { stepId } = useParams<{ stepId?: string }>();
   const navigate = useNavigate();
+  const { s, t } = useT();
   const {
     data,
     attempted,
@@ -115,18 +120,14 @@ export default function Apply() {
     markVisited(step.id);
   }, [step.id, markVisited]);
 
-  const goto = (nextIndex: number) => {
-    navigate(`/apply/${STEPS[nextIndex].id}`);
-  };
+  const goto = (nextIndex: number) => navigate(`/apply/${STEPS[nextIndex].id}`);
 
   const advance = () => {
     markAttempted(step.id);
     if (errorCount > 0) {
       // Put the first bad field in view instead of silently refusing.
       requestAnimationFrame(() => {
-        const target = document.querySelector<HTMLElement>(
-          '[aria-invalid="true"], [data-error="true"]',
-        );
+        const target = document.querySelector<HTMLElement>('[aria-invalid="true"]');
         target?.scrollIntoView({ block: "center", behavior: "smooth" });
         target?.focus?.();
       });
@@ -147,24 +148,40 @@ export default function Apply() {
     return "todo";
   };
 
+  const rail = (
+    <>
+      {STEPS.map((candidate, candidateIndex) => (
+        <RailItem
+          key={candidate.id}
+          index={candidateIndex}
+          title={s(candidate.title)}
+          optional={candidate.id === "family"}
+          optionalLabel={s(D.field.optional)}
+          state={stateOf(candidateIndex)}
+          onClick={() => goto(candidateIndex)}
+        />
+      ))}
+    </>
+  );
+
   return (
     <div className="flex min-h-dvh flex-col bg-paper">
       <header className="sticky top-0 z-40 border-b border-line-soft bg-card">
         <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <Link to="/" className="min-w-0 no-underline hover:no-underline">
-            <BrandLockup subtitle="Advanced Certification Training" compact />
+            <BrandLockup subtitle={s(D.org.programme)} compact />
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
-            <span className="hidden items-center gap-1.5 text-[0.78125rem] text-accent-text sm:flex">
+            <span className="hidden items-center gap-1.5 text-[0.78125rem] text-accent-text lg:flex">
               {autosaveFailed ? (
                 <>
                   <AlertIcon size={13} />
-                  Autosave unavailable
+                  {s(D.wizard.autosaveUnavailable)}
                 </>
               ) : (
                 <>
                   <CheckIcon size={13} />
-                  Saved on this device
+                  {s(D.wizard.savedOnDevice)}
                 </>
               )}
             </span>
@@ -174,12 +191,13 @@ export default function Apply() {
               rel="noopener"
               className="hidden items-center gap-1.5 rounded-lg px-2 py-2 text-[0.8125rem] font-medium text-muted no-underline hover:text-ink hover:no-underline md:flex"
             >
-              Guidelines
+              {s(D.nav.guidelinesShort)}
               <ExternalIcon size={12} className="opacity-50" />
             </Link>
-            <ThemeToggle />
+            <LanguageToggle />
           </div>
         </div>
+
         {/* Mobile progress + rail toggle */}
         <div className="lg:hidden">
           <div className="h-1 bg-line-soft">
@@ -192,27 +210,21 @@ export default function Apply() {
             type="button"
             onClick={() => setRailOpen((open) => !open)}
             aria-expanded={railOpen}
-            className="flex w-full items-center justify-between px-4 py-2.5 text-left sm:px-6"
+            className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left sm:px-6"
           >
-            <span className="text-[0.8125rem] font-semibold text-ink">
-              Step {index + 1} of {STEPS.length} · {step.title}
+            <span className="truncate text-[0.8125rem] font-semibold text-ink">
+              {format(s(D.wizard.stepOf), index + 1, STEPS.length)} · {s(step.title)}
             </span>
-            <span className="text-[0.78125rem] font-semibold text-accent-text">
-              {railOpen ? "Hide steps" : "All steps"}
+            <span className="flex-none text-[0.78125rem] font-semibold text-accent-text">
+              {railOpen ? s(D.wizard.hideSteps) : s(D.wizard.allSteps)}
             </span>
           </button>
           {railOpen ? (
-            <nav className="flex flex-col gap-0.5 border-t border-line-soft px-3 pb-3 pt-2">
-              {STEPS.map((candidate, candidateIndex) => (
-                <RailItem
-                  key={candidate.id}
-                  index={candidateIndex}
-                  title={candidate.title}
-                  optional={candidate.id === "family"}
-                  state={stateOf(candidateIndex)}
-                  onClick={() => goto(candidateIndex)}
-                />
-              ))}
+            <nav
+              aria-label={s(D.wizard.steps)}
+              className="flex flex-col gap-0.5 border-t border-line-soft px-3 pb-3 pt-2"
+            >
+              {rail}
             </nav>
           ) : null}
         </div>
@@ -224,9 +236,9 @@ export default function Apply() {
           <div className="sticky top-24 flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <div className="flex items-baseline justify-between">
-                <span className="eyebrow text-faint">Progress</span>
+                <span className="eyebrow text-faint">{s(D.wizard.progress)}</span>
                 <span className="text-[0.78125rem] font-semibold text-accent-text">
-                  {index + 1} of {STEPS.length}
+                  {format(s(D.wizard.ofSteps), index + 1, STEPS.length)}
                 </span>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-line-soft">
@@ -237,17 +249,8 @@ export default function Apply() {
               </div>
             </div>
 
-            <nav aria-label="Application steps" className="flex flex-col gap-0.5">
-              {STEPS.map((candidate, candidateIndex) => (
-                <RailItem
-                  key={candidate.id}
-                  index={candidateIndex}
-                  title={candidate.title}
-                  optional={candidate.id === "family"}
-                  state={stateOf(candidateIndex)}
-                  onClick={() => goto(candidateIndex)}
-                />
-              ))}
+            <nav aria-label={s(D.wizard.steps)} className="flex flex-col gap-0.5">
+              {rail}
               <div className="my-2 h-px bg-line-soft" />
               <button
                 type="button"
@@ -261,13 +264,14 @@ export default function Apply() {
                 >
                   <DocumentIcon size={12} />
                 </span>
-                <span className="flex-1 text-[0.875rem] text-muted">Review &amp; Sign</span>
+                <span className="flex-1 text-[0.875rem] text-muted">
+                  {s(D.wizard.reviewAndSign)}
+                </span>
               </button>
             </nav>
 
             <Callout tone="info" className="mt-2">
-              Answers stay on this device until you submit. Close the tab and come back any
-              time.
+              {s(D.wizard.draftNote)}
             </Callout>
           </div>
         </aside>
@@ -279,37 +283,39 @@ export default function Apply() {
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-accent-soft-line bg-accent-soft px-4 py-3">
                 <span className="flex items-center gap-2 text-[0.875rem] text-accent-text">
                   <CheckIcon size={16} />
-                  We picked up where you left off.
+                  {s(D.wizard.restored)}
                 </span>
                 <button
                   type="button"
                   onClick={dismissRestored}
                   className="text-[0.8125rem] font-semibold text-accent-text"
                 >
-                  Dismiss
+                  {s(D.action.dismiss)}
                 </button>
               </div>
             ) : null}
 
             <div className="flex flex-col gap-2">
               <div className="eyebrow text-accent-text">
-                Step {index + 1} · Form {step.formSections.toLowerCase()}
+                {format(s(D.wizard.stepPrefix), index + 1, s(step.formSections))}
               </div>
               <h1
                 ref={headingRef}
                 tabIndex={-1}
                 className="text-[2rem] leading-tight outline-none sm:text-[2.25rem]"
               >
-                {step.title}
+                {t(step.title)}
               </h1>
-              <p className="max-w-2xl text-[1rem] leading-relaxed text-muted">{step.blurb}</p>
+              <p className="max-w-2xl text-[1rem] leading-relaxed text-muted">
+                {s(step.blurb)}
+              </p>
             </div>
 
             {showErrors && errorCount > 0 ? (
               <Callout tone="error">
                 {errorCount === 1
-                  ? "One answer still needs your attention — it is highlighted below."
-                  : `${errorCount} answers still need your attention — they are highlighted below.`}
+                  ? s(D.wizard.oneAnswerLeft)
+                  : format(s(D.wizard.answersLeft), errorCount)}
               </Callout>
             ) : null}
 
@@ -327,17 +333,21 @@ export default function Apply() {
             className="flex-none"
           >
             <ArrowLeftIcon size={15} />
-            <span className="hidden sm:inline">{index === 0 ? "Home" : "Back"}</span>
+            <span className="hidden sm:inline">
+              {index === 0 ? s(D.nav.home) : s(D.action.back)}
+            </span>
           </Button>
 
           <div className="flex min-w-0 items-center gap-4">
             {showErrors && errorCount > 0 ? (
               <span className="hidden truncate text-[0.8125rem] text-rose-ink sm:inline">
-                {errorCount} {errorCount === 1 ? "answer" : "answers"} left on this step
+                {format(s(D.wizard.answersLeftShort), errorCount)}
               </span>
             ) : null}
             <Button onClick={advance} className="flex-none">
-              {index === STEPS.length - 1 ? "Review my form" : "Continue"}
+              {index === STEPS.length - 1
+                ? s(D.action.reviewMyForm)
+                : s(D.action.continue)}
               <ArrowRightIcon size={15} />
             </Button>
           </div>

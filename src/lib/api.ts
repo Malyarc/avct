@@ -7,6 +7,8 @@
  */
 
 import type { ApplicationData } from "../form/model";
+import { D } from "../i18n/dictionary";
+import type { Phrase } from "../i18n/types";
 
 const BASE = "/api";
 
@@ -28,7 +30,7 @@ export interface ApplicationRecord extends ApplicationSummary {
 
 export type ApiResult<T> =
   | { ok: true; value: T }
-  | { ok: false; error: string; status: number };
+  | { ok: false; error: Phrase; status: number };
 
 async function request<T>(
   path: string,
@@ -57,23 +59,25 @@ async function request<T>(
     }
 
     if (!response.ok) {
-      const message =
-        (payload as { error?: string } | null)?.error ??
-        (response.status === 401
-          ? "That access code is not correct."
+      // The server's own message is English-only, so map the status to a
+      // translated phrase and keep the server text only as a last resort.
+      const serverMessage = (payload as { error?: string } | null)?.error;
+      const message: Phrase =
+        response.status === 401
+          ? D.admin.accessCodeWrong
           : response.status === 413
-            ? "The application is too large to send. Try a smaller photo."
-            : "Something went wrong. Please try again.");
+            ? D.error.tooLarge
+            : response.status === 422
+              ? D.error.submitInvalid
+              : serverMessage
+                ? { en: serverMessage, zh: D.error.generic.zh }
+                : D.error.generic;
       return { ok: false, error: message, status: response.status };
     }
 
     return { ok: true, value: payload as T };
   } catch {
-    return {
-      ok: false,
-      error: "We could not reach the server. Check your connection and try again.",
-      status: 0,
-    };
+    return { ok: false, error: D.error.network, status: 0 };
   }
 }
 

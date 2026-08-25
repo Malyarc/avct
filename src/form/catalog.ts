@@ -442,3 +442,13 @@ export function choiceLabel(choice: Choice): string {
   if (choice.zh && choice.en) return `${choice.zh}${choice.en}`;
   return choice.zh || choice.en;
 }
+
+/**
+ * The label for a choice in the reader's language. English mode keeps the
+ * bilingual pairing the paper form uses; Chinese mode shows Chinese alone,
+ * falling back to English for options that have no Chinese (A/B/O/AB, sizes).
+ */
+export function choiceLabelIn(choice: Choice, lang: "en" | "zh"): string {
+  if (lang === "zh") return choice.zh || choice.en;
+  return choiceLabel(choice);
+}

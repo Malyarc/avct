@@ -16,6 +16,10 @@ import { applicationsToCsv } from "../lib/csv";
 import { downloadBlob, exportDocumentAsPdf, type ExportProgress } from "../document/pdf";
 import { DocumentViewer } from "../components/DocumentViewer";
 import { AdminAnswers } from "./AdminAnswers";
+import { LanguageToggle } from "../components/Chrome";
+import { useT } from "../i18n/language";
+import { D, format } from "../i18n/dictionary";
+import type { Phrase } from "../i18n/types";
 import {
   AlertIcon,
   Button,
@@ -31,9 +35,9 @@ import {
 type TrackFilter = "all" | "commissioner" | "faithCorps";
 type Tab = "form" | "answers" | "signature";
 
-const TRACK_LABEL: Record<string, string> = {
-  commissioner: "委員 Comm.",
-  faithCorps: "慈誠 Faith",
+const TRACK_LABEL: Record<string, { en: string; zh: string }> = {
+  commissioner: { en: "委員 Comm.", zh: "培訓委員" },
+  faithCorps: { en: "慈誠 Faith", zh: "培訓慈誠" },
 };
 
 function initials(row: ApplicationSummary): string {
@@ -42,16 +46,16 @@ function initials(row: ApplicationSummary): string {
   return (first + last).toUpperCase() || "??";
 }
 
-function formatDate(iso: string): { date: string; time: string } {
+function formatDate(iso: string, locale?: string): { date: string; time: string } {
   const parsed = new Date(iso);
   if (Number.isNaN(parsed.getTime())) return { date: iso, time: "" };
   return {
-    date: parsed.toLocaleDateString(undefined, {
+    date: parsed.toLocaleDateString(locale, {
       day: "numeric",
       month: "short",
       year: "numeric",
     }),
-    time: parsed.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }),
+    time: parsed.toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" }),
   };
 }
 
@@ -69,14 +73,15 @@ function StatCard({ label, value, tone }: { label: string; value: number; tone?:
 }
 
 export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
+  const { s: str, isZh } = useT();
   const [rows, setRows] = useState<ApplicationSummary[] | null>(null);
-  const [listError, setListError] = useState<string | null>(null);
+  const [listError, setListError] = useState<Phrase | null>(null);
   const [query, setQuery] = useState("");
   const [trackFilter, setTrackFilter] = useState<TrackFilter>("all");
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [record, setRecord] = useState<ApplicationRecord | null>(null);
-  const [recordError, setRecordError] = useState<string | null>(null);
+  const [recordError, setRecordError] = useState<Phrase | null>(null);
   const [loadingRecord, setLoadingRecord] = useState(false);
   const [tab, setTab] = useState<Tab>("form");
 
@@ -161,7 +166,7 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
     try {
       await exportDocumentAsPdf(root, applicantFullName(record.data), setProgress);
     } catch {
-      setPdfError("Could not build the PDF here. Use Print and choose “Save as PDF”.");
+      setPdfError(str(D.admin.pdfFailed));
     } finally {
       setProgress(null);
     }
@@ -187,13 +192,13 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
             height={312}
           />
           <div className="flex flex-col leading-tight">
-            <span className="text-[0.84rem] font-semibold">AVCT Admin</span>
+            <span className="text-[0.84rem] font-semibold">{str(D.admin.title)}</span>
             <span className="text-[0.72rem] text-green-200/70">
-              Talent Cultivation Department
+              {str(D.org.department)}
             </span>
           </div>
           <span className="ml-1 hidden rounded border border-leaf/35 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.08em] text-leaf sm:inline">
-            Internal
+            {str(D.admin.internal)}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -204,7 +209,7 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
             className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/16 px-3.5 text-[0.8125rem] text-green-100 transition-colors hover:bg-white/8 disabled:opacity-40"
           >
             <DownloadIcon size={14} />
-            <span className="hidden sm:inline">Export CSV</span>
+            <span className="hidden sm:inline">{str(D.action.exportCsv)}</span>
           </button>
           <button
             type="button"
@@ -213,8 +218,9 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
             }}
             className="min-h-9 rounded-lg px-3 text-[0.8125rem] text-green-200/80 transition-colors hover:text-white"
           >
-            Sign out
+            {str(D.action.signOut)}
           </button>
+          <LanguageToggle tone="dark" />
         </div>
       </header>
 
@@ -223,10 +229,8 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
         <main id="main" className="flex min-w-0 flex-col gap-6 px-4 py-7 sm:px-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="flex flex-col gap-1.5">
-              <h1 className="text-[1.875rem]">Applications</h1>
-              <p className="text-[0.9rem] text-muted">
-                2026–2027 Advanced Certification Training cohort
-              </p>
+              <h1 className="text-[1.875rem]">{str(D.admin.applications)}</h1>
+              <p className="text-[0.9rem] text-muted">{str(D.admin.cohort)}</p>
             </div>
             <div className="flex flex-wrap gap-2.5">
               <div className="flex min-h-10 w-full items-center gap-2.5 rounded-xl border border-line bg-card px-3.5 sm:w-64">
@@ -235,40 +239,40 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                   type="search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search name, email or reference"
-                  aria-label="Search applications"
+                  placeholder={str(D.admin.search)}
+                  aria-label={str(D.admin.searchLabel)}
                   className="w-full bg-transparent text-[0.875rem] outline-none placeholder:text-faint"
                 />
               </div>
               <select
                 value={trackFilter}
                 onChange={(event) => setTrackFilter(event.target.value as TrackFilter)}
-                aria-label="Filter by track"
+                aria-label={str(D.admin.filterByTrack)}
                 className="min-h-10 rounded-xl border border-line bg-card px-3.5 text-[0.875rem] text-muted"
               >
-                <option value="all">All tracks</option>
-                <option value="commissioner">Commissioner 委員</option>
-                <option value="faithCorps">Faith Corps 慈誠</option>
+                <option value="all">{str(D.admin.allTracks)}</option>
+                <option value="commissioner">{str(D.admin.commissionerTrack)}</option>
+                <option value="faithCorps">{str(D.admin.faithCorpsTrack)}</option>
               </select>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
-            <StatCard label="Total applications" value={stats.total} />
-            <StatCard label="Commissioner 委員" value={stats.commissioner} tone="accent" />
-            <StatCard label="Faith Corps 慈誠" value={stats.faithCorps} tone="accent" />
-            <StatCard label="New this week" value={stats.thisWeek} />
+            <StatCard label={str(D.admin.statTotal)} value={stats.total} />
+            <StatCard label={str(D.admin.statCommissioner)} value={stats.commissioner} tone="accent" />
+            <StatCard label={str(D.admin.statFaithCorps)} value={stats.faithCorps} tone="accent" />
+            <StatCard label={str(D.admin.statWeek)} value={stats.thisWeek} />
           </div>
 
           {listError ? (
             <Callout tone="error">
-              {listError}{" "}
+              {str(listError)}{" "}
               <button
                 type="button"
                 onClick={() => void load()}
                 className="font-semibold underline"
               >
-                Try again
+                {str(D.action.tryAgain)}
               </button>
             </Callout>
           ) : null}
@@ -277,18 +281,16 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
             {rows === null ? (
               <div className="flex items-center justify-center gap-3 py-20 text-muted">
                 <SpinnerIcon size={18} />
-                Loading applications…
+                {str(D.admin.loading)}
               </div>
             ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center gap-2 px-6 py-20 text-center">
                 <AlertIcon size={22} className="text-faint" />
                 <p className="text-[0.9375rem] font-semibold">
-                  {rows.length === 0 ? "No applications yet" : "Nothing matches that search"}
+                  {rows.length === 0 ? str(D.admin.empty) : str(D.admin.noMatch)}
                 </p>
                 <p className="max-w-sm text-[0.84rem] text-muted">
-                  {rows.length === 0
-                    ? "Submitted applications will appear here as soon as they arrive."
-                    : "Try a different name, email or reference."}
+                  {rows.length === 0 ? str(D.admin.emptyBody) : str(D.admin.noMatchBody)}
                 </p>
               </div>
             ) : (
@@ -297,9 +299,14 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                   aria-hidden="true"
                   className="hidden grid-cols-[minmax(0,2.1fr)_8rem_minmax(0,1fr)_2.75rem] border-b border-line-soft px-4 pb-2.5 pt-4 sm:grid"
                 >
-                  {["Applicant", "Track", "Submitted", ""].map((heading) => (
+                  {[
+                    str(D.admin.colApplicant),
+                    str(D.admin.colTrack),
+                    str(D.admin.colSubmitted),
+                    "",
+                  ].map((heading, position) => (
                     <span
-                      key={heading || "actions"}
+                      key={heading || `actions-${position}`}
                       className="eyebrow text-[0.6875rem] text-faint"
                     >
                       {heading}
@@ -307,7 +314,7 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                   ))}
                 </li>
                 {filtered.map((row) => {
-                  const when = formatDate(row.submittedAt);
+                  const when = formatDate(row.submittedAt, isZh ? "zh-Hant" : undefined);
                   const active = row.id === selectedId;
                   return (
                     <li key={row.id} className="border-b border-line-soft last:border-b-0">
@@ -352,7 +359,9 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                                 : "bg-[#e7eef7] text-[#1e3e6b]"
                             }`}
                           >
-                            {TRACK_LABEL[row.track] ?? row.track}
+                            {isZh
+                              ? (TRACK_LABEL[row.track]?.zh ?? row.track)
+                              : (TRACK_LABEL[row.track]?.en ?? row.track)}
                           </span>
                         </span>
 
@@ -387,7 +396,7 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
 
         {/* ── Detail ───────────────────────────────────────────── */}
         <aside
-          aria-label="Application detail"
+          aria-label={str(D.admin.detail)}
           className={`flex flex-col border-line bg-card xl:border-l ${
             selectedId ? "" : "hidden xl:flex"
           }`}
@@ -402,17 +411,17 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                 height={312}
               />
               <p className="max-w-[16rem] text-[0.875rem] leading-relaxed text-faint">
-                Select an applicant to see their completed form.
+                {str(D.admin.selectApplicant)}
               </p>
             </div>
           ) : loadingRecord ? (
             <div className="flex flex-1 items-center justify-center gap-3 text-muted">
               <SpinnerIcon size={18} />
-              Loading…
+              {str(D.error.loading)}
             </div>
           ) : recordError ? (
             <div className="p-6">
-              <Callout tone="error">{recordError}</Callout>
+              <Callout tone="error">{str(recordError)}</Callout>
             </div>
           ) : record ? (
             <>
@@ -427,7 +436,7 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                       />
                     ) : (
                       <div className="flex h-[4.625rem] w-[3.625rem] flex-none items-center justify-center rounded-lg border border-line bg-paper text-[0.68rem] text-faint">
-                        No photo
+                        {str(D.admin.noPhoto)}
                       </div>
                     )}
                     <div className="flex min-w-0 flex-col gap-1 pt-0.5">
@@ -447,8 +456,12 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                         }`}
                       >
                         {record.track === "commissioner"
-                          ? "培訓委員 Commissioner Training"
-                          : "培訓慈誠 Faith Corps Training"}
+                          ? isZh
+                            ? "培訓委員"
+                            : "培訓委員 Commissioner Training"
+                          : isZh
+                            ? "培訓慈誠"
+                            : "培訓慈誠 Faith Corps Training"}
                       </span>
                       <span className="mt-0.5 text-[0.75rem] text-faint">
                         {record.reference}
@@ -458,7 +471,7 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                   <button
                     type="button"
                     onClick={() => setSelectedId(null)}
-                    aria-label="Close detail"
+                    aria-label={str(D.action.close)}
                     className="flex size-9 flex-none items-center justify-center rounded-lg text-faint transition-colors hover:bg-accent-soft hover:text-ink"
                   >
                     <CloseIcon size={17} />
@@ -476,14 +489,14 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                   >
                     {progress ? (
                       progress.page === 0 ? (
-                        "Preparing…"
+                        str(D.action.preparing)
                       ) : (
                         `Page ${progress.page}/${progress.total}`
                       )
                     ) : (
                       <>
                         <DownloadIcon size={14} />
-                        Download PDF
+                        {str(D.action.download)}
                       </>
                     )}
                   </Button>
@@ -495,11 +508,11 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                     className="flex-1 rounded-lg"
                   >
                     <PrintIcon size={14} />
-                    Print
+                    {str(D.action.print)}
                   </Button>
                   <a
                     href={`mailto:${record.email}`}
-                    aria-label={`Email ${record.firstName}`}
+                    aria-label={format(str(D.admin.emailApplicant), record.firstName)}
                     className="flex min-h-9 w-11 flex-none items-center justify-center rounded-lg border border-line text-muted no-underline transition-colors hover:border-green-300 hover:text-ink hover:no-underline"
                   >
                     <MailIcon size={15} />
@@ -509,14 +522,14 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
 
               <div
                 role="tablist"
-                aria-label="Application views"
+                aria-label={str(D.admin.detail)}
                 className="flex gap-1 border-b border-line-soft px-6 pt-3"
               >
                 {(
                   [
-                    ["form", "Filled form"],
-                    ["answers", "Answers"],
-                    ["signature", "Signature"],
+                    ["form", str(D.admin.tabForm)],
+                    ["answers", str(D.admin.tabAnswers)],
+                    ["signature", str(D.admin.tabSignature)],
                   ] as [Tab, string][]
                 ).map(([key, label]) => (
                   <button
@@ -557,17 +570,20 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                         />
                       ) : (
                         <p className="text-center text-[0.875rem] text-faint">
-                          No signature on file.
+                          {str(D.admin.noSignature)}
                         </p>
                       )}
                     </div>
                     <p className="text-[0.8125rem] text-muted">
-                      Signed{" "}
+                      {str(D.admin.signedOn)}{" "}
                       {record.data.signedAt
-                        ? new Date(record.data.signedAt).toLocaleString(undefined, {
-                            dateStyle: "long",
-                            timeStyle: "short",
-                          })
+                        ? new Date(record.data.signedAt).toLocaleString(
+                            isZh ? "zh-Hant" : undefined,
+                            {
+                              dateStyle: "long",
+                              timeStyle: "short",
+                            },
+                          )
                         : "—"}
                     </p>
                   </div>
@@ -577,9 +593,7 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               <div className="flex gap-3 border-t border-line-soft bg-amber-bg px-6 py-4">
                 <AlertIcon size={16} className="mt-0.5 flex-none text-amber-ink" />
                 <p className="text-[0.78125rem] leading-relaxed text-amber-ink">
-                  Print this form to collect the four{" "}
-                  <strong className="font-semibold">Section (17)</strong> mentor signatures by
-                  hand. Names are printed beside each line.
+                  {str(D.admin.printNotice)}
                 </p>
               </div>
             </>

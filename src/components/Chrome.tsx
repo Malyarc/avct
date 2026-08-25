@@ -1,12 +1,13 @@
 /**
  * Shared page chrome: the brand lockup, the site header and footer, and the
- * theme control that appears in both.
+ * EN / 中文 switch that appears on every page.
  */
 
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { useTheme } from "../lib/useTheme";
-import { ExternalIcon, MoonIcon, SunIcon } from "./ui";
+import { useLanguage, useT } from "../i18n/language";
+import { D } from "../i18n/dictionary";
+import { ExternalIcon } from "./ui";
 
 export function Lotus({ className = "" }: { className?: string }) {
   return (
@@ -23,60 +24,93 @@ export function Lotus({ className = "" }: { className?: string }) {
 }
 
 export function BrandLockup({
-  subtitle = "Talent Cultivation Department",
+  subtitle,
   compact = false,
 }: {
-  subtitle?: string;
+  subtitle?: ReactNode;
   compact?: boolean;
 }) {
+  const { s } = useT();
   return (
     <div className="flex items-center gap-3">
       <Lotus className={compact ? "h-8 w-auto" : "h-11 w-auto"} />
       <div className="flex min-w-0 flex-col leading-tight">
-        <span
-          className={`font-semibold ${compact ? "text-[0.875rem]" : "text-[0.9375rem]"}`}
-        >
-          Buddhist Tzu Chi Foundation
+        <span className={`font-semibold ${compact ? "text-[0.875rem]" : "text-[0.9375rem]"}`}>
+          {s(D.org.foundation)}
         </span>
-        <span className="truncate text-[0.75rem] text-faint">{subtitle}</span>
+        <span className="truncate text-[0.75rem] text-faint">
+          {subtitle ?? s(D.org.department)}
+        </span>
       </div>
     </div>
   );
 }
 
-export function ThemeToggle({ className = "" }: { className?: string }) {
-  const { resolved, toggle } = useTheme();
+/**
+ * EN / 中文. A two-state segmented control rather than a toggle button, so the
+ * language you are not reading in is always visible and one tap away.
+ */
+export function LanguageToggle({ tone = "light" }: { tone?: "light" | "dark" }) {
+  const { lang, setLang } = useLanguage();
+  const { s } = useT();
+
+  const shell = tone === "dark" ? "border-white/20 bg-white/10" : "border-line bg-card";
+  const off =
+    tone === "dark" ? "text-green-100/70 hover:text-white" : "text-muted hover:text-ink";
+  const on = tone === "dark" ? "bg-leaf text-green-950" : "bg-accent text-white";
+
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      aria-label={`Switch to ${resolved === "dark" ? "light" : "dark"} theme`}
-      title={`Switch to ${resolved === "dark" ? "light" : "dark"} theme`}
-      className={`flex size-10 items-center justify-center rounded-full border border-line bg-card text-muted transition-colors hover:border-green-300 hover:text-ink ${className}`}
+    <div
+      role="group"
+      aria-label={s(D.nav.language)}
+      className={`flex flex-none items-center rounded-full border p-0.5 ${shell}`}
     >
-      {resolved === "dark" ? <MoonIcon size={17} /> : <SunIcon size={17} />}
-    </button>
+      <button
+        type="button"
+        onClick={() => setLang("en")}
+        aria-pressed={lang === "en"}
+        title={s(D.nav.switchToEnglish)}
+        className={`min-h-8 rounded-full px-3 text-[0.78125rem] font-semibold transition-colors ${
+          lang === "en" ? on : off
+        }`}
+      >
+        EN
+      </button>
+      <button
+        type="button"
+        onClick={() => setLang("zh")}
+        aria-pressed={lang === "zh"}
+        title={s(D.nav.switchToChinese)}
+        lang="zh-Hant"
+        className={`min-h-8 rounded-full px-3 font-zh text-[0.8125rem] font-semibold transition-colors ${
+          lang === "zh" ? on : off
+        }`}
+      >
+        中文
+      </button>
+    </div>
   );
 }
 
 export function SiteHeader({ action }: { action?: ReactNode }) {
+  const { s } = useT();
   return (
     <header className="sticky top-0 z-30 border-b border-line-soft bg-paper/85 backdrop-blur-md">
-      <div className="mx-auto flex max-w-[84rem] items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
-        <Link to="/" className="rounded-lg no-underline hover:no-underline">
+      <div className="mx-auto flex max-w-[84rem] items-center justify-between gap-3 px-5 py-3.5 sm:px-8">
+        <Link to="/" className="min-w-0 rounded-lg no-underline hover:no-underline">
           <BrandLockup />
         </Link>
-        <nav className="flex items-center gap-2 sm:gap-4">
+        <nav className="flex items-center gap-2 sm:gap-3">
           <Link
             to="/guidelines"
             target="_blank"
             rel="noopener"
-            className="hidden items-center gap-1.5 rounded-lg px-2 py-2 text-[0.9rem] font-medium text-muted no-underline transition-colors hover:text-ink hover:no-underline sm:flex"
+            className="hidden items-center gap-1.5 rounded-lg px-2 py-2 text-[0.875rem] font-medium text-muted no-underline transition-colors hover:text-ink hover:no-underline md:flex"
           >
-            Program Guidelines
+            {s(D.nav.guidelines)}
             <ExternalIcon size={13} className="opacity-50" />
           </Link>
-          <ThemeToggle />
+          <LanguageToggle />
           {action}
         </nav>
       </div>
@@ -85,14 +119,13 @@ export function SiteHeader({ action }: { action?: ReactNode }) {
 }
 
 export function SiteFooter() {
+  const { s } = useT();
   return (
     <footer className="mt-auto border-t border-line-soft">
       <div className="mx-auto flex max-w-[84rem] flex-col gap-2 px-5 py-6 text-[0.78125rem] text-faint sm:flex-row sm:items-center sm:justify-between sm:px-8">
-        <span>
-          Buddhist Tzu Chi Foundation · National Headquarters · Talent Cultivation Department
-        </span>
-        <span className="font-zh">
-          佛教慈濟基金會「委員慈誠培訓報名表」2023年2月1日海外版
+        <span>{s(D.org.footer)}</span>
+        <span lang="zh-Hant" className="font-zh">
+          {D.org.formEdition.zh}
         </span>
       </div>
     </footer>
@@ -100,12 +133,13 @@ export function SiteFooter() {
 }
 
 export function SkipLink() {
+  const { s } = useT();
   return (
     <a
       href="#main"
-      className="sr-only-focusable absolute left-4 top-4 z-50 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white no-underline dark:text-green-950"
+      className="sr-only-focusable absolute left-4 top-4 z-50 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white no-underline"
     >
-      Skip to content
+      {s(D.nav.skipToContent)}
     </a>
   );
 }

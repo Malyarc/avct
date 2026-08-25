@@ -9,12 +9,15 @@ import { readSubmission } from "../lib/submission";
 import { applicantFullName } from "../form/model";
 import { ApplicationDocument } from "../document/ApplicationDocument";
 import { exportDocumentAsPdf, type ExportProgress } from "../document/pdf";
-import { BrandLockup, SiteFooter, ThemeToggle } from "../components/Chrome";
+import { BrandLockup, LanguageToggle, SiteFooter } from "../components/Chrome";
+import { useT } from "../i18n/language";
+import { D, counterpart, format } from "../i18n/dictionary";
 import { Button, Callout, CheckIcon, DownloadIcon, PrintIcon } from "../components/ui";
 
 export default function Submitted() {
   const navigate = useNavigate();
   const receipt = readSubmission();
+  const { s, lang, isZh } = useT();
   const documentRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState<ExportProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +30,9 @@ export default function Submitted() {
   if (!receipt) return null;
 
   const name = applicantFullName(receipt.data);
-  const firstName = receipt.data.firstName || name;
+  const firstName = isZh
+    ? receipt.data.chineseName || receipt.data.firstName || name
+    : receipt.data.firstName || name;
 
   const download = async () => {
     const root = documentRef.current;
@@ -38,9 +43,7 @@ export default function Submitted() {
       await exportDocumentAsPdf(root, name, setProgress);
       setDownloaded(true);
     } catch {
-      setError(
-        "We could not build the PDF in this browser. Try the Print button instead, and choose “Save as PDF”.",
-      );
+      setError(s(D.submitted.pdfFailed));
     } finally {
       setProgress(null);
     }
@@ -50,10 +53,10 @@ export default function Submitted() {
     <div className="flex min-h-dvh flex-col bg-paper">
       <header className="border-b border-line-soft">
         <div className="mx-auto flex max-w-[84rem] items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
-          <Link to="/" className="no-underline hover:no-underline">
-            <BrandLockup subtitle="Advanced Certification Training" compact />
+          <Link to="/" className="min-w-0 no-underline hover:no-underline">
+            <BrandLockup subtitle={s(D.org.programme)} compact />
           </Link>
-          <ThemeToggle />
+          <LanguageToggle />
         </div>
       </header>
 
@@ -63,77 +66,74 @@ export default function Submitted() {
       >
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 -top-40 mx-auto h-[34rem] max-w-3xl rounded-full bg-[radial-gradient(ellipse_at_center,var(--accent-soft),transparent_68%)]"
+          className="pointer-events-none absolute inset-x-0 -top-40 mx-auto h-[34rem] max-w-3xl rounded-full bg-[radial-gradient(ellipse_at_center,var(--color-accent-soft),transparent_68%)]"
         />
 
         <div className="relative flex flex-col gap-6">
-          <span className="flex size-16 items-center justify-center rounded-full bg-accent text-white shadow-raised dark:text-green-950">
+          <span className="flex size-16 items-center justify-center rounded-full bg-accent text-white shadow-raised">
             <CheckIcon size={31} />
           </span>
 
           <div className="flex flex-col gap-2.5">
-            <h1 className="text-[2.5rem] leading-[1.08] sm:text-[3.125rem]">
-              Thank you, {firstName}.
+            <h1
+              lang={isZh ? "zh-Hant" : undefined}
+              className={`text-[2.5rem] leading-[1.08] sm:text-[3.125rem] ${isZh ? "font-zh" : ""}`}
+            >
+              {format(s(D.submitted.thankYou), firstName)}
             </h1>
-            <p className="font-zh text-[1.25rem] tracking-[0.06em] text-accent-text">
-              感恩您的發心
+            <p
+              lang={isZh ? undefined : "zh-Hant"}
+              className={`text-[1.25rem] tracking-[0.06em] text-accent-text ${
+                isZh ? "font-display tracking-normal" : "font-zh"
+              }`}
+            >
+              {counterpart(D.submitted.gratitude, lang)}
             </p>
           </div>
 
           <p className="max-w-xl text-[1.0625rem] leading-relaxed text-muted sm:text-[1.15rem]">
-            Your application has been received.{" "}
-            <strong className="font-semibold text-ink">
-              The Talent Cultivation Team will get back to you soon!
-            </strong>
+            {s(D.submitted.received)}{" "}
+            <strong className="font-semibold text-ink">{s(D.submitted.willContact)}</strong>
           </p>
 
           <dl className="flex flex-wrap gap-x-10 gap-y-3 rounded-xl border border-line-soft bg-card px-5 py-4">
             <div className="flex flex-col gap-0.5">
-              <dt className="text-[0.72rem] text-faint">Reference</dt>
+              <dt className="text-[0.72rem] text-faint">{s(D.submitted.reference)}</dt>
               <dd className="font-display text-[1.0625rem] font-semibold tracking-wide">
                 {receipt.reference}
               </dd>
             </div>
             <div className="flex flex-col gap-0.5">
-              <dt className="text-[0.72rem] text-faint">Submitted</dt>
+              <dt className="text-[0.72rem] text-faint">{s(D.submitted.submittedAt)}</dt>
               <dd className="text-[0.9375rem] font-semibold">
                 {receipt.submittedAt
-                  ? new Date(receipt.submittedAt).toLocaleString(undefined, {
+                  ? new Date(receipt.submittedAt).toLocaleString(isZh ? "zh-Hant" : undefined, {
                       dateStyle: "long",
                       timeStyle: "short",
                     })
-                  : "Just now"}
+                  : s(D.submitted.justNow)}
               </dd>
             </div>
           </dl>
 
           <div className="flex max-w-xl flex-col gap-3 rounded-2xl border border-line bg-card p-6 shadow-card">
-            <span className="eyebrow text-faint">Two things left to do</span>
+            <span className="eyebrow text-faint">{s(D.submitted.twoThings)}</span>
             <ol className="flex list-none flex-col gap-3 p-0">
-              <li className="flex items-start gap-3">
-                <span className="flex size-[1.375rem] flex-none items-center justify-center rounded-full border-[1.5px] border-green-300 text-[0.72rem] font-bold text-accent-text">
-                  1
-                </span>
-                <span className="text-[0.9rem] leading-relaxed">
-                  Email your <strong className="font-semibold">600-word autobiography</strong>{" "}
-                  (Word format) to your training coordinator, and bring one printed copy.
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="flex size-[1.375rem] flex-none items-center justify-center rounded-full border-[1.5px] border-green-300 text-[0.72rem] font-bold text-accent-text">
-                  2
-                </span>
-                <span className="text-[0.9rem] leading-relaxed">
-                  Keep the <strong className="font-semibold">PDF copy</strong> of your signed
-                  application — download it now, this page is not saved.
-                </span>
-              </li>
+              {[D.submitted.todo1, D.submitted.todo2].map((todo, index) => (
+                <li key={todo.en} className="flex items-start gap-3">
+                  <span className="flex size-[1.375rem] flex-none items-center justify-center rounded-full border-[1.5px] border-green-300 text-[0.72rem] font-bold text-accent-text">
+                    {index + 1}
+                  </span>
+                  <span className="text-[0.9rem] leading-relaxed">{s(todo)}</span>
+                </li>
+              ))}
             </ol>
           </div>
 
           <p className="text-[0.9rem] text-muted">
-            Questions? <a href="mailto:ashley.yong@tzuchi.us">ashley.yong@tzuchi.us</a> ·
-            Deputy Director, Talent Cultivation Department
+            {s(D.landing.questions)}{" "}
+            <a href="mailto:ashley.yong@tzuchi.us">ashley.yong@tzuchi.us</a> ·{" "}
+            {s(D.org.contactRole)}
           </p>
         </div>
 
@@ -165,15 +165,15 @@ export default function Submitted() {
           </div>
 
           <div className="flex flex-col gap-1">
-            <span className="text-base font-semibold">Your signed application</span>
+            <span className="text-base font-semibold">{s(D.submitted.yourApplication)}</span>
             <span className="truncate text-[0.8125rem] text-muted">
-              {name} · 8 pages · signed
+              {format(s(D.submitted.signedPages), name)}
             </span>
           </div>
 
           {error ? <Callout tone="error">{error}</Callout> : null}
           {downloaded && !error ? (
-            <Callout tone="success">Downloaded. Keep it somewhere safe.</Callout>
+            <Callout tone="success">{s(D.submitted.downloaded)}</Callout>
           ) : null}
 
           <Button
@@ -184,14 +184,14 @@ export default function Submitted() {
           >
             {progress ? (
               progress.page === 0 ? (
-                "Preparing…"
+                s(D.action.preparing)
               ) : (
-                `Rendering page ${progress.page} of ${progress.total}…`
+                format(s(D.submitted.renderingPage), progress.page, progress.total)
               )
             ) : (
               <>
                 <DownloadIcon size={17} />
-                Download PDF
+                {s(D.action.download)}
               </>
             )}
           </Button>
@@ -202,7 +202,7 @@ export default function Submitted() {
             disabled={progress !== null}
           >
             <PrintIcon size={16} />
-            Print
+            {s(D.action.print)}
           </Button>
         </div>
       </main>
@@ -210,8 +210,16 @@ export default function Submitted() {
       <SiteFooter />
 
       {/* The document itself — off-screen, and the source for both PDF and print. */}
-      <div className="avct-print-host pointer-events-none fixed -left-[20000px] top-0" aria-hidden="true">
-        <ApplicationDocument rootRef={documentRef} data={receipt.data} mode="official" scale={1} />
+      <div
+        className="avct-print-host pointer-events-none fixed -left-[20000px] top-0"
+        aria-hidden="true"
+      >
+        <ApplicationDocument
+          rootRef={documentRef}
+          data={receipt.data}
+          mode="official"
+          scale={1}
+        />
       </div>
     </div>
   );
