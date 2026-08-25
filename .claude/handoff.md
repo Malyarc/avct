@@ -33,9 +33,18 @@ every page, persisted per browser.
 - The Faith Corps PDF was downloaded from the live admin and inspected page by
   page: 8 pages, exactly A4, the ㊣ Recommending Person block filled and the ◎
   Commissioner Mentor block blank, as the form requires.
-- `npm run audit` reports **0 issues** across 14 routes × 5 viewports × 2
-  languages, against the live site.
+- `npm run audit` reports **0 issues across 140/140 pages** (14 routes × 5
+  viewports × 2 languages) against the live site. The denominator matters: it
+  is the proof every page actually loaded and mounted.
+- The audit harness itself is mutation-tested — an injected 2000 px element is
+  caught as 180 issues, and a dead server exits non-zero rather than reporting
+  a clean run.
 - 118 tests green. Validation rules are mutation-tested.
+- `npm run lint` (oxlint) is silent.
+- The four paths most recently changed were each exercised live rather than
+  only unit-tested: draft restore across a reload, a drawn signature (19 KB
+  PNG into the document), a 900×310 photo centre-cropped to 640×832, and the
+  admin "new this week" stat reading 2 against the real Neon rows.
 - The Netlify free-plan badge is hidden.
 
 ## Netlify
@@ -66,6 +75,9 @@ Nothing blocking. In rough priority order:
    application). It prints cleanly and the Chinese is exact, but the text is
    not selectable.
 4. **Move photos out of the database** if the cohort grows past a few thousand.
+5. **Revisit the linter** when `typescript-eslint` supports TypeScript 7. Today
+   it does not, so the project lints with oxlint; the type-aware rules eslint
+   would add are not available at any price right now.
 
 ## Recommended next task
 
