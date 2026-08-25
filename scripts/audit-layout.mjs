@@ -37,6 +37,8 @@ const VIEWPORTS = [
 
 const browser = await chromium.launch();
 let total = 0;
+let audited = 0;
+const failures = [];
 
 for (const lang of ["en", "zh"]) {
   for (const vp of VIEWPORTS) {
@@ -55,8 +57,26 @@ for (const lang of ["en", "zh"]) {
     );
 
     for (const route of ROUTES) {
-      await page.goto(BASE + route, { waitUntil: "networkidle" }).catch(() => {});
+      // A swallowed navigation error would let a dead server report a clean
+      // run. Count the failure instead, and prove the app actually mounted.
+      try {
+        const response = await page.goto(BASE + route, { waitUntil: "networkidle" });
+        if (response && !response.ok()) {
+          throw new Error(`HTTP ${response.status()}`);
+        }
+      } catch (error) {
+        failures.push(`${lang} ${vp.name} ${route}: ${error.message}`);
+        continue;
+      }
       await page.waitForTimeout(500);
+      const mounted = await page.evaluate(
+        () => !!document.querySelector("#root")?.firstElementChild,
+      );
+      if (!mounted) {
+        failures.push(`${lang} ${vp.name} ${route}: app did not mount`);
+        continue;
+      }
+      audited += 1;
       // Scroll to the bottom so sticky bars are measured where they bite.
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
       await page.waitForTimeout(350);
@@ -71,5 +91,17 @@ for (const lang of ["en", "zh"]) {
   }
 }
 
-console.log(`\n=== ${total} issue(s) across ${ROUTES.length} routes x ${VIEWPORTS.length} viewports x 2 languages ===`);
 await browser.close();
+
+const expected = ROUTES.length * VIEWPORTS.length * 2;
+if (failures.length) {
+  console.log(`\n### ${failures.length} page(s) could not be audited`);
+  for (const failure of failures) console.log("  -", failure);
+}
+console.log(
+  `\n=== ${total} issue(s) across ${audited}/${expected} pages ` +
+    `(${ROUTES.length} routes x ${VIEWPORTS.length} viewports x 2 languages) ===`,
+);
+// Exit non-zero so this can gate a commit rather than relying on someone
+// reading the last line.
+if (total > 0 || failures.length > 0 || audited < expected) process.exit(1);

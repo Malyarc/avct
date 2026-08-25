@@ -67,6 +67,14 @@ overflow at 320 px, content behind the sticky bar, 8 px sliders, unnamed
 buttons — and it is the cheapest way to keep them from coming back. When a
 change touches layout, also run `npm run shots` and look at the screens.
 
+**Read the audit's page count, not just its issue count.** The last line reads
+`0 issue(s) across 140/140 pages`. A denominator it never reaches means pages
+failed to load and were skipped — a clean-looking run that proved nothing. The
+script exits non-zero on any issue, any navigation failure, and any shortfall
+in that count, so it can gate a commit rather than relying on someone reading
+it. Both audit and shots need `playwright`, which is a declared devDependency;
+if it goes missing the scripts fail loudly rather than reporting success.
+
 ## Known limitations
 
 - **The PDF is rasterised**, not vector: each page is a 288 dpi JPEG. It prints
