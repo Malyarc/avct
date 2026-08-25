@@ -378,9 +378,17 @@ function PageTwo({ data }: { data: ApplicationData }) {
             </td>
             <td className="doc-val" colSpan={3}>
               <CbList choices={EDUCATION_LEVELS} selected={[data.education]} />
-              <div style={{ marginTop: "0.8mm" }}>
-                畢業學校School<Line width="46mm">{data.school}</Line>
-                　科系Department/ Major<Line width="46mm">{data.major}</Line>
+              <div className="doc-field-row" style={{ marginTop: "0.8mm" }}>
+                <span className="doc-field-row__label">畢業學校School</span>
+                <span className="doc-field-row__line">
+                  <Ans>{data.school}</Ans>
+                </span>
+              </div>
+              <div className="doc-field-row">
+                <span className="doc-field-row__label">科系Department/ Major</span>
+                <span className="doc-field-row__line">
+                  <Ans>{data.major}</Ans>
+                </span>
               </div>
             </td>
           </tr>

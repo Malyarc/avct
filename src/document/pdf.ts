@@ -18,6 +18,11 @@ const JPEG_QUALITY = 0.94;
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
 
+/** Longest we wait for layout to settle before capturing anyway. */
+const LAYOUT_SETTLE_TIMEOUT_MS = 400;
+/** Guard against a font request that never resolves. */
+const FONT_READY_TIMEOUT_MS = 4000;
+
 export interface ExportProgress {
   page: number;
   total: number;
@@ -31,7 +36,10 @@ export class PdfExportError extends Error {
 async function waitForAssets(root: HTMLElement): Promise<void> {
   if (typeof document !== "undefined" && "fonts" in document) {
     try {
-      await document.fonts.ready;
+      await Promise.race([
+        document.fonts.ready,
+        new Promise((resolve) => setTimeout(resolve, FONT_READY_TIMEOUT_MS)),
+      ]);
     } catch {
       /* Font loading is best-effort; a fallback face still renders. */
     }
@@ -42,16 +50,32 @@ async function waitForAssets(root: HTMLElement): Promise<void> {
     images.map(async (image) => {
       if (image.complete && image.naturalWidth > 0) return;
       await new Promise<void>((resolve) => {
-        const done = () => resolve();
+        let settled = false;
+        const done = () => {
+          if (settled) return;
+          settled = true;
+          resolve();
+        };
         image.addEventListener("load", done, { once: true });
         image.addEventListener("error", done, { once: true });
+        // A broken or stalled image must not block the whole export.
+        setTimeout(done, FONT_READY_TIMEOUT_MS);
       });
     }),
   );
 
   // One more frame so layout settles after the exporting class is applied.
+  // Raced against a timer: requestAnimationFrame is paused in a background
+  // tab, and an export must not hang because the applicant switched tabs.
   await new Promise<void>((resolve) => {
-    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    let settled = false;
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+    requestAnimationFrame(() => requestAnimationFrame(done));
+    setTimeout(done, LAYOUT_SETTLE_TIMEOUT_MS);
   });
 }
 

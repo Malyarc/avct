@@ -414,3 +414,23 @@
 .avct-doc[data-mode="official"] .doc-sig-notice {
   display: none;
 }
+
+/* A label followed by a rule that fills the rest of the row. */
+.doc-field-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1mm;
+}
+.doc-field-row__label {
+  flex: none;
+}
+.doc-field-row__line {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-bottom: 0.4pt solid var(--doc-rule);
+  padding: 0 1mm;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

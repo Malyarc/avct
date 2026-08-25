@@ -21,8 +21,13 @@ import { D } from "../i18n/dictionary";
 
 const STROKE_COLOR = "#0a3f8f";
 const STROKE_WIDTH = 2.6;
-/** Ignore taps: a real signature is more than a dot. */
-const MIN_STROKE_POINTS = 6;
+/**
+ * Ignore accidental taps. Point count is the wrong test — a quick, confident
+ * signature can be captured in very few pointermove samples — so measure how
+ * far the ink actually travels instead.
+ */
+const MIN_INK_EXTENT_PX = 16;
+const MIN_INK_LENGTH_PX = 32;
 
 export interface SignaturePadHandle {
   clear: () => void;
@@ -164,16 +169,44 @@ export function SignaturePad({
     return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   };
 
+  /** Bounding box and total path length of every stroke drawn so far. */
+  const inkExtent = useCallback(() => {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    let length = 0;
+
+    for (const stroke of strokes.current) {
+      for (let index = 0; index < stroke.length; index += 1) {
+        const point = stroke[index];
+        if (point.x < minX) minX = point.x;
+        if (point.x > maxX) maxX = point.x;
+        if (point.y < minY) minY = point.y;
+        if (point.y > maxY) maxY = point.y;
+        if (index > 0) {
+          length += Math.hypot(point.x - stroke[index - 1].x, point.y - stroke[index - 1].y);
+        }
+      }
+    }
+    if (maxX === -Infinity) return { width: 0, height: 0, length: 0 };
+    return { width: maxX - minX, height: maxY - minY, length };
+  }, []);
+
   const commit = useCallback(() => {
-    const totalPoints = strokes.current.reduce((sum, stroke) => sum + stroke.length, 0);
-    if (totalPoints < MIN_STROKE_POINTS) {
+    const { width, height, length } = inkExtent();
+    const meaningful =
+      length >= MIN_INK_LENGTH_PX ||
+      width >= MIN_INK_EXTENT_PX ||
+      height >= MIN_INK_EXTENT_PX;
+    if (!meaningful) {
       setHasInk(false);
       onChange(null);
       return;
     }
     setHasInk(true);
     onChange(exportTrimmed());
-  }, [exportTrimmed, onChange]);
+  }, [exportTrimmed, inkExtent, onChange]);
 
   const clear = useCallback(() => {
     strokes.current = [];

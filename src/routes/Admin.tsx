@@ -123,6 +123,14 @@ export default function Admin() {
               autoFocus
               value={code}
               onChange={(event) => setCode(event.target.value)}
+              onKeyDown={(event) => {
+                // Do not rely on implicit form submission: mobile keyboards
+                // and embedded browsers deliver Enter inconsistently.
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  void signIn();
+                }
+              }}
               aria-invalid={Boolean(error) || undefined}
               aria-describedby={error ? "admin-code-error" : undefined}
               className={`h-13 rounded-xl border bg-black/25 px-4 text-[1.375rem] tracking-[0.5em] text-white outline-none transition-colors placeholder:tracking-normal placeholder:text-white/30 ${
