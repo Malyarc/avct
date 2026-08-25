@@ -254,7 +254,7 @@ describe("validation", () => {
       family: [{ ...createFamilyMember("f1"), tel: "626-555-0000" }],
     });
     const errors = familyStep.validate(started);
-    expect(Object.keys(errors).sort()).toEqual(["family.0.name", "family.0.relationship"]);
+    expect(Object.keys(errors).toSorted()).toEqual(["family.0.name", "family.0.relationship"]);
   });
 
   it.each([

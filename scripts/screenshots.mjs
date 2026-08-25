@@ -37,8 +37,8 @@ for (const lang of ["en", "zh"]) {
     const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 2 });
     const page = await context.newPage();
     await page.goto(BASE, { waitUntil: "domcontentloaded" });
-    await page.evaluate(([lang, draft]) => {
-      localStorage.setItem("avct.lang", lang);
+    await page.evaluate(([language, draft]) => {
+      localStorage.setItem("avct.lang", language);
       localStorage.setItem("avct.draft.v1", JSON.stringify(draft));
     }, [lang, DRAFT]);
     for (const [name, route] of ROUTES) {

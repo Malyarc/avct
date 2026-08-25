@@ -43,7 +43,7 @@ async function request<T>(
       credentials: "same-origin",
       headers: {
         ...(json !== undefined ? { "Content-Type": "application/json" } : {}),
-        ...(rest.headers ?? {}),
+        ...rest.headers,
       },
       ...(json !== undefined ? { body: JSON.stringify(json) } : {}),
     });

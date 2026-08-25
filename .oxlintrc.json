@@ -1,0 +1,57 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "react",
+    "typescript",
+    "unicorn",
+    "oxc"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+  "env": {
+    "browser": true,
+    "es2024": true
+  },
+  "ignorePatterns": [
+    "dist",
+    "design",
+    ".shots",
+    "node_modules",
+    "coverage"
+  ],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "eslint/no-underscore-dangle": [
+      "error",
+      {
+        "allow": [
+          "require_",
+          "__audit"
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "netlify/functions/**/*.mts",
+        "scripts/**/*.mjs",
+        "*.config.ts"
+      ],
+      "env": {
+        "browser": false,
+        "node": true
+      }
+    },
+    {
+      "files": [
+        "scripts/audit-rules.js"
+      ],
+      "rules": {
+        "unicorn/consistent-function-scoping": "off"
+      }
+    }
+  ]
+}

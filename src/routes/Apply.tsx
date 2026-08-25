@@ -116,6 +116,9 @@ export default function Apply() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     headingRef.current?.focus();
+    // Reacting to a route change, alongside the scroll and focus work that has
+    // to happen after paint — not derivable during render.
+    // oxlint-disable-next-line set-state-in-effect
     setRailOpen(false);
     markVisited(step.id);
   }, [step.id, markVisited]);

@@ -1090,6 +1090,13 @@ export function ExperienceStep({ errors }: StepProps): ReactElement {
  * 8 — Availability & sizing
  * ================================================================== */
 
+/* The paper form spells the "already received" bracelet option out in full;
+   the generic choice renderer would print it as "已領過 Already received". */
+function beadsLabel(choice: Choice, lang: "en" | "zh"): string {
+  if (choice.key !== "received") return `${choice.zh} ${choice.en}`;
+  return lang === "zh" ? "已領過（無需再申請）" : "已領過 Already received";
+}
+
 export function AvailabilityStep({ errors }: StepProps): ReactElement {
   const { data, set, update } = useApplication();
   const tr = useT();
@@ -1106,13 +1113,6 @@ export function AvailabilityStep({ errors }: StepProps): ReactElement {
       return { ...previous, availability: [...next] };
     });
   };
-
-  const beadsLabel = (choice: Choice, lang: "en" | "zh"): string =>
-    choice.key === "received"
-      ? lang === "zh"
-        ? "已領過（無需再申請）"
-        : "已領過 Already received"
-      : `${choice.zh} ${choice.en}`;
 
   return (
     <div className="flex min-w-0 flex-col gap-8">

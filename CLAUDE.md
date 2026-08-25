@@ -56,6 +56,7 @@ validation and API errors — `tests/i18n.test.ts` fails if either half is empty
 ## Before committing
 
 ```bash
+npm run lint                                # oxlint, must be silent
 npm run verify                              # typecheck + tests + build
 npm run build && npx vite preview --port 4173
 npm run audit -- http://localhost:4173      # must print 0 issue(s)
@@ -81,6 +82,14 @@ change touches layout, also run `npm run shots` and look at the screens.
   accounts and no audit trail of who viewed what.
 - **Section (17) is never filled.** Mentor signatures are collected on paper.
   The names print beside the lines as a reference; the lines stay blank.
+- **The linter is oxlint, not eslint.** No published `typescript-eslint`
+  supports TypeScript 7 (its peer range stops below 6.1), so an eslint setup
+  here would have to be forced past its own compatibility check. oxlint parses
+  TS and TSX natively with no TypeScript peer, so it actually runs. Rules that
+  fight a deliberate choice are disabled at the line with the reason written
+  next to them — see `no-control-regex` in `src/form/normalize.ts` and the
+  three `set-state-in-effect` sites. Revisit if typescript-eslint ships TS 7
+  support and the type-aware rules become worth the second toolchain.
 - **`TBD` prints on the form** for the team allocations the department has not
   assigned yet (Mutual Love team, Concerted Effort team and its leader). That
   is deliberate — it comes from the department's own spreadsheet and tells the

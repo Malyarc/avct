@@ -55,7 +55,9 @@ export function isSafeImageDataUrl(value: unknown): value is string {
 
 function text(value: unknown, max = MAX_TEXT): string {
   if (typeof value !== "string") return "";
-  // Strip control characters; they have no place in a printed form.
+  // Stripping control characters is the whole point of this line: they have no
+  // place in a printed form, and they are exactly what an injection probe sends.
+  // oxlint-disable-next-line no-control-regex
   return value.replace(/[\u0000-\u001F\u007F]/g, "").trim().slice(0, max);
 }
 

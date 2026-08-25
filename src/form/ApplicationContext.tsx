@@ -54,20 +54,23 @@ const ApplicationContext = createContext<ApplicationContextValue | null>(null);
 const SAVE_DEBOUNCE_MS = 400;
 
 export function ApplicationProvider({ children }: { children: ReactNode }) {
-  const initial = useRef<{ data: ApplicationData; restored: boolean }>(undefined);
-  if (!initial.current) {
+  /* Read the stored draft exactly once, before the first paint. A lazy state
+     initialiser is the right tool: it runs on the first render only, and —
+     unlike writing to a ref during render — it never reads mutable state
+     while React is rendering. */
+  const [initial] = useState<{ data: ApplicationData; restored: boolean }>(() => {
     const draft = typeof window === "undefined" ? null : loadDraft();
     const usable = draft && isApplicationStarted(draft) ? draft : null;
-    initial.current = {
+    return {
       data: usable ?? createEmptyApplication(),
       restored: usable != null,
     };
-  }
+  });
 
-  const [data, setData] = useState<ApplicationData>(initial.current.data);
+  const [data, setData] = useState<ApplicationData>(initial.data);
   const [attempted, setAttempted] = useState<ReadonlySet<string>>(() => new Set<string>());
   const [visited, setVisited] = useState<ReadonlySet<string>>(() => new Set<string>());
-  const [restored, setRestored] = useState(initial.current.restored);
+  const [restored, setRestored] = useState(initial.restored);
   const [autosaveFailed, setAutosaveFailed] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const firstRun = useRef(true);

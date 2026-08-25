@@ -47,8 +47,8 @@ for (const lang of ["en", "zh"]) {
     const page = await context.newPage();
     await page.goto(BASE, { waitUntil: "domcontentloaded" });
     await page.evaluate(
-      ([lang, draft]) => {
-        localStorage.setItem("avct.lang", lang);
+      ([language, draft]) => {
+        localStorage.setItem("avct.lang", language);
         localStorage.setItem("avct.draft.v1", JSON.stringify(draft));
       },
       [lang, DRAFT],

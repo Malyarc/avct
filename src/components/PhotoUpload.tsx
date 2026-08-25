@@ -39,9 +39,12 @@ export async function processPhoto(file: File): Promise<string> {
   try {
     const image = await new Promise<HTMLImageElement>((resolve, reject) => {
       const element = new Image();
-      element.onload = () => resolve(element);
-      element.onerror = () =>
-        reject(new PhotoError("unreadable"));
+      element.addEventListener("load", () => resolve(element), { once: true });
+      element.addEventListener(
+        "error",
+        () => reject(new PhotoError("unreadable")),
+        { once: true },
+      );
       element.src = url;
     });
 

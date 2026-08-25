@@ -76,6 +76,9 @@ function StatCard({ label, value, tone }: { label: string; value: number; tone?:
 export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
   const { s: str, isZh } = useT();
   const [rows, setRows] = useState<ApplicationSummary[] | null>(null);
+  /* Stamped when a list arrives, so the "this week" count is derived from a
+     fixed instant instead of re-reading the clock on every render. */
+  const [loadedAt, setLoadedAt] = useState(0);
   const [listError, setListError] = useState<Phrase | null>(null);
   const [query, setQuery] = useState("");
   const [trackFilter, setTrackFilter] = useState<TrackFilter>("all");
@@ -96,17 +99,24 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
     if (!result.ok) {
       setListError(result.error);
       setRows([]);
+      setLoadedAt(Date.now());
       return;
     }
     setRows(result.value.applications);
+    setLoadedAt(Date.now());
   }, []);
 
   useEffect(() => {
+    // Fetching on mount: `load` only calls setState after an await.
+    // oxlint-disable-next-line set-state-in-effect
     void load();
   }, [load]);
 
   useEffect(() => {
     if (!selectedId) {
+      // Clearing the selection tears down the detail panel; this effect owns
+      // the request lifecycle, so the reset belongs with it.
+      // oxlint-disable-next-line set-state-in-effect
       setRecord(null);
       return;
     }
@@ -150,14 +160,14 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
 
   const stats = useMemo(() => {
     const all = rows ?? [];
-    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const weekAgo = loadedAt - 7 * 24 * 60 * 60 * 1000;
     return {
       total: all.length,
       commissioner: all.filter((row) => row.track === "commissioner").length,
       faithCorps: all.filter((row) => row.track === "faithCorps").length,
       thisWeek: all.filter((row) => new Date(row.submittedAt).getTime() >= weekAgo).length,
     };
-  }, [rows]);
+  }, [rows, loadedAt]);
 
   const downloadPdf = async () => {
     const root = documentRef.current;

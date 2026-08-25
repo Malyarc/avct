@@ -116,7 +116,7 @@ export default function Guidelines() {
       (entries) => {
         const visible = entries
           .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+          .toSorted((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
         if (visible) setActive(visible.target.id);
       },
       { rootMargin: "-96px 0px -60% 0px", threshold: 0 },

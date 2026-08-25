@@ -39,6 +39,12 @@ interface Point {
   y: number;
 }
 
+/** Pointer position in canvas-local CSS pixels. */
+function pointFrom(event: ReactPointerEvent<HTMLCanvasElement>): Point {
+  const rect = event.currentTarget.getBoundingClientRect();
+  return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+}
+
 export function SignaturePad({
   onChange,
   value,
@@ -164,10 +170,6 @@ export function SignaturePad({
     return out.toDataURL("image/png");
   }, []);
 
-  const pointFrom = (event: ReactPointerEvent<HTMLCanvasElement>): Point => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
-  };
 
   /** Bounding box and total path length of every stroke drawn so far. */
   const inkExtent = useCallback(() => {
