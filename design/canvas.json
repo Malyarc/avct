@@ -1,0 +1,47 @@
+{
+  "pages": [
+    { "id": "applicant", "name": "Applicant journey" },
+    { "id": "admin", "name": "Admin & system" }
+  ],
+  "artboards": [
+    { "file": "Main.dc.html", "title": "1 · Landing", "page": "applicant", "x": 0, "y": 0, "w": 1440, "h": 1180 },
+    { "file": "Wizard.dc.html", "title": "2 · Wizard — Personal Details", "page": "applicant", "x": 1560, "y": 0, "w": 1440, "h": 1240 },
+    { "file": "Checklists.dc.html", "title": "3 · Wizard — Skills", "page": "applicant", "x": 3120, "y": 0, "w": 1120, "h": 1300 },
+    { "file": "Reflection.dc.html", "title": "4 · Wizard — Availability & Reflection", "page": "applicant", "x": 4360, "y": 0, "w": 1120, "h": 1400 },
+    { "file": "Review.dc.html", "title": "5 · Review & Sign", "page": "applicant", "x": 0, "y": 1540, "w": 1440, "h": 1420 },
+    { "file": "ThankYou.dc.html", "title": "6 · Thank you", "page": "applicant", "x": 1560, "y": 1540, "w": 1440, "h": 940 },
+    { "file": "Guidelines.dc.html", "title": "7 · Program Guidelines", "page": "applicant", "x": 3120, "y": 1540, "w": 1180, "h": 1560 },
+    { "file": "Mobile.dc.html", "title": "8 · Mobile — Wizard", "page": "applicant", "x": 4420, "y": 1540, "w": 390, "h": 1120 },
+
+    { "file": "AdminLogin.dc.html", "title": "9 · Admin sign-in", "page": "admin", "x": 0, "y": 0, "w": 1120, "h": 800 },
+    { "file": "Admin.dc.html", "title": "10 · Admin dashboard", "page": "admin", "x": 1240, "y": 0, "w": 1440, "h": 1120 },
+    { "file": "System.dc.html", "title": "11 · Design system", "page": "admin", "x": 0, "y": 920, "w": 1180, "h": 960 }
+  ],
+  "annotations": [
+    {
+      "id": "brief",
+      "page": "applicant",
+      "x": 0,
+      "y": -180,
+      "w": 640,
+      "text": "AVCT — Advanced Certification Training portal\nBuddhist Tzu Chi Foundation, Talent Cultivation Department\n\nReplaces the 8-page bilingual paper application with 9 guided steps, a faithful preview of the official form, and a signed PDF. Brand green sampled from the Tzu Chi lotus mark (#01603E)."
+    },
+    {
+      "id": "note-doc",
+      "page": "applicant",
+      "x": 0,
+      "y": 3010,
+      "w": 560,
+      "text": "The review screen renders the SAME document component used for print and PDF export — preview, print and download can never drift apart.\n\nSection (17) mentor signatures is hidden from the applicant and left blank in the PDF for the Talent Cultivation Team to sign by hand."
+    },
+    {
+      "id": "note-admin",
+      "page": "admin",
+      "x": 1240,
+      "y": -180,
+      "w": 560,
+      "text": "Admin is reachable at /admin by direct link only — never linked from the applicant site. Password-only sign-in, no applicant-facing chrome once inside."
+    }
+  ],
+  "launch": { "view": "canvas", "page": "applicant" }
+}

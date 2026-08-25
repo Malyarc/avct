@@ -1,0 +1,220 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Instrument+Sans:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;600&display=swap">
+  <style>
+    :root{
+      --green-950:#04291C; --green-900:#063F2A; --green-800:#01603E; --green-700:#0A7350;
+      --green-300:#8ACDB2; --green-100:#D9EDE3; --green-50:#EFF7F2;
+      --leaf:#84C920; --paper:#FAF8F4; --card:#FFFFFF; --line:#E6E1D7; --line-soft:#F0EDE5;
+      --ink:#1B211E; --muted:#5C665F; --faint:#8A938C;
+      --shadow-sm:0 1px 2px rgba(4,41,28,.06), 0 1px 3px rgba(4,41,28,.04);
+      --shadow-md:0 2px 4px rgba(4,41,28,.04), 0 12px 28px -8px rgba(4,41,28,.12);
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--paper);color:var(--ink);
+      font-family:"Instrument Sans",-apple-system,"Segoe UI",sans-serif;
+      -webkit-font-smoothing:antialiased;text-wrap:pretty;}
+    h1,h2,h3{font-family:"Source Serif 4",Georgia,serif;font-weight:600;margin:0;letter-spacing:-0.014em;text-wrap:balance;}
+    a{color:var(--green-700);text-decoration:none;} a:hover{color:var(--green-800);text-decoration:underline;}
+    .zh{font-family:"Noto Serif TC",serif;}
+    .li{display:flex;gap:13px;align-items:flex-start;}
+    .num{width:25px;height:25px;flex:none;border-radius:999px;background:var(--green-50);border:1px solid var(--green-100);
+      display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green-800);
+      font-family:"Source Serif 4",Georgia,serif;margin-top:1px;}
+    p{margin:0;font-size:15.5px;line-height:1.68;color:var(--muted);}
+  </style>
+</helmet>
+
+<div style="width:1180px;min-height:1560px;background:var(--paper);display:flex;flex-direction:column;">
+
+  <header style="display:flex;align-items:center;justify-content:space-between;padding:18px 56px;border-bottom:1px solid var(--line-soft);background:var(--card);">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <img src="./logo.png" alt="Tzu Chi" style="width:40px;height:auto;display:block;">
+      <div style="display:flex;flex-direction:column;">
+        <div style="font-size:14px;font-weight:600;">Buddhist Tzu Chi Foundation</div>
+        <div style="font-size:11.5px;color:var(--faint);">Talent Cultivation Department</div>
+      </div>
+    </div>
+    <span style="display:inline-flex;align-items:center;gap:9px;background:var(--green-800);color:#fff;font-size:14px;font-weight:600;border-radius:999px;padding:10px 22px;">
+      Begin Application
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </span>
+  </header>
+
+  <div style="display:grid;grid-template-columns:236px minmax(0,1fr);gap:0;flex-grow:1;">
+
+    <!-- on-page nav -->
+    <aside style="padding:48px 24px;border-right:1px solid var(--line-soft);">
+      <div style="position:sticky;top:32px;display:flex;flex-direction:column;gap:3px;">
+        <div style="font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:0 12px 10px;">On this page</div>
+        <span style="font-size:14px;font-weight:600;color:var(--green-800);background:var(--green-50);border-radius:8px;padding:9px 12px;">Eligibility</span>
+        <span style="font-size:14px;color:var(--muted);padding:9px 12px;">Registration</span>
+        <span style="font-size:14px;color:var(--muted);padding:9px 12px;">Class schedule</span>
+        <span style="font-size:14px;color:var(--muted);padding:9px 12px;">Certification eligibility</span>
+        <span style="font-size:14px;color:var(--muted);padding:9px 12px;">Contact</span>
+      </div>
+    </aside>
+
+    <main style="padding:56px 72px 80px;max-width:800px;display:flex;flex-direction:column;gap:44px;">
+
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="width:22px;height:1px;background:var(--green-500,#35A57C);display:block;"></span>
+          <span style="font-size:12px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--green-700);">Program Guidelines &middot; Draft</span>
+        </div>
+        <h1 style="font-size:44px;line-height:1.1;">Advanced Certification Training for TCCA (Tzu Ching) Alumni</h1>
+        <p style="font-size:17.5px;">
+          Standards for alumni recommended for Certified Training as a Committee Member or
+          Faith Corps member, for the 2026&ndash;2027 cohort.
+        </p>
+      </div>
+
+      <section style="display:flex;flex-direction:column;gap:18px;">
+        <h2 style="font-size:27px;">AVCT Eligibility</h2>
+        <p>TCCA (Tzu Ching) alumni recommended for Certified Training as Committee Member or Faith Corps must meet all of the following requirements:</p>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="li"><span class="num">1</span><p>Served as a TCCA (Tzu Ching) officer or cadre and was issued the TCCA uniform while participating in a TCCA club at a U.S. university.</p></div>
+          <div class="li"><span class="num">2</span><p>Participated as a student or as staff in a national or overseas TCCA Retreat or Conference at least two (2) times.</p></div>
+          <div class="li"><span class="num">3</span><p>As a TCCA alumnus or alumna after graduation, served at least once as staff for a chapter, national, or overseas TCCA Retreat or Conference.</p></div>
+        </div>
+        <div style="background:var(--green-50);border:1px solid var(--green-100);border-left:none;border-radius:12px;padding:20px 24px;display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:15px;font-weight:600;color:var(--green-900);">Flexibility for the Headquarters Region</div>
+          <p style="font-size:14.5px;color:var(--green-900);opacity:.82;">
+            Recommendations are generally based on meeting all three conditions above. In view
+            of the different environments for TCCA recruitment and activities across chapters,
+            and with input from the Chapter CEO, the Chapter CEO and team retain flexibility to
+            make further adjustments. The Headquarters Region has adjusted the requirement so
+            that meeting <strong>any two of the three</strong> conditions is sufficient.
+          </p>
+        </div>
+      </section>
+
+      <div style="height:1px;background:var(--line-soft);"></div>
+
+      <section style="display:flex;flex-direction:column;gap:18px;">
+        <h2 style="font-size:27px;">Registration</h2>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="li"><span class="num">1</span><p>Complete the registration form.</p></div>
+          <div class="li"><span class="num">2</span><p>Upload your 600-word (or more) autobiography.</p></div>
+          <div class="li"><span class="num">3</span><p>Upload an electronic headshot of you wearing the Tzu Chi grey shirt with white collar, for use in producing the Training ID card.</p></div>
+          <div class="li"><span class="num">4</span><p><strong style="color:var(--ink);font-weight:600;">Training attire:</strong> grey shirt with white collar, white trousers, Tzu Chi blue belt, white shoes and white socks. Sisters should wear their hair in the Tzu Chi bun or TCCA alumni braids.</p></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:4px;">
+          <span style="display:flex;align-items:center;gap:9px;border:1px solid var(--green-300);background:var(--card);border-radius:11px;padding:13px 15px;font-size:13.5px;font-weight:600;color:var(--green-800);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            Registration Form
+          </span>
+          <span style="display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:var(--card);border-radius:11px;padding:13px 15px;font-size:13.5px;color:var(--muted);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+            Original paper form
+          </span>
+          <span style="display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:var(--card);border-radius:11px;padding:13px 15px;font-size:13.5px;color:var(--muted);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+            Autobiography upload
+          </span>
+        </div>
+      </section>
+
+      <div style="height:1px;background:var(--line-soft);"></div>
+
+      <section style="display:flex;flex-direction:column;gap:20px;">
+        <h2 style="font-size:27px;">Class Schedule</h2>
+        <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm);">
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));">
+            <div style="padding:16px 18px;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);">
+              <div style="font-size:12px;color:var(--faint);margin-bottom:3px;">2026</div>
+              <div style="font-size:16px;font-weight:600;color:var(--green-800);">Sept 27</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">In person &middot; Headquarters</div>
+            </div>
+            <div style="padding:16px 18px;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);">
+              <div style="font-size:12px;color:var(--faint);margin-bottom:3px;">2026</div>
+              <div style="font-size:16px;font-weight:600;">Oct 18</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Zoom, local centre</div>
+            </div>
+            <div style="padding:16px 18px;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);">
+              <div style="font-size:12px;color:var(--faint);margin-bottom:3px;">2026</div>
+              <div style="font-size:16px;font-weight:600;">Nov 15</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Zoom, local centre</div>
+            </div>
+            <div style="padding:16px 18px;border-bottom:1px solid var(--line-soft);">
+              <div style="font-size:12px;color:var(--faint);margin-bottom:3px;">2027</div>
+              <div style="font-size:16px;font-weight:600;">Jan 17</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Zoom, local centre</div>
+            </div>
+            <div style="padding:16px 18px;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);">
+              <div style="font-size:12px;color:var(--faint);margin-bottom:3px;">2027</div>
+              <div style="font-size:16px;font-weight:600;">Feb 21</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Zoom, local centre</div>
+            </div>
+            <div style="padding:16px 18px;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);">
+              <div style="font-size:12px;color:var(--faint);margin-bottom:3px;">2027</div>
+              <div style="font-size:16px;font-weight:600;">Apr 18</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Zoom, local centre</div>
+            </div>
+            <div style="padding:16px 18px;border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);">
+              <div style="font-size:12px;color:var(--faint);margin-bottom:3px;">2027</div>
+              <div style="font-size:16px;font-weight:600;">May 16</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Zoom, local centre</div>
+            </div>
+            <div style="padding:16px 18px;border-bottom:1px solid var(--line-soft);background:var(--green-50);">
+              <div style="font-size:12px;color:var(--green-700);margin-bottom:3px;">2027</div>
+              <div style="font-size:16px;font-weight:600;color:var(--green-800);">Jun 27</div>
+              <div style="font-size:12px;color:var(--green-700);margin-top:2px;">In person &middot; Headquarters</div>
+            </div>
+          </div>
+          <div style="padding:15px 18px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;">
+            <span style="font-size:13.5px;color:var(--muted);"><strong style="color:var(--ink);font-weight:600;">Class hours</strong> 12:00 PM &ndash; 4:00 PM</span>
+            <span style="font-size:13.5px;color:var(--muted);"><strong style="color:var(--ink);font-weight:600;">Conducted by</strong> the DAW team</span>
+            <span style="font-size:13.5px;color:var(--muted);"><strong style="color:var(--ink);font-weight:600;">Closing Ceremony 圓緣</strong> 8:00 AM &ndash; 4:00 PM at Headquarters (mandatory)</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="li"><span class="num" style="border-radius:6px;">&middot;</span><p>Attend all classes together at your local Tzu Chi centre, via the Zoom link provided by DAW. Expect email reminders and calendar invitations directly from DAW.</p></div>
+          <div class="li"><span class="num" style="border-radius:6px;">&middot;</span><p>Wear the required uniform during class, and turn your camera on during small-group discussions.</p></div>
+          <div class="li"><span class="num" style="border-radius:6px;">&middot;</span><p>The Talent Cultivation Department can arrange accommodation for participants travelling from outside the Headquarters region.</p></div>
+        </div>
+      </section>
+
+      <div style="height:1px;background:var(--line-soft);"></div>
+
+      <section style="display:flex;flex-direction:column;gap:18px;">
+        <h2 style="font-size:27px;">Certification Eligibility</h2>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="li"><span class="num">1</span><p>Complete at least <strong style="color:var(--ink);font-weight:600;">80% of the AVCT courses</strong> (6 sessions in English). In-person attendance at the Closing Ceremony is mandatory.</p></div>
+          <div class="li"><span class="num">2</span><p>Actively engage in the Tzu Chi Four Missions and Eight Footprints (四大八法); complete at least <strong style="color:var(--ink);font-weight:600;">300 hours</strong> of volunteer service.</p></div>
+          <div class="li"><span class="num">3</span><p>Report your volunteer hours to your designated Concerted Effort Team Leader by the end of each month.</p></div>
+          <div class="li"><span class="num">4</span><p>Cultivate at least <strong style="color:var(--ink);font-weight:600;">20 donor households</strong> (not including yourself) through fundraising. Redeem your fundraising record book from the Finance Department at your local region.</p></div>
+          <div class="li"><span class="num">5</span><p>Complete the Training Handbook.</p></div>
+          <div class="li"><span class="num">6</span><p>Hold Right Understanding and Right View (正知正見), and fully embody the Tzu Chi spirit and philosophy.</p></div>
+        </div>
+      </section>
+
+      <div style="background:var(--green-900);border-radius:16px;padding:32px 36px;display:flex;align-items:center;justify-content:space-between;gap:24px;">
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <h3 style="font-size:20px;color:#fff;">Questions about registration or eligibility?</h3>
+          <p style="color:#B9CFC3;font-size:14.5px;">Ashley Yong &middot; Deputy Director, Talent Cultivation Department</p>
+        </div>
+        <span style="flex:none;display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--green-900);font-size:14.5px;font-weight:600;border-radius:999px;padding:12px 22px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          ashley.yong@tzuchi.us
+        </span>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

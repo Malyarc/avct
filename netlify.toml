@@ -1,0 +1,48 @@
+# Netlify build & runtime configuration for AVCT.
+#
+# Frontend : Vite build at the repo root -> dist/
+# Backend  : one Netlify Function (v2, ESM) serving every /api/* route.
+# Database : Neon Postgres over HTTP. Set these environment variables under
+#            Site configuration -> Environment variables:
+#              DATABASE_URL    (required)  Neon pooled connection string
+#              ADMIN_PASSWORD  (optional)  defaults to 0314
+#              SESSION_SECRET  (recommended) long random string
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  # The functions import the shared form model straight from src/.
+  included_files = ["src/form/**"]
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  # /admin holds applicant personal data — never let a search engine index it.
+  for = "/admin"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[redirects]]
+  # SPA fallback. /api/* is claimed by the function's own `config.path`,
+  # which Netlify evaluates before this rule.
+  from = "/*"
+  to = "/index.html"
+  status = 200

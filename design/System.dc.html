@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Instrument+Sans:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;600&display=swap">
+  <style>
+    :root{
+      --green-950:#04291C; --green-900:#063F2A; --green-800:#01603E; --green-700:#0A7350;
+      --green-600:#178A63; --green-500:#35A57C; --green-300:#8ACDB2; --green-100:#D9EDE3; --green-50:#EFF7F2;
+      --leaf:#84C920; --paper:#FAF8F4; --card:#FFFFFF; --line:#E6E1D7; --line-soft:#F0EDE5;
+      --ink:#1B211E; --muted:#5C665F; --faint:#8A938C; --rose:#A33B34; --amber:#B4741A;
+      --shadow-sm:0 1px 2px rgba(4,41,28,.06), 0 1px 3px rgba(4,41,28,.04);
+      --shadow-md:0 2px 4px rgba(4,41,28,.04), 0 12px 28px -8px rgba(4,41,28,.12);
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--paper);color:var(--ink);
+      font-family:"Instrument Sans",-apple-system,"Segoe UI",sans-serif;
+      -webkit-font-smoothing:antialiased;text-wrap:pretty;}
+    h1,h2,h3{font-family:"Source Serif 4",Georgia,serif;font-weight:600;margin:0;letter-spacing:-0.012em;}
+    a{color:var(--green-700);text-decoration:none;} a:hover{color:var(--green-800);}
+    .zh{font-family:"Noto Serif TC",serif;}
+    .sw{display:flex;flex-direction:column;gap:6px;}
+    .chip{height:56px;border-radius:9px;border:1px solid rgba(0,0,0,.05);}
+    .swName{font-size:11.5px;font-weight:600;}
+    .swHex{font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums;}
+    .cap{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+  </style>
+</helmet>
+
+<div style="width:1180px;min-height:960px;background:var(--paper);padding:44px 48px;display:flex;flex-direction:column;gap:36px;">
+
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <span class="cap">Design system</span>
+      <h1 style="font-size:34px;">AVCT visual language</h1>
+    </div>
+    <img src="./logo.png" alt="Tzu Chi" style="width:64px;height:auto;display:block;">
+  </div>
+
+  <!-- Color -->
+  <section style="display:flex;flex-direction:column;gap:16px;">
+    <h2 style="font-size:20px;">Colour</h2>
+    <div style="display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:12px;">
+      <div class="sw"><span class="chip" style="background:#04291C;"></span><span class="swName">green 950</span><span class="swHex">#04291C</span></div>
+      <div class="sw"><span class="chip" style="background:#063F2A;"></span><span class="swName">green 900</span><span class="swHex">#063F2A</span></div>
+      <div class="sw"><span class="chip" style="background:#01603E;"></span><span class="swName">green 800 &middot; brand</span><span class="swHex">#01603E</span></div>
+      <div class="sw"><span class="chip" style="background:#0A7350;"></span><span class="swName">green 700</span><span class="swHex">#0A7350</span></div>
+      <div class="sw"><span class="chip" style="background:#178A63;"></span><span class="swName">green 600</span><span class="swHex">#178A63</span></div>
+      <div class="sw"><span class="chip" style="background:#35A57C;"></span><span class="swName">green 500</span><span class="swHex">#35A57C</span></div>
+      <div class="sw"><span class="chip" style="background:#8ACDB2;"></span><span class="swName">green 300</span><span class="swHex">#8ACDB2</span></div>
+      <div class="sw"><span class="chip" style="background:#D9EDE3;"></span><span class="swName">green 100</span><span class="swHex">#D9EDE3</span></div>
+      <div class="sw"><span class="chip" style="background:#EFF7F2;"></span><span class="swName">green 50</span><span class="swHex">#EFF7F2</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:12px;">
+      <div class="sw"><span class="chip" style="background:#84C920;"></span><span class="swName">leaf accent</span><span class="swHex">#84C920</span></div>
+      <div class="sw"><span class="chip" style="background:#FAF8F4;"></span><span class="swName">paper</span><span class="swHex">#FAF8F4</span></div>
+      <div class="sw"><span class="chip" style="background:#FFFFFF;"></span><span class="swName">card</span><span class="swHex">#FFFFFF</span></div>
+      <div class="sw"><span class="chip" style="background:#E6E1D7;"></span><span class="swName">line</span><span class="swHex">#E6E1D7</span></div>
+      <div class="sw"><span class="chip" style="background:#1B211E;"></span><span class="swName">ink</span><span class="swHex">#1B211E</span></div>
+      <div class="sw"><span class="chip" style="background:#5C665F;"></span><span class="swName">muted</span><span class="swHex">#5C665F</span></div>
+      <div class="sw"><span class="chip" style="background:#8A938C;"></span><span class="swName">faint</span><span class="swHex">#8A938C</span></div>
+      <div class="sw"><span class="chip" style="background:#A33B34;"></span><span class="swName">error</span><span class="swHex">#A33B34</span></div>
+      <div class="sw"><span class="chip" style="background:#B4741A;"></span><span class="swName">notice</span><span class="swHex">#B4741A</span></div>
+    </div>
+    <p style="margin:0;font-size:13.5px;color:var(--muted);max-width:760px;line-height:1.6;">
+      Green 800 is the Tzu Chi logo green, sampled from the official mark. The leaf accent
+      appears only on dark grounds and on the admin sign-in &mdash; never as body text.
+    </p>
+  </section>
+
+  <div style="height:1px;background:var(--line-soft);"></div>
+
+  <!-- Type -->
+  <section style="display:flex;flex-direction:column;gap:18px;">
+    <h2 style="font-size:20px;">Typography</h2>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px;">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <span class="cap">Source Serif 4 &middot; headings</span>
+        <div style="font-family:'Source Serif 4',Georgia,serif;font-size:46px;font-weight:600;letter-spacing:-0.026em;line-height:1.08;">Advanced Certification</div>
+        <div style="font-family:'Source Serif 4',Georgia,serif;font-size:27px;font-weight:600;">Section heading, 27px</div>
+        <div style="font-family:'Source Serif 4',Georgia,serif;font-size:19px;font-weight:600;">Card heading, 19px</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <span class="cap">Instrument Sans &middot; UI &amp; body</span>
+        <div style="font-size:18.5px;line-height:1.62;color:var(--muted);">Body large, 18.5px &mdash; used for the hero paragraph and step blurbs.</div>
+        <div style="font-size:14.5px;line-height:1.6;">Body, 14.5px &mdash; field values, table cells, help text.</div>
+        <div style="font-size:13px;font-weight:600;">Label, 13px semibold</div>
+        <div style="font-size:12.5px;color:var(--faint);">Hint, 12.5px faint</div>
+        <div style="display:flex;align-items:baseline;gap:10px;padding-top:6px;border-top:1px solid var(--line-soft);">
+          <span class="cap" style="letter-spacing:.09em;">Noto Serif TC</span>
+          <span class="zh" style="font-size:19px;color:var(--green-900);">慈濟十戒　委員慈誠培訓報名表</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div style="height:1px;background:var(--line-soft);"></div>
+
+  <!-- Components -->
+  <section style="display:flex;flex-direction:column;gap:18px;">
+    <h2 style="font-size:20px;">Controls</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;">
+
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <span class="cap">Buttons</span>
+        <span style="display:inline-flex;align-items:center;justify-content:center;gap:9px;background:var(--green-800);color:#fff;font-size:14.5px;font-weight:600;border-radius:999px;padding:12px 24px;box-shadow:var(--shadow-md);">Primary</span>
+        <span style="display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:14.5px;font-weight:600;border-radius:999px;padding:12px 24px;">Secondary</span>
+        <span style="display:inline-flex;align-items:center;justify-content:center;gap:9px;background:#DCD9D1;color:#9A9A93;font-size:14.5px;font-weight:600;border-radius:999px;padding:12px 24px;">Disabled</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <span class="cap">Text field</span>
+        <div style="height:46px;border:1px solid var(--line);background:var(--card);border-radius:9px;padding:0 14px;display:flex;align-items:center;font-size:15px;color:var(--faint);">Placeholder</div>
+        <div style="height:46px;border:1px solid var(--green-300);background:var(--card);border-radius:9px;padding:0 14px;display:flex;align-items:center;font-size:15px;">Filled value</div>
+        <div style="height:46px;border:1px solid var(--rose);background:#FDF6F5;border-radius:9px;padding:0 14px;display:flex;align-items:center;font-size:15px;">Invalid</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <span class="cap">Choice</span>
+        <div style="display:flex;gap:8px;">
+          <span style="border:1px solid var(--green-800);background:var(--green-800);color:#fff;font-weight:600;border-radius:999px;padding:9px 18px;font-size:14px;">On</span>
+          <span style="border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:999px;padding:9px 18px;font-size:14px;">Off</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;border:1px solid var(--green-700);background:var(--green-50);border-radius:9px;padding:10px 13px;font-size:14px;">
+          <span style="width:17px;height:17px;border-radius:5px;background:var(--green-800);display:flex;align-items:center;justify-content:center;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </span>
+          Checked
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:var(--card);border-radius:9px;padding:10px 13px;font-size:14px;color:var(--muted);">
+          <span style="width:17px;height:17px;border-radius:5px;border:1.5px solid var(--line);background:#fff;"></span>
+          Unchecked
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <span class="cap">Feedback</span>
+        <div style="display:flex;align-items:center;gap:9px;background:var(--green-50);border:1px solid var(--green-100);border-radius:10px;padding:11px 13px;font-size:13px;color:var(--green-900);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#01603E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          Step complete
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;background:#FDF6E9;border:1px solid #F0DFC0;border-radius:10px;padding:11px 13px;font-size:13px;color:#7A4E0F;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B4741A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
+          Needs attention
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;background:#FDF6F5;border:1px solid #EFD5D2;border-radius:10px;padding:11px 13px;font-size:13px;color:#7E2B26;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#A33B34" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          This field is required
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div style="height:1px;background:var(--line-soft);"></div>
+
+  <section style="display:flex;flex-direction:column;gap:14px;">
+    <h2 style="font-size:20px;">Principles</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;">
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;display:flex;flex-direction:column;gap:7px;">
+        <h3 style="font-size:16px;">Bilingual, never doubled</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.6;color:var(--muted);">The app speaks English. Chinese appears where the official form does &mdash; option labels, section names, the document itself.</p>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;display:flex;flex-direction:column;gap:7px;">
+        <h3 style="font-size:16px;">One question at a time</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.6;color:var(--muted);">The paper form asks 200 things on eight dense pages. Here they arrive in nine calm groups, each with a reason to exist.</p>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;display:flex;flex-direction:column;gap:7px;">
+        <h3 style="font-size:16px;">The document is the truth</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.6;color:var(--muted);">What you preview, print and download is one renderer. Preview and PDF cannot drift apart.</p>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

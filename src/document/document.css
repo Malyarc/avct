@@ -1,0 +1,416 @@
+/* ==================================================================
+   The official form, reproduced.
+   ------------------------------------------------------------------
+   Physical units throughout: this stylesheet describes paper, not a
+   screen. A4 = 210 x 297 mm with the source document's 12.7 mm
+   (720 twip) margins. The same markup is used for the on-screen
+   preview, window.print(), and the PDF export — there is exactly one
+   renderer, so the three can never drift apart.
+   ================================================================== */
+
+.avct-doc {
+  --doc-scale: 1;
+  --doc-ink: #000;
+  --doc-answer: #0a3f8f;
+  --doc-rule: #000;
+  --doc-shade: #ebebeb;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8mm;
+}
+
+.avct-page-shell {
+  width: calc(210mm * var(--doc-scale));
+  height: calc(297mm * var(--doc-scale));
+  flex: none;
+}
+
+.avct-page {
+  width: 210mm;
+  height: 297mm;
+  padding: 12.7mm 12.7mm 9mm;
+  box-sizing: border-box;
+  background: #fff;
+  color: var(--doc-ink);
+  font-family: var(--font-zh);
+  font-size: 8.4pt;
+  line-height: 1.42;
+  position: relative;
+  overflow: hidden;
+  transform: scale(var(--doc-scale));
+  transform-origin: top left;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 8px rgb(4 41 28 / 0.06), 0 18px 40px -14px rgb(4 41 28 / 0.22);
+}
+
+/* The paper is paper in both themes. */
+:root[data-theme="dark"] .avct-page,
+.avct-page {
+  color-scheme: light;
+}
+
+.avct-page__body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.avct-page__footer {
+  flex: none;
+  padding-top: 2mm;
+  text-align: right;
+  font-size: 6.4pt;
+  color: #555;
+  letter-spacing: 0.02em;
+}
+
+/* ------------------------------------------------------------------
+   Type
+   ------------------------------------------------------------------ */
+
+.avct-doc .zh {
+  font-family: var(--font-zh);
+}
+.avct-doc .en {
+  font-family: var(--font-display);
+}
+
+.doc-title {
+  text-align: center;
+  margin-bottom: 3mm;
+}
+.doc-title__zh {
+  font-size: 13pt;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.doc-title__en {
+  font-family: var(--font-display);
+  font-size: 11pt;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 0.8mm;
+}
+
+.doc-h {
+  font-weight: 700;
+  font-size: 9pt;
+  margin: 2.4mm 0 1mm;
+}
+
+.doc-p {
+  margin: 0 0 1mm;
+}
+
+.doc-en-note {
+  font-family: var(--font-display);
+  font-size: 7.4pt;
+  line-height: 1.35;
+}
+
+.doc-rule-dotted {
+  border: 0;
+  border-top: 1px dotted #7a7a7a;
+  margin: 2mm 0;
+}
+
+/* An answer written onto the form. */
+.doc-ans {
+  color: var(--doc-answer);
+  font-weight: 600;
+  font-family: var(--font-zh);
+  overflow-wrap: anywhere;
+}
+.doc-ans--blank {
+  color: #9a9a9a;
+  font-weight: 400;
+}
+
+/* A ruled write-on line with the answer sitting on it. */
+.doc-line {
+  display: inline-block;
+  min-width: 18mm;
+  border-bottom: 0.4pt solid var(--doc-rule);
+  padding: 0 1mm;
+  text-align: center;
+  vertical-align: baseline;
+}
+
+/* ------------------------------------------------------------------
+   Checkboxes — □ and ☑ as on the paper form
+   ------------------------------------------------------------------ */
+
+.doc-cb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7mm;
+  margin-right: 1.6mm;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+.doc-cb__box {
+  width: 2.6mm;
+  height: 2.6mm;
+  border: 0.4pt solid var(--doc-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  position: relative;
+  top: 0.25mm;
+  background: #fff;
+}
+.doc-cb__box svg {
+  width: 2.3mm;
+  height: 2.3mm;
+  display: block;
+}
+.doc-cb__label {
+  white-space: normal;
+}
+.doc-cb--wrap {
+  white-space: normal;
+  align-items: flex-start;
+}
+.doc-cb--wrap .doc-cb__box {
+  top: 0.9mm;
+}
+
+/* ------------------------------------------------------------------
+   Tables
+   ------------------------------------------------------------------ */
+
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.doc-table th,
+.doc-table td {
+  border: 0.4pt solid var(--doc-rule);
+  padding: 0.9mm 1.2mm;
+  vertical-align: middle;
+  font-weight: 400;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.doc-table .doc-th-band {
+  text-align: center;
+  font-weight: 700;
+  background: var(--doc-shade);
+  font-size: 8.6pt;
+  padding: 1.2mm;
+  line-height: 1.35;
+}
+.doc-table .doc-lbl {
+  text-align: center;
+  line-height: 1.28;
+  font-size: 7.8pt;
+}
+.doc-table .doc-lbl .en {
+  font-size: 7.4pt;
+  display: block;
+}
+.doc-table .doc-val {
+  font-size: 8.4pt;
+}
+.doc-table .doc-center {
+  text-align: center;
+}
+.doc-table--tight th,
+.doc-table--tight td {
+  padding: 0.7mm 1mm;
+}
+
+.doc-photo-cell {
+  padding: 1mm !important;
+  text-align: center;
+  vertical-align: top;
+}
+.doc-photo {
+  width: 100%;
+  aspect-ratio: 2 / 2.6;
+  object-fit: cover;
+  display: block;
+  border: 0.4pt solid #b6b6b6;
+}
+.doc-photo-note {
+  font-size: 5.9pt;
+  line-height: 1.3;
+  color: #6a6a6a;
+  margin-top: 0.8mm;
+}
+
+/* Wrapping list of checkboxes inside a table cell. */
+.doc-cb-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3mm 0;
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------------
+   Section (17) + consent
+   ------------------------------------------------------------------ */
+
+.doc-sig-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 2mm;
+  margin-bottom: 3.4mm;
+}
+.doc-sig-row__label {
+  flex: none;
+  width: 74mm;
+  font-size: 8pt;
+  line-height: 1.3;
+}
+.doc-sig-row__line {
+  flex: 1 1 auto;
+  border-bottom: 0.5pt solid var(--doc-ink);
+  height: 6mm;
+}
+.doc-sig-row__name {
+  flex: none;
+  font-size: 7.4pt;
+  color: #555;
+  width: 32mm;
+  text-align: right;
+}
+
+.doc-consent {
+  border: 0.4pt solid var(--doc-rule);
+  padding: 2.6mm 3mm;
+  margin-top: 2mm;
+}
+
+.doc-applicant-sig {
+  display: flex;
+  align-items: flex-end;
+  gap: 3mm;
+  margin-top: 5mm;
+}
+.doc-applicant-sig__label {
+  flex: none;
+  font-size: 8.4pt;
+  line-height: 1.35;
+}
+.doc-applicant-sig__pad {
+  flex: 1 1 auto;
+  border-bottom: 0.5pt solid var(--doc-ink);
+  height: 14mm;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0.5mm;
+}
+.doc-applicant-sig__pad img {
+  max-height: 13mm;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+.doc-applicant-sig__note {
+  flex: none;
+  font-size: 7.4pt;
+}
+
+.doc-notice {
+  border: 0.5pt dashed #7a7a7a;
+  background: #f7f7f5;
+  padding: 3mm 3.4mm;
+  color: #3d3d3d;
+  font-size: 8pt;
+  line-height: 1.5;
+}
+
+/* ------------------------------------------------------------------
+   Availability grid (13)
+   ------------------------------------------------------------------ */
+
+.doc-avail td {
+  height: 7mm;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------
+   Print
+   ------------------------------------------------------------------ */
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+  /* A document parked off-screen for export must come back for print. */
+  .avct-print-host {
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .avct-doc,
+  .avct-doc * {
+    visibility: visible;
+  }
+  .avct-doc {
+    position: absolute;
+    inset: 0 auto auto 0;
+    display: block;
+    gap: 0;
+  }
+  .avct-page-shell {
+    width: 210mm;
+    height: 297mm;
+  }
+  .avct-page {
+    transform: none !important;
+    box-shadow: none !important;
+    break-after: page;
+    page-break-after: always;
+  }
+  .avct-page-shell:last-child .avct-page {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  .doc-no-print {
+    display: none !important;
+  }
+}
+
+/* While exporting to PDF the document is rendered unscaled off-screen
+   so html2canvas captures true A4 geometry. */
+.avct-doc--exporting {
+  --doc-scale: 1 !important;
+  position: fixed;
+  left: -20000px;
+  top: 0;
+  z-index: -1;
+  gap: 0;
+}
+.avct-doc--exporting .avct-page {
+  box-shadow: none !important;
+}
+
+/* ------------------------------------------------------------------
+   Section (17) visibility.
+   Both blocks are always in the DOM; `data-mode` on the document root
+   picks which one shows, so the PDF exporter can flip to the official
+   form without re-rendering anything.
+   ------------------------------------------------------------------ */
+
+.avct-doc[data-mode="applicant"] .doc-sig-official {
+  display: none;
+}
+.avct-doc[data-mode="official"] .doc-sig-notice {
+  display: none;
+}

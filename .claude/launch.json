@@ -1,0 +1,21 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "avct-dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "--yes",
+        "netlify-cli",
+        "dev",
+        "--port",
+        "8888",
+        "--target-port",
+        "5173",
+        "--no-open",
+        "--offline"
+      ],
+      "port": 8888
+    }
+  ]
+}

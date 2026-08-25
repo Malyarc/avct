@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Instrument+Sans:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;600&display=swap">
+  <style>
+    :root{
+      --green-900:#063F2A; --green-800:#01603E; --green-700:#0A7350; --green-300:#8ACDB2;
+      --green-100:#D9EDE3; --green-50:#EFF7F2; --leaf:#84C920;
+      --paper:#FAF8F4; --card:#FFFFFF; --line:#E6E1D7; --line-soft:#F0EDE5;
+      --ink:#1B211E; --muted:#5C665F; --faint:#8A938C;
+      --shadow-sm:0 1px 2px rgba(4,41,28,.06), 0 1px 3px rgba(4,41,28,.04);
+      --shadow-md:0 2px 4px rgba(4,41,28,.04), 0 12px 28px -8px rgba(4,41,28,.12);
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--paper);color:var(--ink);
+      font-family:"Instrument Sans",-apple-system,"Segoe UI",sans-serif;
+      -webkit-font-smoothing:antialiased;text-wrap:pretty;}
+    h1,h2,h3{font-family:"Source Serif 4",Georgia,serif;font-weight:600;margin:0;letter-spacing:-0.014em;text-wrap:balance;}
+    a{color:var(--green-700);text-decoration:none;}
+    .zh{font-family:"Noto Serif TC",serif;}
+    .chk{display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:var(--card);
+      border-radius:10px;padding:12px 13px;font-size:14.5px;min-height:46px;}
+    .chk .box{width:18px;height:18px;flex:none;border:1.5px solid var(--line);border-radius:5px;background:#fff;}
+    .chk.on{border-color:var(--green-700);background:var(--green-50);}
+    .chk.on .box{border-color:var(--green-800);background:var(--green-800);display:flex;align-items:center;justify-content:center;}
+  </style>
+</helmet>
+
+<div style="width:390px;min-height:1120px;background:var(--paper);display:flex;flex-direction:column;">
+
+  <!-- compact header with progress -->
+  <header style="background:var(--card);border-bottom:1px solid var(--line-soft);padding:12px 18px 0;position:sticky;top:0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;">
+      <div style="display:flex;align-items:center;gap:9px;">
+        <img src="./logo.png" alt="Tzu Chi" style="width:30px;height:auto;display:block;">
+        <div style="display:flex;flex-direction:column;">
+          <span style="font-size:13px;font-weight:600;line-height:1.25;">Skills &amp; Talents</span>
+          <span style="font-size:11px;color:var(--faint);">Step 6 of 9 &middot; Section 11</span>
+        </div>
+      </div>
+      <span style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--green-700);font-weight:600;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        Saved
+      </span>
+    </div>
+    <div style="height:4px;border-radius:999px;background:var(--line-soft);overflow:hidden;margin-bottom:0;">
+      <div style="width:66%;height:100%;background:var(--green-700);border-radius:999px;"></div>
+    </div>
+    <!-- horizontal step chips -->
+    <div style="display:flex;gap:7px;overflow:hidden;padding:11px 0 12px;">
+      <span style="flex:none;font-size:11.5px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 11px;">4 Family</span>
+      <span style="flex:none;font-size:11.5px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 11px;">5 Involvement</span>
+      <span style="flex:none;font-size:11.5px;font-weight:600;color:#fff;background:var(--green-800);border:1px solid var(--green-800);border-radius:999px;padding:4px 11px;">6 Skills</span>
+      <span style="flex:none;font-size:11.5px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 11px;">7 Exp&hellip;</span>
+    </div>
+  </header>
+
+  <main style="padding:20px 18px 110px;display:flex;flex-direction:column;gap:18px;">
+
+    <div style="display:flex;flex-direction:column;gap:7px;">
+      <h1 style="font-size:26px;line-height:1.18;">Skills &amp; Talents</h1>
+      <p style="margin:0;font-size:15px;line-height:1.58;color:var(--muted);">
+        Pick everything that applies. It is fine to leave most categories empty.
+      </p>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:9px;background:var(--green-50);border:1px solid var(--green-100);border-radius:10px;padding:11px 14px;font-size:13.5px;color:var(--green-900);">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#01603E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      <strong style="font-weight:600;">7 selected</strong> across 4 categories
+    </div>
+
+    <!-- accordion category, open -->
+    <div style="background:var(--card);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow-sm);overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid var(--line-soft);">
+        <div style="display:flex;align-items:baseline;gap:8px;">
+          <span class="zh" style="font-size:16px;font-weight:600;color:var(--green-900);">語言</span>
+          <h3 style="font-size:16px;">Language</h3>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;">
+          <span style="font-size:11.5px;font-weight:600;color:var(--green-700);background:var(--green-50);border:1px solid var(--green-100);border-radius:999px;padding:2px 9px;">3</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5C665F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+        </div>
+      </div>
+      <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
+        <span class="chk on"><span class="box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>國語 Mandarin</span>
+        <span class="chk on"><span class="box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>英語 English</span>
+        <span class="chk on"><span class="box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>台語 Taiwanese</span>
+        <span class="chk"><span class="box"></span>日語 Japanese</span>
+        <span class="chk"><span class="box"></span>西班牙語 Spanish</span>
+        <span style="font-size:13.5px;color:var(--green-700);font-weight:600;padding:6px 2px;">Show 7 more</span>
+      </div>
+    </div>
+
+    <!-- collapsed categories -->
+    <div style="background:var(--card);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow-sm);overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid var(--line-soft);">
+        <div style="display:flex;align-items:baseline;gap:8px;">
+          <span class="zh" style="font-size:16px;font-weight:600;color:var(--green-900);">電腦</span>
+          <h3 style="font-size:16px;">Computer</h3>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;">
+          <span style="font-size:11.5px;font-weight:600;color:var(--green-700);background:var(--green-50);border:1px solid var(--green-100);border-radius:999px;padding:2px 9px;">2</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5C665F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid var(--line-soft);">
+        <div style="display:flex;align-items:baseline;gap:8px;">
+          <span class="zh" style="font-size:16px;font-weight:600;color:var(--green-900);">活動</span>
+          <h3 style="font-size:16px;">Activity</h3>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;">
+          <span style="font-size:11.5px;font-weight:600;color:var(--green-700);background:var(--green-50);border:1px solid var(--green-100);border-radius:999px;padding:2px 9px;">1</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5C665F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid var(--line-soft);">
+        <div style="display:flex;align-items:baseline;gap:8px;">
+          <span class="zh" style="font-size:16px;font-weight:600;color:var(--muted);">美工</span>
+          <h3 style="font-size:16px;color:var(--muted);">Arts and crafts</h3>
+        </div>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8A938C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 16px;">
+        <div style="display:flex;align-items:baseline;gap:8px;">
+          <span class="zh" style="font-size:16px;font-weight:600;color:var(--muted);">影視</span>
+          <h3 style="font-size:16px;color:var(--muted);">Documentation</h3>
+        </div>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8A938C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+    </div>
+  </main>
+
+  <!-- sticky bottom bar -->
+  <div style="position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px 18px 20px;display:flex;gap:11px;align-items:center;box-shadow:0 -8px 24px -14px rgba(4,41,28,.2);">
+    <span style="width:50px;height:50px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:12px;color:var(--muted);">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+    </span>
+    <span style="flex-grow:1;height:50px;display:flex;align-items:center;justify-content:center;gap:9px;background:var(--green-800);color:#fff;font-size:15.5px;font-weight:600;border-radius:12px;box-shadow:var(--shadow-md);">
+      Continue
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </span>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

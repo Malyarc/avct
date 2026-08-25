@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#01603e" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101512" media="(prefers-color-scheme: dark)" />
+
+    <title>Advanced Certification Training · Buddhist Tzu Chi Foundation</title>
+    <meta
+      name="description"
+      content="Apply for Tzu Chi Commissioner or Faith Corps certification training. The official eight-page application, rebuilt as nine guided steps."
+    />
+    <link rel="icon" type="image/png" sizes="32x32" href="/brand/icon-32.png" />
+    <link rel="apple-touch-icon" href="/brand/icon-180.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600&display=swap"
+    />
+
+    <script>
+      // Apply the stored theme before first paint so there is no flash.
+      (function () {
+        try {
+          var stored = localStorage.getItem("avct.theme");
+          if (stored === "dark" || stored === "light") {
+            document.documentElement.setAttribute("data-theme", stored);
+          }
+        } catch (e) {
+          /* private mode — fall back to the OS preference */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

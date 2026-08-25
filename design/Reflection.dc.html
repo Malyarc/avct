@@ -1,0 +1,236 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Instrument+Sans:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;600&display=swap">
+  <style>
+    :root{
+      --green-900:#063F2A; --green-800:#01603E; --green-700:#0A7350; --green-500:#35A57C;
+      --green-300:#8ACDB2; --green-100:#D9EDE3; --green-50:#EFF7F2;
+      --leaf:#84C920; --paper:#FAF8F4; --card:#FFFFFF; --line:#E6E1D7; --line-soft:#F0EDE5;
+      --ink:#1B211E; --muted:#5C665F; --faint:#8A938C;
+      --shadow-sm:0 1px 2px rgba(4,41,28,.06), 0 1px 3px rgba(4,41,28,.04);
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--paper);color:var(--ink);
+      font-family:"Instrument Sans",-apple-system,"Segoe UI",sans-serif;
+      -webkit-font-smoothing:antialiased;text-wrap:pretty;}
+    h1,h2,h3,h4{font-family:"Source Serif 4",Georgia,serif;font-weight:600;margin:0;letter-spacing:-0.012em;text-wrap:balance;}
+    a{color:var(--green-700);text-decoration:none;} a:hover{color:var(--green-800);text-decoration:underline;}
+    .zh{font-family:"Noto Serif TC",serif;}
+    .slotCell{border:1px solid var(--line);border-radius:8px;height:46px;background:var(--card);
+      display:flex;align-items:center;justify-content:center;}
+    .slotCell.on{background:var(--green-800);border-color:var(--green-800);}
+    .track{position:relative;height:6px;border-radius:999px;background:var(--line-soft);flex-grow:1;}
+    .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--green-700);}
+    .knob{position:absolute;top:50%;width:19px;height:19px;border-radius:999px;background:#fff;
+      border:2px solid var(--green-800);transform:translate(-50%,-50%);box-shadow:var(--shadow-sm);}
+    .pct{width:74px;flex:none;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--card);
+      display:flex;align-items:center;justify-content:center;gap:2px;font-size:14.5px;font-weight:600;}
+  </style>
+</helmet>
+
+<div style="width:1120px;min-height:1400px;background:var(--paper);padding:44px 48px 120px;display:flex;flex-direction:column;gap:36px;">
+
+  <!-- Availability -->
+  <section style="display:flex;flex-direction:column;gap:20px;">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:12px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--green-700);">Step 8 &middot; Form sections 13 &amp; 14</div>
+      <h1 style="font-size:36px;line-height:1.15;">Availability &amp; Sizing</h1>
+      <p style="margin:0;font-size:16px;color:var(--muted);line-height:1.6;max-width:640px;">
+        When you can serve, and the sizes for your volunteer vest and prayer beads.
+      </p>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px 26px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow-sm);">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;">
+        <div style="display:flex;align-items:baseline;gap:10px;">
+          <span class="zh" style="font-size:17px;font-weight:600;color:var(--green-900);">您方便投入慈濟志業的時段</span>
+          <h3 style="font-size:17px;">Available times</h3>
+        </div>
+        <span style="font-size:13px;color:var(--faint);">Tap cells, or drag across a row.</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:104px repeat(7,minmax(0,1fr));gap:8px;align-items:center;">
+        <span></span>
+        <span style="text-align:center;font-size:12.5px;font-weight:600;color:var(--muted);">Mon</span>
+        <span style="text-align:center;font-size:12.5px;font-weight:600;color:var(--muted);">Tue</span>
+        <span style="text-align:center;font-size:12.5px;font-weight:600;color:var(--muted);">Wed</span>
+        <span style="text-align:center;font-size:12.5px;font-weight:600;color:var(--muted);">Thu</span>
+        <span style="text-align:center;font-size:12.5px;font-weight:600;color:var(--muted);">Fri</span>
+        <span style="text-align:center;font-size:12.5px;font-weight:600;color:var(--green-800);">Sat</span>
+        <span style="text-align:center;font-size:12.5px;font-weight:600;color:var(--green-800);">Sun</span>
+
+        <span style="font-size:13.5px;color:var(--ink);"><span class="zh" style="color:var(--muted);">上午</span> Morning</span>
+        <span class="slotCell"></span><span class="slotCell"></span><span class="slotCell"></span>
+        <span class="slotCell"></span><span class="slotCell"></span>
+        <span class="slotCell on"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span class="slotCell on"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+
+        <span style="font-size:13.5px;color:var(--ink);"><span class="zh" style="color:var(--muted);">下午</span> Afternoon</span>
+        <span class="slotCell"></span><span class="slotCell"></span><span class="slotCell"></span>
+        <span class="slotCell"></span><span class="slotCell"></span>
+        <span class="slotCell on"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span class="slotCell on"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+
+        <span style="font-size:13.5px;color:var(--ink);"><span class="zh" style="color:var(--muted);">晚上</span> Evening</span>
+        <span class="slotCell"></span>
+        <span class="slotCell on"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span class="slotCell"></span>
+        <span class="slotCell on"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span class="slotCell"></span><span class="slotCell"></span><span class="slotCell"></span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;">
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;gap:13px;box-shadow:var(--shadow-sm);">
+        <div style="display:flex;align-items:baseline;gap:9px;">
+          <span class="zh" style="font-size:16px;font-weight:600;color:var(--green-900);">志工背心</span>
+          <h3 style="font-size:16px;">Volunteer Vest</h3>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="border:1px solid var(--line);border-radius:999px;padding:9px 20px;font-size:14px;color:var(--muted);">M</span>
+          <span style="border:1px solid var(--green-800);background:var(--green-800);color:#fff;font-weight:600;border-radius:999px;padding:9px 20px;font-size:14px;">L</span>
+          <span style="border:1px solid var(--line);border-radius:999px;padding:9px 20px;font-size:14px;color:var(--muted);">2L</span>
+          <span style="border:1px solid var(--line);border-radius:999px;padding:9px 20px;font-size:14px;color:var(--muted);">3L</span>
+          <span style="border:1px solid var(--line);border-radius:999px;padding:9px 20px;font-size:14px;color:var(--muted);">4L</span>
+          <span style="border:1px solid var(--line);border-radius:999px;padding:9px 20px;font-size:14px;color:var(--muted);">5L</span>
+          <span style="border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:14px;color:var(--muted);">已領 Already received</span>
+        </div>
+        <span style="font-size:12.5px;color:var(--faint);">Please measure before choosing.</span>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;gap:13px;box-shadow:var(--shadow-sm);">
+        <div style="display:flex;align-items:baseline;gap:9px;">
+          <span class="zh" style="font-size:16px;font-weight:600;color:var(--green-900);">琉璃念珠</span>
+          <h3 style="font-size:16px;">Buddhist Beads Bracelet</h3>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="border:1px solid var(--line);border-radius:999px;padding:9px 15px;font-size:14px;color:var(--muted);">加小 XS &middot; 15.5cm</span>
+          <span style="border:1px solid var(--green-800);background:var(--green-800);color:#fff;font-weight:600;border-radius:999px;padding:9px 15px;font-size:14px;">小 S &middot; 16.5cm</span>
+          <span style="border:1px solid var(--line);border-radius:999px;padding:9px 15px;font-size:14px;color:var(--muted);">中 M &middot; 18cm</span>
+          <span style="border:1px solid var(--line);border-radius:999px;padding:9px 15px;font-size:14px;color:var(--muted);">大 L &middot; 19.5cm</span>
+          <span style="border:1px solid var(--line);border-radius:999px;padding:9px 15px;font-size:14px;color:var(--muted);">加大 XL &middot; 20.5cm</span>
+          <span style="border:1px solid var(--line);border-radius:999px;padding:9px 15px;font-size:14px;color:var(--muted);">已領過 Already received</span>
+        </div>
+        <span style="font-size:12.5px;color:var(--faint);">If you already have beads, please do not reapply.</span>
+      </div>
+    </div>
+  </section>
+
+  <div style="height:1px;background:var(--line-soft);"></div>
+
+  <!-- Self reflection -->
+  <section style="display:flex;flex-direction:column;gap:20px;">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="font-size:12px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--green-700);">Step 9 &middot; Form sections 15 &amp; 16</div>
+      <h1 style="font-size:36px;line-height:1.15;">Self-Reflection</h1>
+      <p style="margin:0;font-size:16px;color:var(--muted);line-height:1.6;max-width:660px;">
+        An honest self-evaluation, from 0% (not yet) to 100% (fully observed). There is no
+        right answer &mdash; this is for your own reflection during training.
+      </p>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px 26px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow-sm);">
+      <div style="display:flex;align-items:baseline;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line-soft);margin-bottom:8px;">
+        <span class="zh" style="font-size:17px;font-weight:600;color:var(--green-900);">慈濟十戒</span>
+        <h3 style="font-size:17px;">Tzu Chi&rsquo;s Ten Precepts</h3>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:18px;padding:11px 0;">
+        <div style="width:270px;flex:none;display:flex;flex-direction:column;gap:1px;">
+          <span class="zh" style="font-size:14.5px;color:var(--green-900);">不殺生</span>
+          <span style="font-size:13px;color:var(--muted);">No killing</span>
+        </div>
+        <div class="track"><div class="fill" style="width:100%;"></div><span class="knob" style="left:100%;"></span></div>
+        <span class="pct" style="border-color:var(--green-300);color:var(--green-800);">100<span style="font-size:12px;opacity:.6;">%</span></span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:18px;padding:11px 0;border-top:1px solid var(--line-soft);">
+        <div style="width:270px;flex:none;display:flex;flex-direction:column;gap:1px;">
+          <span class="zh" style="font-size:14.5px;color:var(--green-900);">不偷盜</span>
+          <span style="font-size:13px;color:var(--muted);">No stealing</span>
+        </div>
+        <div class="track"><div class="fill" style="width:100%;"></div><span class="knob" style="left:100%;"></span></div>
+        <span class="pct" style="border-color:var(--green-300);color:var(--green-800);">100<span style="font-size:12px;opacity:.6;">%</span></span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:18px;padding:11px 0;border-top:1px solid var(--line-soft);">
+        <div style="width:270px;flex:none;display:flex;flex-direction:column;gap:1px;">
+          <span class="zh" style="font-size:14.5px;color:var(--green-900);">不抽菸，不吸毒，不嚼檳榔</span>
+          <span style="font-size:13px;color:var(--muted);">No smoking, using narcotics, or chewing betel nuts</span>
+        </div>
+        <div class="track"><div class="fill" style="width:95%;"></div><span class="knob" style="left:95%;"></span></div>
+        <span class="pct" style="border-color:var(--green-300);color:var(--green-800);">95<span style="font-size:12px;opacity:.6;">%</span></span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:18px;padding:11px 0;border-top:1px solid var(--line-soft);">
+        <div style="width:270px;flex:none;display:flex;flex-direction:column;gap:1px;">
+          <span class="zh" style="font-size:14.5px;color:var(--green-900);">孝順父母，調和聲色</span>
+          <span style="font-size:13px;color:var(--muted);">Practice filial piety and develop pleasant manners and speech</span>
+        </div>
+        <div class="track"><div class="fill" style="width:80%;"></div><span class="knob" style="left:80%;"></span></div>
+        <span class="pct" style="border-color:var(--green-300);color:var(--green-800);">80<span style="font-size:12px;opacity:.6;">%</span></span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:18px;padding:11px 0;border-top:1px solid var(--line-soft);">
+        <div style="width:270px;flex:none;display:flex;flex-direction:column;gap:1px;">
+          <span class="zh" style="font-size:14.5px;color:var(--green-900);">素食比例</span>
+          <span style="font-size:13px;color:var(--muted);">Observing a vegetarian diet</span>
+        </div>
+        <div class="track"><div class="fill" style="width:60%;"></div><span class="knob" style="left:60%;"></span></div>
+        <span class="pct" style="border-color:var(--green-300);color:var(--green-800);">60<span style="font-size:12px;opacity:.6;">%</span></span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:18px;padding:11px 0;border-top:1px solid var(--line-soft);opacity:.55;">
+        <div style="width:270px;flex:none;display:flex;flex-direction:column;gap:1px;">
+          <span class="zh" style="font-size:14.5px;color:var(--green-900);">遵守交通規則</span>
+          <span style="font-size:13px;color:var(--muted);">Abide by traffic rules</span>
+        </div>
+        <div class="track"></div>
+        <span class="pct" style="color:var(--faint);">&mdash;</span>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:14px;margin-top:6px;border-top:1px solid var(--line-soft);">
+        <span style="font-size:13px;color:var(--faint);">5 of 11 answered &middot; 6 remaining</span>
+        <span style="font-size:13px;color:var(--green-700);font-weight:600;">Set all remaining to 100%</span>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 26px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow-sm);">
+      <div style="display:flex;align-items:baseline;gap:10px;">
+        <span class="zh" style="font-size:16px;font-weight:600;color:var(--green-900);">培訓實務課程</span>
+        <h3 style="font-size:16px;">Practical Training</h3>
+      </div>
+      <p style="margin:0;font-size:14px;line-height:1.6;color:var(--muted);max-width:720px;">
+        Practical Training means fundraising and taking part personally in Tzu Chi&rsquo;s Four
+        Missions and Eight Dharma Footprints. To balance family, work and service, you may
+        complete it in one year or two.
+      </p>
+      <div style="display:flex;gap:12px;">
+        <div style="flex-grow:1;border:1.5px solid var(--green-800);background:var(--green-50);border-radius:11px;padding:15px 18px;display:flex;align-items:center;gap:12px;">
+          <span style="width:19px;height:19px;flex:none;border-radius:999px;border:5px solid var(--green-800);background:#fff;"></span>
+          <div><div style="font-size:15px;font-weight:600;color:var(--green-900);">One year</div><div style="font-size:12.5px;color:var(--muted);">Finish by mid-2027.</div></div>
+        </div>
+        <div style="flex-grow:1;border:1px solid var(--line);border-radius:11px;padding:15px 18px;display:flex;align-items:center;gap:12px;background:var(--card);">
+          <span style="width:19px;height:19px;flex:none;border-radius:999px;border:1.5px solid var(--line);background:#fff;"></span>
+          <div><div style="font-size:15px;font-weight:600;">Two years</div><div style="font-size:12.5px;color:var(--muted);">A gentler pace alongside work and family.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
