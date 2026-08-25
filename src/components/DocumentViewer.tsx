@@ -17,6 +17,8 @@ import {
   type RefObject,
 } from "react";
 import { ApplicationDocument } from "../document/ApplicationDocument";
+import { useT } from "../i18n/language";
+import { D } from "../i18n/dictionary";
 import type { ApplicationData } from "../form/model";
 
 /** A4 width in CSS pixels at 96 dpi. */
@@ -80,6 +82,7 @@ export function DocumentViewer({
   showZoom?: boolean;
   toolbarExtra?: ReactNode;
 }) {
+  const { s: str } = useT();
   const frameRef = useRef<HTMLDivElement>(null);
   const fitScale = useFitScale(frameRef);
   const [zoomIndex, setZoomIndex] = useState<number | null>(null);
@@ -104,7 +107,7 @@ export function DocumentViewer({
             <div className="flex flex-none items-center gap-1 rounded-full border border-line bg-card p-1">
               <button
                 type="button"
-                aria-label="Zoom out"
+                aria-label={str(D.review.zoomOut)}
                 onClick={() => setZoomIndex(Math.max(0, nearestZoomIndex() - 1))}
                 className="flex size-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-accent-soft hover:text-ink"
               >
@@ -113,14 +116,14 @@ export function DocumentViewer({
               <button
                 type="button"
                 onClick={() => setZoomIndex(null)}
-                title="Fit to width"
-                className="min-w-12 rounded-full px-1 text-center text-[0.78125rem] font-semibold text-ink"
+                title={str(D.review.fitWidth)}
+                className="min-h-8 min-w-12 rounded-full px-1 text-center text-[0.78125rem] font-semibold text-ink"
               >
                 {Math.round(scale * 100)}%
               </button>
               <button
                 type="button"
-                aria-label="Zoom in"
+                aria-label={str(D.review.zoomIn)}
                 onClick={() =>
                   setZoomIndex(Math.min(ZOOM_STEPS.length - 1, nearestZoomIndex() + 1))
                 }

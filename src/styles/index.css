@@ -172,6 +172,91 @@ iframe[id^="nl-badge"],
   display: none !important;
 }
 
+/* ------------------------------------------------------------------
+   Range slider. A native range input is only a few pixels tall, which
+   is an unusable target on a phone; this gives it a 24 px box while
+   keeping the 8 px track and drawing a thumb you can actually grab.
+   `--track` is set inline to the filled gradient.
+   ------------------------------------------------------------------ */
+
+.avct-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  /* A 44 px box gives a finger something to land on; the visible track
+     stays 8 px and the browser centres it inside the box. */
+  height: 2.75rem;
+  background: transparent;
+  cursor: pointer;
+}
+.avct-range:focus {
+  outline: none;
+}
+.avct-range::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--track, var(--color-line-soft));
+}
+.avct-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: -0.375rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid var(--color-accent);
+  box-shadow: var(--shadow-card);
+  transition: transform 120ms ease;
+}
+.avct-range:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+}
+/* An unanswered precept must not look like a confident 0 or 100. */
+.avct-range[data-unset="true"]::-webkit-slider-thumb {
+  border-color: var(--color-faint);
+  background: var(--color-card);
+}
+.avct-range[data-unset="true"]::-moz-range-thumb {
+  border-color: var(--color-faint);
+  background: var(--color-card);
+}
+.avct-range:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.avct-range::-moz-range-track {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--track, var(--color-line-soft));
+}
+.avct-range::-moz-range-thumb {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid var(--color-accent);
+  box-shadow: var(--shadow-card);
+}
+.avct-range:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* A text-only control still needs a real tap target. */
+.avct-textbutton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding-inline: 0.5rem;
+  margin-inline: -0.5rem;
+  border-radius: 0.5rem;
+  transition: background-color 150ms ease;
+}
+.avct-textbutton:hover {
+  background: var(--color-accent-soft);
+}
+
 @layer utilities {
   .font-zh {
     font-family: var(--font-zh);

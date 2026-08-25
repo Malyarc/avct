@@ -168,7 +168,7 @@ export default function Apply() {
     <div className="flex min-h-dvh flex-col bg-paper">
       <header className="sticky top-0 z-40 border-b border-line-soft bg-card">
         <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <Link to="/" className="min-w-0 no-underline hover:no-underline">
+          <Link to="/" className="flex min-h-11 min-w-0 items-center rounded-lg no-underline hover:no-underline">
             <BrandLockup subtitle={s(D.org.programme)} compact />
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -232,7 +232,7 @@ export default function Apply() {
 
       <div className="flex flex-1 lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
         {/* ── Desktop rail ─────────────────────────────────────── */}
-        <aside className="hidden border-r border-line-soft bg-card px-5 py-7 lg:flex lg:flex-col lg:gap-6">
+        <aside className="hidden border-r border-line-soft bg-card px-5 pb-28 pt-7 lg:flex lg:flex-col lg:gap-6">
           <div className="sticky top-24 flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <div className="flex items-baseline justify-between">
@@ -277,8 +277,8 @@ export default function Apply() {
         </aside>
 
         {/* ── Step body ────────────────────────────────────────── */}
-        <main id="main" className="flex flex-col px-5 pb-40 pt-8 sm:px-8 lg:px-12 lg:pt-11">
-          <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
+        <main id="main" className="flex min-w-0 flex-col px-5 pb-40 pt-8 sm:px-8 lg:px-12 lg:pt-11">
+          <div className="mx-auto flex w-full min-w-0 max-w-4xl flex-col gap-8">
             {restored ? (
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-accent-soft-line bg-accent-soft px-4 py-3">
                 <span className="flex items-center gap-2 text-[0.875rem] text-accent-text">
@@ -288,7 +288,7 @@ export default function Apply() {
                 <button
                   type="button"
                   onClick={dismissRestored}
-                  className="text-[0.8125rem] font-semibold text-accent-text"
+                  className="avct-textbutton text-[0.8125rem] font-semibold text-accent-text"
                 >
                   {s(D.action.dismiss)}
                 </button>
@@ -329,6 +329,7 @@ export default function Apply() {
         <div className="mx-auto flex max-w-[84rem] items-center justify-between gap-3 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-8">
           <Button
             variant="secondary"
+            aria-label={index === 0 ? s(D.nav.home) : s(D.action.back)}
             onClick={() => (index === 0 ? navigate("/") : goto(index - 1))}
             className="flex-none"
           >

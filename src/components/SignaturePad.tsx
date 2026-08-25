@@ -284,7 +284,7 @@ export function SignaturePad({
           type="button"
           onClick={clear}
           disabled={!hasInk}
-          className="rounded-lg px-2 py-1 text-[0.8125rem] font-semibold text-accent-text transition-opacity disabled:opacity-40"
+          className="avct-textbutton text-[0.8125rem] font-semibold text-accent-text transition-opacity disabled:opacity-40"
         >
           {str(D.action.clear)}
         </button>

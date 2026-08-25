@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Tzu Chi Advanced Certification Training (AVCT) — application portal for TCCA (Tzu Ching) alumni",
+  "description": "Tzu Chi Advanced Certification Training (AVCT) \u2014 application portal for TCCA (Tzu Ching) alumni",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -13,7 +13,10 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "db:migrate": "node scripts/migrate.mjs",
-    "verify": "npm run typecheck && npm run test && npm run build"
+    "verify": "npm run typecheck && npm run test && npm run build",
+    "audit": "node scripts/audit-layout.mjs",
+    "shots": "node scripts/screenshots.mjs",
+    "form:extract": "node scripts/extract-form-text.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

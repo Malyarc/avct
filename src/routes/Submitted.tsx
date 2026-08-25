@@ -53,7 +53,7 @@ export default function Submitted() {
     <div className="flex min-h-dvh flex-col bg-paper">
       <header className="border-b border-line-soft">
         <div className="mx-auto flex max-w-[84rem] items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
-          <Link to="/" className="min-w-0 no-underline hover:no-underline">
+          <Link to="/" className="flex min-h-11 min-w-0 items-center rounded-lg no-underline hover:no-underline">
             <BrandLockup subtitle={s(D.org.programme)} compact />
           </Link>
           <LanguageToggle />

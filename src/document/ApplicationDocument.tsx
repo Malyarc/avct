@@ -65,13 +65,28 @@ function CbList({
   const set = new Set(selected);
   return (
     <span className="doc-cb-list">
-      {choices.map((choice) => (
-        <Cb key={choice.key} on={set.has(choice.key)} wrap={wrap}>
-          {choice.zh}
-          {choice.en}
-          {choice.specify ? specify?.[choice.key] : null}
-        </Cb>
-      ))}
+      {choices.map((choice) =>
+        choice.stacked ? (
+          // The paper form prints these with the Chinese on the box line and
+          // the English indented beneath it.
+          <span key={choice.key} className="doc-cb-stacked">
+            <Cb on={set.has(choice.key)} wrap>
+              {choice.zh}
+              {choice.specify ? specify?.[choice.key] : null}
+            </Cb>
+            <span className="doc-cb-stacked__en en">
+              {choice.en}
+              {choice.specify ? specify?.[`${choice.key}:en`] : null}
+            </span>
+          </span>
+        ) : (
+          <Cb key={choice.key} on={set.has(choice.key)} wrap={wrap}>
+            {choice.zh}
+            {choice.en}
+            {choice.specify ? specify?.[choice.key] : null}
+          </Cb>
+        ),
+      )}
     </span>
   );
 }
@@ -273,7 +288,10 @@ function PageTwo({ data }: { data: ApplicationData }) {
               <Ans>{data.chineseName}</Ans>
             </td>
             <td className="doc-lbl">
-              <Lbl zh="外文姓名" en="English Name (same as passport)" />
+              外文姓名
+              <span className="en">English Name</span>
+              (與護照相同)
+              <span className="en">(same as passport)</span>
             </td>
             <td className="doc-val">
               <span className="en" style={{ fontSize: "6.4pt", color: "#666" }}>
@@ -290,24 +308,16 @@ function PageTwo({ data }: { data: ApplicationData }) {
               {data.photo ? (
                 <img className="doc-photo" src={data.photo} alt="Applicant headshot" />
               ) : (
-                <div
-                  className="doc-photo"
-                  style={{
-                    background: "#f4f4f2",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#a8a8a8",
-                    fontSize: "6.2pt",
-                  }}
-                >
-                  2吋照片
-                </div>
+                <div className="doc-photo doc-photo--empty" />
               )}
               <div className="doc-photo-note">
                 推薦受證，於此浮貼二吋制服照片一張；報名培訓請貼二吋照片一張
                 <br />
-                <span className="en">Please attach a 2-inch photo with your application</span>
+                <span className="en">
+                  Please attach a 2-inch photo with your application (If recommended for
+                  certification, please attach a 2-inch photo of yourself in formal certified
+                  volunteer uniform)
+                </span>
               </div>
             </td>
           </tr>
@@ -333,9 +343,32 @@ function PageTwo({ data }: { data: ApplicationData }) {
               <Lbl zh="＊出生日期" en="*Birthday" />
             </td>
             <td className="doc-val doc-center">
-              <Line width="14mm">{birthday.y}</Line> 年
-              <Line width="9mm">{birthday.m}</Line> 月
-              <Line width="9mm">{birthday.d}</Line> 日
+              <div className="doc-ymd">
+                <span className="doc-ymd__cell">
+                  <span className="doc-ymd__line">
+                    <Ans>{birthday.y}</Ans>
+                  </span>
+                  <span className="doc-ymd__unit">
+                    年<span className="en">(year)</span>
+                  </span>
+                </span>
+                <span className="doc-ymd__cell">
+                  <span className="doc-ymd__line">
+                    <Ans>{birthday.m}</Ans>
+                  </span>
+                  <span className="doc-ymd__unit">
+                    月<span className="en">(month)</span>
+                  </span>
+                </span>
+                <span className="doc-ymd__cell">
+                  <span className="doc-ymd__line">
+                    <Ans>{birthday.d}</Ans>
+                  </span>
+                  <span className="doc-ymd__unit">
+                    日<span className="en">(date)</span>
+                  </span>
+                </span>
+              </div>
             </td>
             <td className="doc-lbl">
               <Lbl zh="血型" en="Blood Type" />
@@ -646,7 +679,14 @@ function PageFour({ data }: { data: ApplicationData }) {
                   freeClinic: (
                     <>
                       （醫療專業：
-                      <Line width="30mm">{data.freeClinicProfession}</Line>）
+                      <Line width="26mm">{data.freeClinicProfession}</Line>）
+                    </>
+                  ),
+                  "freeClinic:en": (
+                    <>
+                      {" (Medical profession: "}
+                      <Line width="26mm">{data.freeClinicProfession}</Line>
+                      {")"}
                     </>
                   ),
                 }}

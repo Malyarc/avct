@@ -7,7 +7,13 @@
  * question in both languages and a Chinese reader sees it in Chinese alone.
  */
 
-import { useMemo, useState, type ReactElement, type ReactNode } from "react";
+import {
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import {
   ACTIVITIES,
   BEADS_SIZES,
@@ -112,7 +118,7 @@ function Section({
   tr: Translate;
 }) {
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex min-w-0 flex-col gap-4">
       <div className="flex flex-col gap-1">
         <div className="flex flex-wrap items-baseline gap-2.5">
           <Zh className="text-[1.0625rem] font-semibold text-accent-text">{title.zh}</Zh>
@@ -143,7 +149,7 @@ export function TrackStep({ errors }: StepProps): ReactElement {
   const tr = useT();
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex min-w-0 flex-col gap-6">
       <div
         role="radiogroup"
         aria-label={tr.s(D.step.trackTitle)}
@@ -219,7 +225,7 @@ export function PersonalStep({ errors }: StepProps): ReactElement {
     data.education !== "" && data.education !== "none" && data.education !== "selfStudy";
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex min-w-0 flex-col gap-8">
       <Section title={D.personal.nameSection} tr={tr}>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
@@ -449,7 +455,7 @@ export function ContactStep({ errors }: StepProps): ReactElement {
   const bind = binder(data, set);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex min-w-0 flex-col gap-8">
       <Section title={D.contact.addressSection} tr={tr}>
         <Field label={tr.t(D.contact.homeAddress)} required error={errors.homeAddress}>
           <TextArea
@@ -532,7 +538,7 @@ export function FamilyStep({ errors }: StepProps): ReactElement {
     }));
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex min-w-0 flex-col gap-6">
       <Callout tone="info">
         <strong className="font-semibold text-ink">{tr.s(D.family.voluntary)}</strong>{" "}
         {tr.s(D.family.voluntaryBody)}
@@ -680,7 +686,7 @@ export function InvolvementStep({ errors }: StepProps): ReactElement {
   const bind = binder(data, set);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex min-w-0 flex-col gap-8">
       <Section
         title={D.involvement.activitiesTitle}
         description={D.involvement.activitiesBlurb}
@@ -834,7 +840,7 @@ export function SkillsStep({ errors }: StepProps): ReactElement {
   const allOpen = open.size === SKILL_CATEGORIES.length;
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex min-w-0 flex-col gap-5">
       {errors.skills ? (
         <Callout tone="error">{tr.s(errors.skills)}</Callout>
       ) : (
@@ -855,7 +861,7 @@ export function SkillsStep({ errors }: StepProps): ReactElement {
                     : new Set(SKILL_CATEGORIES.map((category) => category.key)),
                 )
               }
-              className="text-[0.8125rem] font-semibold text-accent-text"
+              className="avct-textbutton text-[0.8125rem] font-semibold text-accent-text"
             >
               {allOpen ? tr.s(D.action.collapseAll) : tr.s(D.action.expandAll)}
             </button>
@@ -871,7 +877,7 @@ export function SkillsStep({ errors }: StepProps): ReactElement {
                     ),
                   }))
                 }
-                className="text-[0.8125rem] font-semibold text-muted"
+                className="avct-textbutton text-[0.8125rem] font-semibold text-muted"
               >
                 {tr.s(D.action.clearAll)}
               </button>
@@ -1001,7 +1007,7 @@ export function ExperienceStep({ errors }: StepProps): ReactElement {
   );
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex min-w-0 flex-col gap-8">
       <Section
         title={D.experience.communityTitle}
         description={D.experience.communityBlurb}
@@ -1109,12 +1115,69 @@ export function AvailabilityStep({ errors }: StepProps): ReactElement {
       : `${choice.zh} ${choice.en}`;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex min-w-0 flex-col gap-8">
       <Section title={D.availability.title} description={D.availability.blurb} tr={tr}>
         {errors.availability ? (
           <Callout tone="error">{tr.s(errors.availability)}</Callout>
         ) : null}
-        <Card className="overflow-x-auto p-4 sm:p-5">
+
+        {/* Phones get one group per time of day: a 7-column grid does not fit
+            390 px, and a sideways-scrolling table is a poor way to answer a
+            question. Wider screens get the grid the paper form uses. */}
+        <div className="flex flex-col gap-3 sm:hidden">
+          {TIME_SLOTS.map((slot) => {
+            const slots = WEEKDAYS.map(
+              (day) => `${day.key}:${slot.key}` as AvailabilitySlot,
+            );
+            const allOn = slots.every((key) => selected.has(key));
+            return (
+              <Card key={slot.key} className="flex flex-col gap-3 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[0.9375rem] font-semibold">
+                    <Zh className="text-accent-text">{slot.zh}</Zh>
+                    {tr.isZh ? null : ` ${slot.en}`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => applyAll(slots)}
+                    className="avct-textbutton text-[0.8125rem] font-semibold text-accent-text"
+                  >
+                    {allOn ? tr.s(D.action.clear) : tr.s(D.availability.selectAllDays)}
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {WEEKDAYS.map((day) => {
+                    const key = `${day.key}:${slot.key}` as AvailabilitySlot;
+                    const on = selected.has(key);
+                    return (
+                      <button
+                        key={day.key}
+                        type="button"
+                        role="checkbox"
+                        aria-checked={on}
+                        aria-label={tr.isZh ? `${day.zh}${slot.zh}` : `${day.en} ${slot.en}`}
+                        onClick={() => applyAll([key])}
+                        className={`flex min-h-11 items-center justify-center gap-1.5 rounded-lg border text-[0.8125rem] font-medium transition-colors ${
+                          on
+                            ? "border-accent bg-accent text-white"
+                            : "border-line bg-card text-muted"
+                        }`}
+                      >
+                        {on ? <CheckIcon size={13} /> : null}
+                        {tr.isZh ? <Zh>{day.zh.replace("星期", "")}</Zh> : day.short}
+                      </button>
+                    );
+                  })}
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+
+        <p className="hidden text-[0.875rem] leading-relaxed text-muted sm:block">
+          {tr.s(D.availability.blurbDesktop)}
+        </p>
+        <Card className="hidden min-w-0 overflow-x-auto p-4 sm:block sm:p-5">
           <table className="w-full min-w-[34rem] border-separate border-spacing-1.5">
             <caption className="sr-only-focusable absolute size-px">
               {tr.s(D.availability.tableCaption)}
@@ -1132,7 +1195,7 @@ export function AvailabilityStep({ errors }: StepProps): ReactElement {
                         )
                       }
                       title={format(tr.s(D.availability.toggleDay), tr.isZh ? day.zh : day.en)}
-                      className="w-full rounded-lg py-1.5 text-[0.78125rem] font-semibold text-muted transition-colors hover:bg-accent-soft hover:text-accent-text"
+                      className="min-h-9 w-full rounded-lg py-1.5 text-[0.78125rem] font-semibold text-muted transition-colors hover:bg-accent-soft hover:text-accent-text"
                     >
                       {tr.isZh ? <Zh>{day.zh}</Zh> : day.short}
                     </button>
@@ -1152,7 +1215,7 @@ export function AvailabilityStep({ errors }: StepProps): ReactElement {
                         )
                       }
                       title={format(tr.s(D.availability.toggleDay), tr.isZh ? slot.zh : slot.en)}
-                      className="w-full rounded-lg px-1 py-1.5 text-left text-[0.8125rem] font-medium text-ink transition-colors hover:bg-accent-soft"
+                      className="min-h-9 w-full rounded-lg px-1 py-1.5 text-left text-[0.8125rem] font-medium text-ink transition-colors hover:bg-accent-soft"
                     >
                       <Zh className="text-muted">{slot.zh}</Zh>
                       {tr.isZh ? null : ` ${slot.en}`}
@@ -1245,7 +1308,7 @@ export function ReflectionStep({ errors }: StepProps): ReactElement {
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex min-w-0 flex-col gap-8">
       <Section
         title={D.reflection.preceptsTitle}
         description={D.reflection.preceptsBlurb}
@@ -1271,7 +1334,7 @@ export function ReflectionStep({ errors }: StepProps): ReactElement {
                     ),
                   }))
                 }
-                className="text-[0.8125rem] font-semibold text-accent-text"
+                className="avct-textbutton text-[0.8125rem] font-semibold text-accent-text"
               >
                 {tr.s(D.reflection.setRemaining)}
               </button>
@@ -1285,21 +1348,62 @@ export function ReflectionStep({ errors }: StepProps): ReactElement {
               return (
                 <li
                   key={precept.key}
-                  className={`flex flex-col gap-2.5 py-4 sm:flex-row sm:items-center sm:gap-5 ${
+                  className={`flex flex-col gap-1.5 py-3 sm:flex-row sm:items-center sm:gap-5 sm:py-4 ${
                     index > 0 ? "border-t border-line-soft" : ""
                   }`}
                 >
-                  <label
-                    htmlFor={`precept-${precept.key}`}
-                    className="flex flex-col gap-0.5 sm:w-72 sm:flex-none"
-                  >
-                    <Zh className="text-[0.9375rem] text-accent-text">{precept.zh}</Zh>
-                    {tr.isZh ? null : (
-                      <span className="text-[0.8125rem] leading-snug text-muted">
-                        {precept.en}
-                      </span>
-                    )}
-                  </label>
+                  {/* On a phone the precept and its percentage share one line,
+                      with the slider beneath; on wider screens all three sit
+                      in a single row. */}
+                  <div className="flex items-center justify-between gap-3 sm:contents">
+                    <label
+                      htmlFor={`precept-${precept.key}`}
+                      className="flex min-w-0 flex-col gap-0.5 sm:order-1 sm:w-72 sm:flex-none"
+                    >
+                      <Zh className="text-[0.9375rem] text-accent-text">{precept.zh}</Zh>
+                      {tr.isZh ? null : (
+                        <span className="text-[0.8125rem] leading-snug text-muted">
+                          {precept.en}
+                        </span>
+                      )}
+                    </label>
+
+                    <div className="flex flex-none items-center gap-1.5 sm:order-3 sm:gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={value ?? ""}
+                        placeholder="—"
+                        aria-label={format(
+                          tr.s(D.reflection.percentOf),
+                          tr.isZh ? precept.zh : precept.en,
+                        )}
+                        aria-invalid={Boolean(error) || undefined}
+                        onChange={(event) => {
+                          const raw = event.target.value;
+                          if (raw === "") {
+                            setPrecept(precept.key, null);
+                            return;
+                          }
+                          const parsed = Number(raw);
+                          if (Number.isNaN(parsed)) return;
+                          setPrecept(
+                            precept.key,
+                            Math.min(100, Math.max(0, Math.round(parsed))),
+                          );
+                        }}
+                        className={`h-10 w-16 rounded-lg border bg-card px-2 text-center text-[0.9rem] font-semibold sm:w-20 ${
+                          error
+                            ? "border-rose-line bg-rose-bg"
+                            : value == null
+                              ? "border-line text-faint"
+                              : "border-green-300 text-accent-text"
+                        }`}
+                      />
+                      <span className="text-[0.8125rem] text-faint">%</span>
+                    </div>
+                  </div>
 
                   <input
                     id={`precept-${precept.key}`}
@@ -1307,51 +1411,20 @@ export function ReflectionStep({ errors }: StepProps): ReactElement {
                     min={0}
                     max={100}
                     step={5}
-                    value={value ?? 100}
+                    value={value ?? 0}
                     aria-valuetext={value == null ? tr.s(D.reflection.notAnswered) : `${value}%`}
+                    data-unset={value == null ? "true" : undefined}
                     onChange={(event) => setPrecept(precept.key, Number(event.target.value))}
-                    className="h-2 flex-1 cursor-pointer appearance-none rounded-full"
-                    style={{
-                      background:
-                        value == null
-                          ? "var(--color-line-soft)"
-                          : `linear-gradient(to right, var(--color-accent) ${value}%, var(--color-line-soft) ${value}%)`,
-                      accentColor: "var(--color-accent)",
-                    }}
+                    className="avct-range w-full sm:order-2 sm:flex-1"
+                    style={
+                      {
+                        "--track":
+                          value == null
+                            ? "var(--color-line)"
+                            : `linear-gradient(to right, var(--color-accent) ${value}%, var(--color-line) ${value}%)`,
+                      } as CSSProperties
+                    }
                   />
-
-                  <div className="flex flex-none items-center gap-2">
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={value ?? ""}
-                      placeholder="—"
-                      aria-label={format(
-                        tr.s(D.reflection.percentOf),
-                        tr.isZh ? precept.zh : precept.en,
-                      )}
-                      aria-invalid={Boolean(error) || undefined}
-                      onChange={(event) => {
-                        const raw = event.target.value;
-                        if (raw === "") {
-                          setPrecept(precept.key, null);
-                          return;
-                        }
-                        const parsed = Number(raw);
-                        if (Number.isNaN(parsed)) return;
-                        setPrecept(precept.key, Math.min(100, Math.max(0, Math.round(parsed))));
-                      }}
-                      className={`h-10 w-20 rounded-lg border bg-card px-2 text-center text-[0.9rem] font-semibold ${
-                        error
-                          ? "border-rose-line bg-rose-bg"
-                          : value == null
-                            ? "border-line text-faint"
-                            : "border-green-300 text-accent-text"
-                      }`}
-                    />
-                    <span className="text-[0.8125rem] text-faint">%</span>
-                  </div>
                 </li>
               );
             })}

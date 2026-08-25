@@ -138,7 +138,7 @@ export default function Guidelines() {
         action={
           <Link
             to="/apply/track"
-            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-accent px-5 text-[0.875rem] font-semibold text-white no-underline transition-colors hover:bg-accent-hover hover:no-underline"
+            className="hidden min-h-10 items-center gap-2 rounded-full bg-accent px-5 text-[0.875rem] font-semibold text-white no-underline transition-colors hover:bg-accent-hover hover:no-underline sm:inline-flex"
           >
             {s(D.nav.begin)}
             <ArrowRightIcon size={14} />

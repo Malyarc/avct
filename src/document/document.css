@@ -434,3 +434,61 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+/* Options whose English the paper form prints on its own indented line. */
+.doc-cb-stacked {
+  display: block;
+  width: 100%;
+}
+.doc-cb-stacked__en {
+  display: block;
+  padding-left: 3.4mm;
+  font-size: 7.8pt;
+  line-height: 1.35;
+}
+
+/* "年(year)" — the unit and its English gloss ride together. */
+.doc-unit {
+  white-space: nowrap;
+}
+.doc-unit .en {
+  font-size: 6.4pt;
+  color: #666;
+  margin-left: 0.3mm;
+}
+
+/* An unfilled photo cell is blank, exactly as the paper form prints it. */
+.doc-photo--empty {
+  background: #fff;
+  border-color: #d5d5d5;
+}
+
+/* ＊出生日期 — three write-on cells with the unit printed beneath, as on
+   the paper form ("年(year) 月(month) 日(date)"). */
+.doc-ymd {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5mm;
+  align-items: end;
+}
+.doc-ymd__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+.doc-ymd__line {
+  width: 100%;
+  border-bottom: 0.4pt solid var(--doc-rule);
+  text-align: center;
+  padding-bottom: 0.2mm;
+}
+.doc-ymd__unit {
+  font-size: 6.4pt;
+  color: #555;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.doc-ymd__unit .en {
+  margin-left: 0.3mm;
+}

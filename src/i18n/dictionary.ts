@@ -21,6 +21,7 @@ export const D = {
    * ------------------------------------------------------------------ */
   org: {
     foundation: p("Buddhist Tzu Chi Foundation", "佛教慈濟基金會"),
+    foundationShort: p("Tzu Chi Foundation", "佛教慈濟基金會"),
     department: p("Talent Cultivation Department", "人才培育室"),
     headquarters: p("National Headquarters", "美國總會"),
     footer: p(
@@ -514,14 +515,19 @@ export const D = {
   availability: {
     title: p("When you can serve", "您方便投入慈濟志業的時段"),
     blurb: p(
-      "Choose every slot that usually works. Tap a day or a row heading to select the whole line.",
-      "請勾選平時方便的時段。點選星期或時段名稱可以整排勾選。",
+      "Choose every slot that usually works.",
+      "請勾選平時方便的時段。",
+    ),
+    blurbDesktop: p(
+      "Tap a day or a row heading to select the whole line.",
+      "點選星期或時段名稱可以整排勾選。",
     ),
     tableCaption: p(
       "Availability by day and time of day",
       "依星期與時段標示可投入的時間",
     ),
     toggleDay: p("Toggle all of %s", "切換整個%s"),
+    selectAllDays: p("Select all days", "全選"),
     required: p(
       "Select at least one time you are available.",
       "請至少勾選一個方便的時段。",
@@ -585,6 +591,8 @@ export const D = {
       "請逐頁確認。若有需要修改，可直接跳到該步驟更正後再回到這裡。",
     ),
     jumpTo: p("Jump to a section", "跳至各項"),
+    skipToSign: p("Go to sign", "前往簽名"),
+    backToTop: p("Back to top", "回到頂端"),
     section17Notice: p(
       "is not shown here — the Talent Cultivation Team completes it by hand. It is included, blank, in your PDF.",
       "不會顯示在這裡，由人才培育團隊親筆簽名。您下載的 PDF 中仍會保留該欄位（空白）。",

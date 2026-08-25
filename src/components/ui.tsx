@@ -425,7 +425,7 @@ export function QuickFill({ onClick, label }: { onClick: () => void; label?: str
     <button
       type="button"
       onClick={onClick}
-      className="rounded-md border border-accent-soft-line bg-accent-soft px-2.5 py-1 text-[0.72rem] font-semibold text-accent-text transition-colors hover:bg-green-100"
+      className="flex min-h-9 items-center rounded-md border border-accent-soft-line bg-accent-soft px-2.5 text-[0.72rem] font-semibold text-accent-text transition-colors hover:bg-green-100"
     >
       {label ?? str(D.field.notApplicable)}
     </button>

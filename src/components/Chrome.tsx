@@ -32,13 +32,18 @@ export function BrandLockup({
 }) {
   const { s } = useT();
   return (
-    <div className="flex items-center gap-3">
-      <Lotus className={compact ? "h-8 w-auto" : "h-11 w-auto"} />
+    <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+      <Lotus className={compact ? "h-7 w-auto sm:h-8" : "h-9 w-auto sm:h-11"} />
       <div className="flex min-w-0 flex-col leading-tight">
-        <span className={`font-semibold ${compact ? "text-[0.875rem]" : "text-[0.9375rem]"}`}>
-          {s(D.org.foundation)}
+        <span
+          className={`truncate font-semibold ${
+            compact ? "text-[0.8125rem] sm:text-[0.875rem]" : "text-[0.875rem] sm:text-[0.9375rem]"
+          }`}
+        >
+          <span className="sm:hidden">{s(D.org.foundationShort)}</span>
+          <span className="hidden sm:inline">{s(D.org.foundation)}</span>
         </span>
-        <span className="truncate text-[0.75rem] text-faint">
+        <span className="hidden truncate text-[0.75rem] text-faint sm:block">
           {subtitle ?? s(D.org.department)}
         </span>
       </div>
@@ -57,7 +62,9 @@ export function LanguageToggle({ tone = "light" }: { tone?: "light" | "dark" }) 
   const shell = tone === "dark" ? "border-white/20 bg-white/10" : "border-line bg-card";
   const off =
     tone === "dark" ? "text-green-100/70 hover:text-white" : "text-muted hover:text-ink";
-  const on = tone === "dark" ? "bg-leaf text-green-950" : "bg-accent text-white";
+  // On the dark admin ground the leaf accent belongs to the primary action,
+  // so the language switch uses a quiet white fill instead.
+  const on = tone === "dark" ? "bg-white/90 text-green-950" : "bg-accent text-white";
 
   return (
     <div
@@ -97,7 +104,7 @@ export function SiteHeader({ action }: { action?: ReactNode }) {
   return (
     <header className="sticky top-0 z-30 border-b border-line-soft bg-paper/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-[84rem] items-center justify-between gap-3 px-5 py-3.5 sm:px-8">
-        <Link to="/" className="min-w-0 rounded-lg no-underline hover:no-underline">
+        <Link to="/" className="flex min-h-11 min-w-0 items-center rounded-lg no-underline hover:no-underline">
           <BrandLockup />
         </Link>
         <nav className="flex items-center gap-2 sm:gap-3">

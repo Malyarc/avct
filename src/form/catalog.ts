@@ -18,10 +18,24 @@ export interface Choice {
   readonly en: string;
   /** When true the choice carries a free-text companion field. */
   readonly specify?: boolean;
+  /**
+   * The paper form prints the English for a few long options on its own
+   * indented line rather than running it on after the Chinese. The document
+   * renderer honours this; the wizard always shows both together.
+   */
+  readonly stacked?: boolean;
 }
 
 const c = (key: string, zh: string, en: string, specify?: boolean): Choice =>
   specify === undefined ? { key, zh, en } : { key, zh, en, specify };
+
+/** A choice whose English the paper form prints on its own line. */
+const stackedChoice = (
+  key: string,
+  zh: string,
+  en: string,
+  specify?: boolean,
+): Choice => ({ key, zh, en, stacked: true, ...(specify ? { specify } : {}) });
 
 /* ------------------------------------------------------------------ *
  * (1) 報名項目 — Application for
@@ -117,18 +131,18 @@ export const MISSION_CHARITY: readonly Choice[] = [
 ];
 
 export const MISSION_MEDICINE: readonly Choice[] = [
-  c(
+  stackedChoice(
     "boneMarrow",
     "骨髓及臍帶血捐贈宣導與關懷",
     "Bone marrow and umbilical cord blood donation advocacy and care",
   ),
-  c(
+  stackedChoice(
     "bloodPressure",
     "社區量血壓、衛教宣導",
     "Community blood pressure measuring service, and health education",
   ),
   c("hospital", "醫院志工", "Hospital volunteering"),
-  c("freeClinic", "義診", "Free clinic", true),
+  stackedChoice("freeClinic", "義診", "Free clinic", true),
 ];
 
 export const MISSION_EDUCATION: readonly Choice[] = [
@@ -381,7 +395,11 @@ export const BEADS_SIZES: readonly Choice[] = [
   c("M", "中", "M-18cm"),
   c("L", "大", "L-19.5cm"),
   c("XL", "加大", "XL-20.5cm"),
-  c("received", "已領過（無需再申請）", "Already Received"),
+  stackedChoice(
+    "received",
+    "已領過（無需再申請）",
+    "Already Received (If you have received beads, please do not reapply.)",
+  ),
 ];
 
 /* ------------------------------------------------------------------ *

@@ -55,12 +55,10 @@ export default function Landing() {
         action={
           <Link
             to={beginHref}
-            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-accent-soft-line bg-accent-soft px-4 text-[0.875rem] font-semibold text-accent-text no-underline transition-colors hover:bg-green-100 hover:no-underline"
+            className="hidden min-h-10 items-center gap-2 rounded-full border border-accent-soft-line bg-accent-soft px-4 text-[0.875rem] font-semibold text-accent-text no-underline transition-colors hover:bg-green-100 hover:no-underline sm:inline-flex"
           >
             {started ? s(D.nav.resume) : s(D.nav.beginShort)}
-            <span className="hidden sm:inline">
-              {isZh ? null : "Application"}
-            </span>
+            {isZh ? null : <span className="hidden md:inline">Application</span>}
           </Link>
         }
       />
@@ -68,7 +66,7 @@ export default function Landing() {
       <main id="main" className="flex flex-col">
         {/* ── Hero ─────────────────────────────────────────────── */}
         <section className="mx-auto grid w-full max-w-[84rem] items-center gap-12 px-5 py-14 sm:px-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-16 lg:py-20">
-          <div className="flex flex-col gap-6">
+          <div className="flex min-w-0 flex-col gap-6">
             <div className="flex items-center gap-2.5">
               <span aria-hidden="true" className="block h-px w-5 bg-green-500" />
               <span className="eyebrow text-accent-text">{s(D.landing.eyebrow)}</span>
@@ -100,7 +98,7 @@ export default function Landing() {
             <div className="mt-1 flex flex-wrap items-center gap-3">
               <Link
                 to={beginHref}
-                className="inline-flex min-h-[3.25rem] items-center gap-2.5 rounded-full bg-accent px-7 text-base font-semibold text-white no-underline shadow-raised transition-colors hover:bg-accent-hover hover:no-underline"
+                className="inline-flex min-h-[3.25rem] max-w-full items-center justify-center gap-2.5 rounded-full bg-accent px-6 text-center text-base font-semibold text-white no-underline shadow-raised transition-colors hover:bg-accent-hover hover:no-underline sm:px-7"
               >
                 {started ? s(D.nav.resumeApplication) : s(D.nav.begin)}
                 <ArrowRightIcon size={17} />
@@ -109,7 +107,7 @@ export default function Landing() {
                 to="/guidelines"
                 target="_blank"
                 rel="noopener"
-                className="inline-flex min-h-[3.25rem] items-center gap-2.5 rounded-full border border-line bg-card px-6 text-base font-semibold text-accent-text no-underline transition-colors hover:border-green-300 hover:no-underline"
+                className="inline-flex min-h-[3.25rem] max-w-full items-center justify-center gap-2.5 rounded-full border border-line bg-card px-5 text-center text-base font-semibold text-accent-text no-underline transition-colors hover:border-green-300 hover:no-underline sm:px-6"
               >
                 <DocumentIcon size={17} />
                 {s(D.nav.guidelines)}
@@ -134,7 +132,7 @@ export default function Landing() {
           </div>
 
           {/* Form preview card */}
-          <div className="relative flex items-center justify-center">
+          <div className="relative flex min-w-0 items-center justify-center">
             <div
               aria-hidden="true"
               className="absolute inset-x-10 inset-y-6 -rotate-3 rounded-3xl border border-accent-soft-line bg-accent-soft"
@@ -161,14 +159,14 @@ export default function Landing() {
 
               <ul className="flex list-none flex-col gap-2.5 p-0">
                 {PREVIEW_ROWS.map(([number, label, value]) => (
-                  <li key={number} className="flex items-baseline gap-2">
+                  <li key={number} className="flex min-w-0 items-baseline gap-2">
                     <span className="w-6 flex-none text-[0.68rem] text-faint">{number}</span>
                     <span className="flex-none text-[0.72rem] text-muted">{s(label)}</span>
                     <span
                       aria-hidden="true"
-                      className="min-w-4 flex-1 border-b border-dotted border-line"
+                      className="min-w-3 flex-1 border-b border-dotted border-line"
                     />
-                    <span className="flex-none text-[0.72rem] font-semibold text-accent-text">
+                    <span className="min-w-0 truncate text-[0.72rem] font-semibold text-accent-text">
                       {value}
                     </span>
                   </li>

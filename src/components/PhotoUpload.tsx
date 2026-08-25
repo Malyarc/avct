@@ -130,7 +130,7 @@ export function PhotoUpload({
       />
 
       {value ? (
-        <div className="flex flex-col gap-2.5 rounded-2xl border border-green-300 bg-card p-3.5 shadow-card">
+        <div className="mx-auto flex w-full max-w-[13rem] flex-col gap-2.5 rounded-2xl border border-green-300 bg-card p-3.5 shadow-card lg:max-w-none">
           <img
             src={value}
             alt={str(D.personal.photoUploaded)}
@@ -169,7 +169,7 @@ export function PhotoUpload({
             setDragging(false);
             void accept(event.dataTransfer.files?.[0]);
           }}
-          className={`flex aspect-[2/2.6] cursor-pointer flex-col items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed p-4 text-center transition-colors ${
+          className={`mx-auto flex aspect-[2/2.6] w-full max-w-[13rem] cursor-pointer flex-col items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed p-4 text-center transition-colors lg:max-w-none ${
             dragging
               ? "border-accent bg-accent-soft"
               : invalid

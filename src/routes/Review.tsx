@@ -127,7 +127,7 @@ export default function Review() {
     <div className="flex min-h-dvh flex-col bg-sunken">
       <header className="sticky top-0 z-40 border-b border-line bg-card">
         <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <Link to="/" className="min-w-0 no-underline hover:no-underline">
+          <Link to="/" className="flex min-h-11 min-w-0 items-center rounded-lg no-underline hover:no-underline">
             <BrandLockup subtitle={s(D.review.header)} compact />
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -138,13 +138,14 @@ export default function Review() {
             <Button
               variant="secondary"
               size="sm"
+              aria-label={format(s(D.review.backToStep), STEPS.length)}
+              className="!px-3 sm:!px-4"
               onClick={() => navigate(`/apply/${STEPS[STEPS.length - 1].id}`)}
             >
               <ArrowLeftIcon size={14} />
               <span className="hidden sm:inline">
                 {format(s(D.review.backToStep), STEPS.length)}
               </span>
-              <span className="sm:hidden">{s(D.action.back)}</span>
             </Button>
           </div>
         </div>
@@ -168,7 +169,10 @@ export default function Review() {
         </main>
 
         {/* ── Confirm & sign ───────────────────────────────────── */}
-        <aside className="flex flex-col gap-6 border-line bg-card px-5 py-7 sm:px-7 xl:border-l">
+        <aside
+          id="confirm-and-sign"
+          className="flex min-w-0 scroll-mt-20 flex-col gap-6 border-line bg-card px-5 py-7 sm:px-7 xl:border-l"
+        >
           <div className="flex flex-col gap-2.5">
             <h1 className="text-[1.5rem]">{s(D.review.title)}</h1>
             <p className="text-[0.9rem] leading-relaxed text-muted">{s(D.review.blurb)}</p>
@@ -259,6 +263,28 @@ export default function Review() {
           </p>
         </aside>
       </div>
+
+      {/* On a phone the document is a long scroll; offer a way past it. */}
+      <a
+        href="#confirm-and-sign"
+        className="fixed bottom-5 right-5 z-40 inline-flex min-h-12 items-center gap-2 rounded-full bg-accent px-5 text-[0.875rem] font-semibold text-white no-underline shadow-float transition-colors hover:bg-accent-hover hover:no-underline xl:hidden"
+      >
+        {s(D.review.skipToSign)}
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 5v14" />
+          <path d="m19 12-7 7-7-7" />
+        </svg>
+      </a>
     </div>
   );
 }

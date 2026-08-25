@@ -77,14 +77,11 @@ export default function Admin() {
         className="pointer-events-none absolute -bottom-56 -left-32 h-[32rem] w-[40rem] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(1,96,62,0.55),transparent_68%)]"
       />
 
-      <main
-        id="main"
-        className="relative flex w-full max-w-[26rem] flex-col gap-7"
-      >
-        <div className="absolute right-0 top-0 -translate-y-14">
-          <LanguageToggle tone="dark" />
-        </div>
+      <div className="absolute inset-x-0 top-0 flex justify-end px-5 py-4 sm:px-8">
+        <LanguageToggle tone="dark" />
+      </div>
 
+      <main id="main" className="relative flex w-full max-w-[26rem] flex-col gap-7">
         <div className="flex flex-col items-center gap-3.5 text-center">
           <img
             src="/brand/tzuchi-lotus.png"
