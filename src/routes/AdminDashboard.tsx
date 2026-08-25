@@ -29,6 +29,7 @@ import {
   MailIcon,
   PrintIcon,
   SearchIcon,
+  SignOutIcon,
   SpinnerIcon,
 } from "../components/ui";
 
@@ -182,43 +183,49 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
 
   return (
     <div className="flex min-h-dvh flex-col bg-paper">
-      <header className="flex items-center justify-between gap-4 bg-green-950 px-4 py-3 text-white sm:px-8">
-        <div className="flex items-center gap-3">
+      <header className="flex items-center justify-between gap-3 bg-green-950 px-4 py-3 text-white sm:px-8">
+        <div className="flex min-w-0 items-center gap-3">
           <img
             src="/brand/tzuchi-lotus.png"
             alt=""
-            className="h-8 w-auto"
+            className="h-8 w-auto flex-none"
             width={600}
             height={312}
           />
-          <div className="flex flex-col leading-tight">
-            <span className="text-[0.84rem] font-semibold">{str(D.admin.title)}</span>
-            <span className="text-[0.72rem] text-green-200/70">
+          <div className="flex min-w-0 flex-col leading-tight">
+            <span className="truncate text-[0.84rem] font-semibold">{str(D.admin.title)}</span>
+            <span className="hidden truncate text-[0.72rem] text-green-200/70 sm:block">
               {str(D.org.department)}
             </span>
           </div>
-          <span className="ml-1 hidden rounded border border-leaf/35 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.08em] text-leaf sm:inline">
+          <span className="ml-1 hidden flex-none rounded border border-leaf/35 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.08em] text-leaf lg:inline">
             {str(D.admin.internal)}
           </span>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex flex-none items-center gap-1.5 sm:gap-2">
           <button
             type="button"
             onClick={exportCsv}
             disabled={!rows || rows.length === 0}
-            className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/16 px-3.5 text-[0.8125rem] text-green-100 transition-colors hover:bg-white/8 disabled:opacity-40"
+            aria-label={str(D.action.exportCsv)}
+            title={str(D.action.exportCsv)}
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-white/16 px-3 text-[0.8125rem] text-green-100 transition-colors hover:bg-white/8 disabled:opacity-40"
           >
-            <DownloadIcon size={14} />
-            <span className="hidden sm:inline">{str(D.action.exportCsv)}</span>
+            <DownloadIcon size={15} />
+            <span className="hidden lg:inline">{str(D.action.exportCsv)}</span>
           </button>
           <button
             type="button"
             onClick={() => {
               void adminLogout().then(onSignOut);
             }}
-            className="min-h-9 rounded-lg px-3 text-[0.8125rem] text-green-200/80 transition-colors hover:text-white"
+            aria-label={str(D.action.signOut)}
+            title={str(D.action.signOut)}
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-[0.8125rem] text-green-200/80 transition-colors hover:text-white"
           >
-            {str(D.action.signOut)}
+            <SignOutIcon size={15} />
+            <span className="hidden lg:inline">{str(D.action.signOut)}</span>
           </button>
           <LanguageToggle tone="dark" />
         </div>
@@ -441,13 +448,15 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                     )}
                     <div className="flex min-w-0 flex-col gap-1 pt-0.5">
                       <h2 className="truncate text-[1.3125rem] leading-tight">
-                        {record.firstName} {record.surname}
+                        {isZh && record.chineseName
+                          ? record.chineseName
+                          : `${record.firstName} ${record.surname}`}
                       </h2>
-                      {record.chineseName ? (
-                        <span className="font-zh text-[0.9375rem] text-muted">
-                          {record.chineseName}
-                        </span>
-                      ) : null}
+                      <span className="truncate text-[0.9375rem] text-muted">
+                        {isZh
+                          ? `${record.firstName} ${record.surname}`
+                          : record.chineseName || null}
+                      </span>
                       <span
                         className={`mt-0.5 w-fit rounded-full px-2.5 py-0.5 text-[0.72rem] font-semibold ${
                           record.track === "commissioner"
