@@ -33,8 +33,8 @@ export const D = {
       "佛教慈濟基金會「委員慈誠培訓報名表」2023年2月1日海外版",
     ),
     programme: p(
-      "Advanced Volunteer Certification Training (TCCA Alumni Only)",
-      "慈青學長姊委員慈誠培訓",
+      "Advanced Volunteer Certification Training (AVCT)",
+      "委員慈誠培訓",
     ),
     contactName: p("Ashley Yong", "楊妤緗"),
     contactRole: p(
@@ -90,9 +90,14 @@ export const D = {
    * ------------------------------------------------------------------ */
   landing: {
     title: p(
-      "Advanced Volunteer Certification Training (TCCA Alumni Only)",
-      "慈青學長姊委員慈誠培訓報名",
+      "Advanced Volunteer Certification Training (AVCT)",
+      "委員慈誠培訓報名",
     ),
+    // Smaller audience line beneath the hero title; carries the TCCA-alumni note
+    // that used to sit inside the title.
+    audienceTag: p("(TCCA Alumni)", "（慈青學長姊）"),
+    // Eligibility note beneath the primary call to action.
+    hqOnly: p("For Headquarters Region only", "僅限總會區"),
     statTime: p("~20 min", "約 20 分鐘"),
     statTimeLabel: p("to complete", "即可填完"),
     statSteps: p("9 steps", "9 個步驟"),
@@ -641,8 +646,8 @@ export const D = {
    * ------------------------------------------------------------------ */
   guidelines: {
     pageTitle: p(
-      "Program Guidelines · Advanced Volunteer Certification Training (TCCA Alumni Only)",
-      "培訓辦法・慈青學長姊委員慈誠培訓",
+      "Program Guidelines · Advanced Volunteer Certification Training (AVCT)",
+      "培訓辦法・委員慈誠培訓",
     ),
     eyebrow: p("Program Guidelines", "培訓辦法"),
     title: p(
@@ -658,7 +663,7 @@ export const D = {
 
     eligibilityTitle: p("AVCT Eligibility", "培訓推薦資格"),
     eligibilityLede: p(
-      "TCCA (Tzu Ching) alumni recommended for Certified Training as Committee Member or Faith Corps must meet all of the following requirements:",
+      "TCCA (Tzu Ching) alumni recommended for AVCT as Commissioner or Faith Corps must meet all of the following requirements:",
       "推薦參加委員慈誠培訓的慈青學長，須符合以下所有條件：",
     ),
     eligibility1: p(
@@ -683,7 +688,7 @@ export const D = {
     ),
     flexibilityStrong: p("any two of the three", "三項中任兩項"),
 
-    registrationTitle: p("Registration", "報名方式"),
+    registrationTitle: p("Registration (For Headquarters Region only)", "報名方式（僅限總會區）"),
     registration1: p("Complete the registration form.", "填寫報名表。"),
     registration2: p(
       "Upload your 600-word (or more) autobiography.",
@@ -779,8 +784,8 @@ export const D = {
 
     applications: p("Applications", "報名表"),
     cohort: p(
-      "Advanced Volunteer Certification Training (TCCA Alumni Only)",
-      "慈青學長姊委員慈誠培訓",
+      "Advanced Volunteer Certification Training (AVCT)",
+      "委員慈誠培訓",
     ),
     search: p("Search name, email or reference", "搜尋姓名、信箱或編號"),
     searchLabel: p("Search applications", "搜尋報名表"),

@@ -10,6 +10,7 @@ import {
   DocumentIcon,
   ExternalIcon,
   ImageIcon,
+  MapPinIcon,
 } from "../components/ui";
 
 const READY_ITEMS: [Phrase, Phrase][] = [
@@ -43,8 +44,10 @@ export default function Landing() {
             to={beginHref}
             className="hidden min-h-10 items-center gap-2 rounded-full border border-accent-soft-line bg-accent-soft px-4 text-[0.875rem] font-semibold text-accent-text no-underline transition-colors hover:bg-green-100 hover:no-underline sm:inline-flex"
           >
-            {started ? s(D.nav.resume) : s(D.nav.beginShort)}
-            {isZh ? null : <span className="hidden md:inline">Application</span>}
+            <span className="whitespace-nowrap">
+              {started ? s(D.nav.resume) : s(D.nav.beginShort)}
+              {isZh ? null : <span className="hidden md:inline">{" "}Application</span>}
+            </span>
           </Link>
         }
       />
@@ -60,14 +63,24 @@ export default function Landing() {
           <Lotus className="h-[4.5rem] w-auto drop-shadow-sm sm:h-24" />
 
           <div className="flex flex-col gap-3">
-            <h1
-              lang={isZh ? "zh-Hant" : undefined}
-              className={`text-balance text-[2.25rem] leading-[1.08] sm:text-[3rem] lg:text-[3.375rem] ${
-                isZh ? "font-zh" : "tracking-[-0.026em]"
-              }`}
-            >
-              {s(D.landing.title)}
-            </h1>
+            <div className="flex flex-col gap-2">
+              <h1
+                lang={isZh ? "zh-Hant" : undefined}
+                className={`text-balance text-[2.25rem] leading-[1.08] sm:text-[3rem] lg:text-[3.375rem] ${
+                  isZh ? "font-zh" : "tracking-[-0.026em]"
+                }`}
+              >
+                {s(D.landing.title)}
+              </h1>
+              <p
+                lang={isZh ? "zh-Hant" : undefined}
+                className={`text-[0.9375rem] font-medium tracking-[0.02em] text-faint sm:text-[1rem] ${
+                  isZh ? "font-zh" : ""
+                }`}
+              >
+                {s(D.landing.audienceTag)}
+              </p>
+            </div>
             <p
               lang={isZh ? undefined : "zh-Hant"}
               className={`text-balance text-[1.25rem] tracking-[0.05em] text-accent-text sm:text-[1.375rem] ${
@@ -78,24 +91,30 @@ export default function Landing() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to={beginHref}
-              className="inline-flex min-h-[3.25rem] max-w-full items-center justify-center gap-2.5 rounded-full bg-accent px-7 text-center text-base font-semibold text-white no-underline shadow-raised transition-colors hover:bg-accent-hover hover:no-underline"
-            >
-              {started ? s(D.nav.resumeApplication) : s(D.nav.begin)}
-              <ArrowRightIcon size={17} />
-            </Link>
-            <Link
-              to="/guidelines"
-              target="_blank"
-              rel="noopener"
-              className="inline-flex min-h-[3.25rem] max-w-full items-center justify-center gap-2.5 rounded-full border border-line bg-card px-6 text-center text-base font-semibold text-accent-text no-underline transition-colors hover:border-green-300 hover:no-underline"
-            >
-              <DocumentIcon size={17} />
-              {s(D.nav.guidelines)}
-              <ExternalIcon size={13} className="opacity-50" />
-            </Link>
+          <div className="flex flex-col items-center gap-3.5">
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link
+                to={beginHref}
+                className="inline-flex min-h-[3.25rem] max-w-full items-center justify-center gap-2.5 rounded-full bg-accent px-7 text-center text-base font-semibold text-white no-underline shadow-raised transition-colors hover:bg-accent-hover hover:no-underline"
+              >
+                {started ? s(D.nav.resumeApplication) : s(D.nav.begin)}
+                <ArrowRightIcon size={17} />
+              </Link>
+              <Link
+                to="/guidelines"
+                target="_blank"
+                rel="noopener"
+                className="inline-flex min-h-[3.25rem] max-w-full items-center justify-center gap-2.5 rounded-full border border-line bg-card px-6 text-center text-base font-semibold text-accent-text no-underline transition-colors hover:border-green-300 hover:no-underline"
+              >
+                <DocumentIcon size={17} />
+                {s(D.nav.guidelines)}
+                <ExternalIcon size={13} className="opacity-50" />
+              </Link>
+            </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-soft-line bg-accent-soft px-3.5 py-1.5 text-[0.78125rem] font-medium text-accent-text">
+              <MapPinIcon size={13} className="text-accent" />
+              {s(D.landing.hqOnly)}
+            </span>
           </div>
 
           <dl className="mt-2 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 border-t border-line-soft pt-8">
