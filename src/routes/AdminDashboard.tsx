@@ -344,13 +344,25 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                           </span>
                           <span className="flex min-w-0 flex-col">
                             <span className="truncate text-[0.9rem] font-semibold">
-                              {row.firstName} {row.surname}
-                              {row.chineseName ? (
-                                <span className="font-zh font-normal text-muted">
-                                  {" "}
-                                  {row.chineseName}
-                                </span>
-                              ) : null}
+                              {isZh && row.chineseName ? (
+                                <>
+                                  <span className="font-zh">{row.chineseName}</span>
+                                  <span className="font-normal text-muted">
+                                    {" "}
+                                    {row.firstName} {row.surname}
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  {row.firstName} {row.surname}
+                                  {row.chineseName ? (
+                                    <span className="font-zh font-normal text-muted">
+                                      {" "}
+                                      {row.chineseName}
+                                    </span>
+                                  ) : null}
+                                </>
+                              )}
                             </span>
                             <span className="truncate text-[0.78125rem] text-muted">
                               {row.email}
