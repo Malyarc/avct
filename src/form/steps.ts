@@ -20,19 +20,13 @@
  */
 
 import {
-  BLOOD_TYPES,
   EDUCATION_LEVELS,
-  MARITAL_STATUSES,
   PRECEPTS,
   PRACTICAL_DURATIONS,
-  SKILL_CATEGORIES,
-  MISSIONS,
   ACTIVITIES,
-  VEST_SIZES,
-  BEADS_SIZES,
-  TRACKS,
 } from "./catalog";
 import type { ApplicationData } from "./model";
+import { hasCommissioner, hasFaithCorps } from "./defaults";
 import { D, format } from "../i18n/dictionary";
 import type { Phrase } from "../i18n/types";
 
@@ -92,7 +86,7 @@ const twoSections = (a: number, b: number): Phrase => ({
 
 function validateTrack(data: ApplicationData): FieldErrors {
   const errors: FieldErrors = {};
-  if (!keys(TRACKS).includes(data.track)) errors.track = D.track.chooseError;
+  if (data.track === "") errors.track = D.track.chooseError;
   return errors;
 }
 
@@ -122,31 +116,22 @@ function validatePersonal(data: ApplicationData): FieldErrors {
       errors.birthday = D.personal.birthdayYear;
   }
 
-  if (!keys(BLOOD_TYPES).includes(data.bloodType)) errors.bloodType = REQUIRED;
+  // Blood type is optional; only the "Other" specify is required once chosen.
   if (data.bloodType === "other" && isBlank(data.bloodTypeOther))
     errors.bloodTypeOther = REQUIRED;
 
   require_(errors, data, "idNumber");
 
-  if (!keys(MARITAL_STATUSES).includes(data.maritalStatus)) errors.maritalStatus = REQUIRED;
+  // Marital status is optional; only the "Other" specify is required once chosen.
   if (data.maritalStatus === "other" && isBlank(data.maritalStatusOther))
     errors.maritalStatusOther = REQUIRED;
 
   if (!keys(EDUCATION_LEVELS).includes(data.education)) errors.education = REQUIRED;
-  const schoolApplies =
-    data.education !== "" && data.education !== "none" && data.education !== "selfStudy";
-  if (schoolApplies) {
-    require_(errors, data, "school");
-    require_(errors, data, "major");
-  }
+  // School, major, employer and position are optional per the 8.24.2026 sheet.
 
-  require_(errors, data, "employer");
-  require_(errors, data, "position");
   require_(errors, data, "emergencyName");
   require_(errors, data, "emergencyRelationship");
   require_(errors, data, "emergencyTel");
-
-  if (!data.photo) errors.photo = D.personal.photoRequired;
 
   return errors;
 }
@@ -158,7 +143,6 @@ function validatePersonal(data: ApplicationData): FieldErrors {
 function validateContact(data: ApplicationData): FieldErrors {
   const errors: FieldErrors = {};
   require_(errors, data, "homeAddress");
-  require_(errors, data, "telMobile");
   return errors;
 }
 
@@ -195,15 +179,10 @@ function validateFamily(data: ApplicationData): FieldErrors {
 function validateInvolvement(data: ApplicationData): FieldErrors {
   const errors: FieldErrors = {};
 
-  if (data.activities.length === 0) errors.activities = D.involvement.activitiesRequired;
+  // Activities and volunteer-work interests are optional per the 8.24.2026 sheet.
   if (data.activities.includes("other") && isBlank(data.activitiesOther))
     errors.activitiesOther = D.involvement.activitiesOtherRequired;
 
-  const totalMissions = MISSIONS.reduce(
-    (sum, mission) => sum + data.missions[mission.key].length,
-    0,
-  );
-  if (totalMissions === 0) errors.missions = D.involvement.missionsRequired;
   if (data.missions.medicine.includes("freeClinic") && isBlank(data.freeClinicProfession))
     errors.freeClinicProfession = D.involvement.professionRequired;
 
@@ -221,12 +200,7 @@ function validateInvolvement(data: ApplicationData): FieldErrors {
 function validateSkills(data: ApplicationData): FieldErrors {
   const errors: FieldErrors = {};
 
-  const total = SKILL_CATEGORIES.reduce(
-    (sum, category) => sum + data.skills[category.key].length,
-    0,
-  );
-  if (total === 0) errors.skills = D.skills.required;
-
+  // Skills are optional per the 8.24.2026 sheet.
   if (data.skills.language.includes("other") && isBlank(data.skillLanguageOther))
     errors.skillLanguageOther = D.skills.whichLanguageRequired;
   if (data.skills.music.includes("instrument") && isBlank(data.skillMusicInstrument))
@@ -250,15 +224,11 @@ function validateExperience(data: ApplicationData): FieldErrors {
   else if (!YYYY_MM_RE.test(data.communityStart))
     errors.communityStart = D.experience.startedRequired;
 
-  const anyArea = [
-    data.communityAreaHarmony,
-    data.communityAreaMutualLove,
-    data.communityAreaConcertedEffort,
-  ].some((value) => !isBlank(value));
-  if (!anyArea) errors.communityArea = D.experience.areasRequired;
-
-  require_(errors, data, "certificationFunctionalGroups");
-  require_(errors, data, "fundraisingNumber");
+  // (5) fundraising / member number — required for whichever track(s) apply.
+  if (hasCommissioner(data.track) && isBlank(data.fundraisingNumber))
+    errors.fundraisingNumber = REQUIRED;
+  if (hasFaithCorps(data.track) && isBlank(data.memberNumber))
+    errors.memberNumber = REQUIRED;
 
   return errors;
 }
@@ -270,8 +240,6 @@ function validateExperience(data: ApplicationData): FieldErrors {
 function validateAvailability(data: ApplicationData): FieldErrors {
   const errors: FieldErrors = {};
   if (data.availability.length === 0) errors.availability = D.availability.required;
-  if (!keys(VEST_SIZES).includes(data.vestSize)) errors.vestSize = REQUIRED;
-  if (!keys(BEADS_SIZES).includes(data.beadsSize)) errors.beadsSize = REQUIRED;
   return errors;
 }
 

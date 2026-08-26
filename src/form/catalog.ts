@@ -42,6 +42,8 @@ const stackedChoice = (
  * ------------------------------------------------------------------ */
 
 export type Track = "commissioner" | "faithCorps";
+/** What the applicant chose in (1): one track, both, or nothing yet. */
+export type TrackSelection = Track | "both" | "";
 
 export const TRACKS = [
   {

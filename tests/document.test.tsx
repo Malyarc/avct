@@ -45,11 +45,7 @@ function filled(overrides: Partial<ApplicationData> = {}): ApplicationData {
     missions: { charity: ["caseVisit"], medicine: [], education: [], humanistic: [] },
     skills: { ...createEmptyApplication().skills, language: ["mandarin"] },
     communityStart: "2021-06",
-    communityAreaHarmony: "Midwest LA 中西洛",
-    certificationFunctionalGroups: "TCCA Alumni",
     availability: ["sat:morning"],
-    vestSize: "L",
-    beadsSize: "S",
     precepts: PRECEPTS.reduce(
       (all, precept) => ({ ...all, [precept.key]: 100 }),
       {} as ApplicationData["precepts"],
@@ -131,8 +127,10 @@ describe("ApplicationDocument", () => {
     expect(container.querySelectorAll('[aria-label="checked"]')).toHaveLength(0);
   });
 
-  it("fills the ◎ fundraising number for Commissioner applicants only", () => {
-    const commissioner = render(<ApplicationDocument data={filled()} />);
+  it("routes the ◎ fundraising number and ㊣ member number by track", () => {
+    const commissioner = render(
+      <ApplicationDocument data={filled({ fundraisingNumber: "SA88214" })} />,
+    );
     expect(commissioner.container.textContent).toContain("SA88214");
     // Ashley Yong appears against the ◎ Commissioner Mentor block.
     expect(commissioner.container.textContent).toContain("Ashley Yong 楊妤緗");
@@ -140,12 +138,27 @@ describe("ApplicationDocument", () => {
     commissioner.unmount();
 
     const faith = render(
-      <ApplicationDocument data={filled({ track: "faithCorps", gender: "male" })} />,
+      <ApplicationDocument
+        data={filled({ track: "faithCorps", gender: "male", memberNumber: "MB90210" })}
+      />,
     );
-    expect(faith.container.textContent).toContain("SA88214");
-    // Faith Corps gets the other Mutual Love mentor.
+    // Faith Corps fills the ㊣ member number, and gets the other Mutual Love mentor.
+    expect(faith.container.textContent).toContain("MB90210");
     expect(faith.container.textContent).toContain("Ju Shua Tan 陳奕樺");
     expect(faith.container.textContent).not.toContain("Ling Ling Hsu");
+  });
+
+  it("fills both mentor pairs and both numbers when both tracks are chosen", () => {
+    const both = render(
+      <ApplicationDocument
+        data={filled({ track: "both", fundraisingNumber: "SA88214", memberNumber: "MB90210" })}
+      />,
+    );
+    const text = both.container.textContent ?? "";
+    expect(text).toContain("SA88214");
+    expect(text).toContain("MB90210");
+    expect(text).toContain("Ling Ling Hsu 許玲玲");
+    expect(text).toContain("Ju Shua Tan 陳奕樺");
   });
 
   it("prints eight family rows whether or not they are filled", () => {

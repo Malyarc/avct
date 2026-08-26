@@ -7,7 +7,6 @@
 import type { ReactNode } from "react";
 import {
   ACTIVITIES,
-  BEADS_SIZES,
   BLOOD_TYPES,
   EDUCATION_LEVELS,
   MARITAL_STATUSES,
@@ -17,13 +16,12 @@ import {
   SKILL_CATEGORIES,
   TIME_SLOTS,
   TRACKS,
-  VEST_SIZES,
   WEEKDAYS,
   choiceLabelIn,
   findChoice,
   type Choice,
 } from "../form/catalog";
-import { defaultsFor } from "../form/defaults";
+import { defaultsFor, hasCommissioner, hasFaithCorps } from "../form/defaults";
 import type { ApplicationData, AvailabilitySlot } from "../form/model";
 import { useT, type Translate } from "../i18n/language";
 import { D } from "../i18n/dictionary";
@@ -96,14 +94,24 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
       <Group title={L(D.answers.application)}>
         <Row
           label={L(D.answers.track)}
-          value={track ? (lang === "zh" ? track.zh : `${track.zh} ${track.en}`) : EMPTY}
-        />
-        <Row
-          label={
-            data.track === "faithCorps" ? L(D.answers.memberNo) : L(D.answers.fundraisingNo)
+          value={
+            data.track === "both"
+              ? lang === "zh"
+                ? "委員 + 慈誠"
+                : "Commissioner + Faith Corps 委員 + 慈誠"
+              : track
+                ? lang === "zh"
+                  ? track.zh
+                  : `${track.zh} ${track.en}`
+                : EMPTY
           }
-          value={data.fundraisingNumber}
         />
+        {hasCommissioner(data.track) ? (
+          <Row label={L(D.answers.fundraisingNo)} value={data.fundraisingNumber} />
+        ) : null}
+        {hasFaithCorps(data.track) ? (
+          <Row label={L(D.answers.memberNo)} value={data.memberNumber} />
+        ) : null}
       </Group>
 
       <Group title={L(D.answers.personal)}>
@@ -220,16 +228,6 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
       <Group title={L(D.answers.experience)}>
         <Row label={L(D.answers.communityFrom)} value={data.communityStart.replace("-", " / ")} />
         <Row
-          label={L(D.answers.areas)}
-          value={[
-            data.communityAreaHarmony && `和氣 ${data.communityAreaHarmony}`,
-            data.communityAreaMutualLove && `互愛 ${data.communityAreaMutualLove}`,
-            data.communityAreaConcertedEffort && `協力 ${data.communityAreaConcertedEffort}`,
-          ]
-            .filter(Boolean)
-            .join(" · ")}
-        />
-        <Row
           label={L(D.answers.recommendedBy)}
           value={`${d.communityRecommender.name} · ${d.communityRecommender.badgeNumber}`}
         />
@@ -237,7 +235,7 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
           label={L(D.answers.certificationFrom)}
           value={d.certificationStart.replace("-", " / ")}
         />
-        <Row label={L(D.answers.functionalGroups)} value={data.certificationFunctionalGroups} />
+        <Row label={L(D.answers.functionalGroups)} value={d.functionalGroups} />
       </Group>
 
       <Group title={L(D.answers.availabilitySizing)}>
@@ -255,8 +253,6 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
             )
           }
         />
-        <Row label={L(D.answers.vest)} value={labelOf(VEST_SIZES, data.vestSize, lang)} />
-        <Row label={L(D.answers.beads)} value={labelOf(BEADS_SIZES, data.beadsSize, lang)} />
       </Group>
 
       <Group title={L(D.answers.selfReflection)}>

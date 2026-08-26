@@ -1,17 +1,11 @@
-import type { Track } from "./catalog";
+import type { TrackSelection } from "./catalog";
 import type { ApplicationData } from "./model";
 
 /**
- * Choosing a track sets the gender the track is open to, unless the applicant
- * has already answered gender themselves.
+ * Records the chosen track(s). Gender is no longer derived from the track:
+ * Commissioner training is open to all applicants, so the applicant answers
+ * gender themselves in the next step.
  */
-export function trackPatch(
-  track: Track,
-  current: ApplicationData,
-): Partial<ApplicationData> {
-  const gender = track === "commissioner" ? "female" : "male";
-  const genderWasDerived =
-    current.gender === "" ||
-    current.gender === (current.track === "commissioner" ? "female" : "male");
-  return genderWasDerived ? { track, gender } : { track };
+export function trackPatch(track: TrackSelection): Partial<ApplicationData> {
+  return { track };
 }

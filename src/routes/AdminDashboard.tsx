@@ -457,17 +457,6 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
               <div className="flex flex-col gap-4 border-b border-line-soft px-6 py-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex min-w-0 gap-3.5">
-                    {record.data.photo ? (
-                      <img
-                        src={record.data.photo}
-                        alt=""
-                        className="h-[4.625rem] w-[3.625rem] flex-none rounded-lg border border-line object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-[4.625rem] w-[3.625rem] flex-none items-center justify-center rounded-lg border border-line bg-paper text-[0.68rem] text-faint">
-                        {str(D.admin.noPhoto)}
-                      </div>
-                    )}
                     <div className="flex min-w-0 flex-col gap-1 pt-0.5">
                       <h2 className="truncate text-[1.3125rem] leading-tight">
                         {isZh && record.chineseName

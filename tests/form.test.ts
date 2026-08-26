@@ -25,7 +25,12 @@ import {
   choiceLabelIn,
   findChoice,
 } from "../src/form/catalog";
-import { DEFAULTS_BY_TRACK, defaultsFor, usesCommissionerFields } from "../src/form/defaults";
+import {
+  DEFAULTS_BY_TRACK,
+  defaultsFor,
+  hasCommissioner,
+  hasFaithCorps,
+} from "../src/form/defaults";
 import {
   applicantFullName,
   createEmptyApplication,
@@ -73,7 +78,6 @@ function completeApplication(overrides: Partial<ApplicationData> = {}): Applicat
     emergencyName: "Mei-Hua Chen",
     emergencyRelationship: "Mother",
     emergencyTel: "626-555-0177",
-    photo: TINY_JPEG,
     homeAddress: "1920 S Hacienda Blvd, Hacienda Heights, CA 91745",
     telMobile: "626-555-0148",
     activities: ["tzuChing", "documentation"],
@@ -83,11 +87,7 @@ function completeApplication(overrides: Partial<ApplicationData> = {}): Applicat
       language: ["mandarin", "english"],
     },
     communityStart: "2021-06",
-    communityAreaHarmony: "Midwest LA 中西洛",
-    certificationFunctionalGroups: "TCCA Alumni",
     availability: ["sat:morning", "sun:afternoon"],
-    vestSize: "L",
-    beadsSize: "S",
     precepts: PRECEPTS.reduce(
       (all, precept) => ({ ...all, [precept.key]: 100 }),
       {} as ApplicationData["precepts"],
@@ -180,10 +180,16 @@ describe("defaults", () => {
   });
 
   it("routes ◎ fields to Commissioner and ㊣ fields to Faith Corps", () => {
-    expect(usesCommissionerFields("commissioner")).toBe(true);
-    expect(usesCommissionerFields("faithCorps")).toBe(false);
-    // An unchosen track must not crash the document renderer.
-    expect(usesCommissionerFields("")).toBe(true);
+    expect(hasCommissioner("commissioner")).toBe(true);
+    expect(hasFaithCorps("commissioner")).toBe(false);
+    expect(hasCommissioner("faithCorps")).toBe(false);
+    expect(hasFaithCorps("faithCorps")).toBe(true);
+    // "both" fills both sides.
+    expect(hasCommissioner("both")).toBe(true);
+    expect(hasFaithCorps("both")).toBe(true);
+    // An unchosen track fills neither.
+    expect(hasCommissioner("")).toBe(false);
+    expect(hasFaithCorps("")).toBe(false);
   });
 });
 
@@ -192,26 +198,11 @@ describe("defaults", () => {
  * ------------------------------------------------------------------ */
 
 describe("trackPatch", () => {
-  it("derives gender from the track when gender is unanswered", () => {
-    const empty = createEmptyApplication();
-    expect(trackPatch("commissioner", empty)).toEqual({
-      track: "commissioner",
-      gender: "female",
-    });
-    expect(trackPatch("faithCorps", empty)).toEqual({ track: "faithCorps", gender: "male" });
-  });
-
-  it("keeps a gender the applicant chose themselves", () => {
-    // Commissioner track derives "female"; the applicant overrode it to male.
-    const overridden = { ...createEmptyApplication(), track: "commissioner", gender: "male" } as
-      ApplicationData;
-    expect(trackPatch("faithCorps", overridden)).toEqual({ track: "faithCorps" });
-  });
-
-  it("re-derives when the previous gender was itself derived", () => {
-    const derived = { ...createEmptyApplication(), track: "commissioner", gender: "female" } as
-      ApplicationData;
-    expect(trackPatch("faithCorps", derived)).toEqual({ track: "faithCorps", gender: "male" });
+  it("records the chosen track without touching gender", () => {
+    expect(trackPatch("commissioner")).toEqual({ track: "commissioner" });
+    expect(trackPatch("faithCorps")).toEqual({ track: "faithCorps" });
+    expect(trackPatch("both")).toEqual({ track: "both" });
+    expect(trackPatch("")).toEqual({ track: "" });
   });
 });
 
@@ -230,13 +221,12 @@ describe("validation", () => {
     const incomplete = STEPS.filter((step) => !isStepComplete(step, empty)).map(
       (step) => step.id,
     );
-    // Family is voluntary, so it is the only step an empty form satisfies.
+    // Family, involvement and skills are all-optional now, so an empty form
+    // only trips the steps that still carry required fields.
     expect(incomplete).toEqual([
       "track",
       "personal",
       "contact",
-      "involvement",
-      "skills",
       "experience",
       "availability",
       "reflection",
@@ -275,17 +265,12 @@ describe("validation", () => {
     expect(validateAll(completeApplication({ birthday: tomorrow })).birthday).toBeDefined();
   });
 
-  it("skips school and major for applicants with no schooling", () => {
-    const noSchool = completeApplication({ education: "none", school: "", major: "" });
-    expect(validateAll(noSchool).school).toBeUndefined();
-    expect(validateAll(noSchool).major).toBeUndefined();
-
-    const selfStudy = completeApplication({ education: "selfStudy", school: "", major: "" });
-    expect(validateAll(selfStudy).school).toBeUndefined();
-
-    const graduate = completeApplication({ education: "bachelor", school: "", major: "" });
-    expect(validateAll(graduate).school).toBeDefined();
-    expect(validateAll(graduate).major).toBeDefined();
+  it("treats school and major as optional at every education level", () => {
+    for (const education of ["none", "selfStudy", "bachelor"]) {
+      const app = completeApplication({ education, school: "", major: "" });
+      expect(validateAll(app).school).toBeUndefined();
+      expect(validateAll(app).major).toBeUndefined();
+    }
   });
 
   it("requires the specify field only when its option is chosen", () => {
@@ -302,22 +287,6 @@ describe("validation", () => {
       freeClinicProfession: "",
     });
     expect(validateAll(freeClinic).freeClinicProfession).toBeDefined();
-  });
-
-  it("requires at least one community area", () => {
-    const noArea = completeApplication({
-      communityAreaHarmony: "",
-      communityAreaMutualLove: "",
-      communityAreaConcertedEffort: "",
-    });
-    expect(validateAll(noArea).communityArea).toBeDefined();
-
-    const oneArea = completeApplication({
-      communityAreaHarmony: "",
-      communityAreaMutualLove: "Hacienda 哈崗",
-      communityAreaConcertedEffort: "",
-    });
-    expect(validateAll(oneArea).communityArea).toBeUndefined();
   });
 
   it("requires every one of the eleven precepts", () => {
@@ -346,28 +315,15 @@ describe("validation", () => {
     ["email", { email: "" }],
     ["gender", { gender: "" }],
     ["birthday", { birthday: "" }],
-    ["bloodType", { bloodType: "" }],
     ["idNumber", { idNumber: "" }],
-    ["maritalStatus", { maritalStatus: "" }],
     ["education", { education: "" }],
-    ["school", { school: "" }],
-    ["major", { major: "" }],
-    ["employer", { employer: "" }],
-    ["position", { position: "" }],
     ["emergencyName", { emergencyName: "" }],
     ["emergencyRelationship", { emergencyRelationship: "" }],
     ["emergencyTel", { emergencyTel: "" }],
-    ["photo", { photo: null }],
     ["homeAddress", { homeAddress: "" }],
-    ["telMobile", { telMobile: "" }],
-    ["activities", { activities: [] }],
-    ["skills", { skills: createEmptyApplication().skills }],
     ["communityStart", { communityStart: "" }],
-    ["certificationFunctionalGroups", { certificationFunctionalGroups: "" }],
     ["fundraisingNumber", { fundraisingNumber: "" }],
     ["availability", { availability: [] }],
-    ["vestSize", { vestSize: "" }],
-    ["beadsSize", { beadsSize: "" }],
     ["practicalDuration", { practicalDuration: "" }],
     ["track", { track: "" }],
   ] as [string, Partial<ApplicationData>][])(
@@ -378,28 +334,44 @@ describe("validation", () => {
     },
   );
 
-  it("flags the missions group when no volunteer work is chosen", () => {
-    const errors = validateAll(
-      completeApplication({
-        missions: { charity: [], medicine: [], education: [], humanistic: [] },
-      }),
-    );
-    expect(Object.keys(errors)).toContain("missions");
-  });
-
   it.each([
     ["businessAddress", { businessAddress: "" }],
     ["telHome", { telHome: "" }],
     ["telCompany", { telCompany: "" }],
     ["telFax", { telFax: "" }],
+    ["telMobile", { telMobile: "" }],
     ["chineseName", { chineseName: "" }],
     ["family", { family: [] }],
+    ["bloodType", { bloodType: "" }],
+    ["maritalStatus", { maritalStatus: "" }],
+    ["school", { school: "" }],
+    ["major", { major: "" }],
+    ["employer", { employer: "" }],
+    ["position", { position: "" }],
+    ["activities", { activities: [] }],
+    ["skills", { skills: createEmptyApplication().skills }],
   ] as [string, Partial<ApplicationData>][])(
     "leaves the optional field %s alone when blank",
     (field, patch) => {
       expect(Object.keys(validateAll(completeApplication(patch)))).not.toContain(field);
     },
   );
+
+  it("requires the member number on the Faith Corps track", () => {
+    const fc = completeApplication({ track: "faithCorps", memberNumber: "" });
+    expect(validateAll(fc).memberNumber).toBeDefined();
+  });
+
+  it("requires both numbers when both tracks are chosen", () => {
+    const both = completeApplication({
+      track: "both",
+      fundraisingNumber: "",
+      memberNumber: "",
+    });
+    const errors = validateAll(both);
+    expect(errors.fundraisingNumber).toBeDefined();
+    expect(errors.memberNumber).toBeDefined();
+  });
 
   it("gives every error message in both languages", () => {
     const errors = validateAll(createEmptyApplication());
@@ -499,12 +471,10 @@ describe("normalizeApplication", () => {
     const result = normalizeApplication({
       activities: ["tzuChing", "notARealActivity"],
       bloodType: "Z",
-      vestSize: "XXXL",
       availability: ["sat:morning", "someday:whenever"],
     });
     expect(result.activities).toEqual(["tzuChing"]);
     expect(result.bloodType).toBe("");
-    expect(result.vestSize).toBe("");
     expect(result.availability).toEqual(["sat:morning"]);
   });
 
@@ -524,12 +494,10 @@ describe("normalizeApplication", () => {
       .toBe(false);
   });
 
-  it("nulls out a photo or signature that is not a safe image", () => {
+  it("nulls out a signature that is not a safe image", () => {
     const result = normalizeApplication({
-      photo: "javascript:alert(1)",
       signature: "https://evil.example/x.png",
     });
-    expect(result.photo).toBeNull();
     expect(result.signature).toBeNull();
   });
 
@@ -547,14 +515,19 @@ describe("normalizeApplication", () => {
     expect(result.homeAddress).toHaveLength(200);
   });
 
-  it("caps family rows at the eight the paper form prints", () => {
-    const result = normalizeApplication({
+  it("keeps every family row up to a high safety bound", () => {
+    const kept = normalizeApplication({
       family: Array.from({ length: 30 }, (_, index) => ({
         relationship: `R${index}`,
         name: `N${index}`,
       })),
     });
-    expect(result.family).toHaveLength(8);
+    expect(kept.family).toHaveLength(30);
+
+    const capped = normalizeApplication({
+      family: Array.from({ length: 150 }, (_, index) => ({ name: `N${index}` })),
+    });
+    expect(capped.family).toHaveLength(100);
   });
 
   it("clamps and rounds precept percentages", () => {

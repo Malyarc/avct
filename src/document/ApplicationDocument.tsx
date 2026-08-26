@@ -29,7 +29,12 @@ import {
   WEEKDAYS,
   type Choice,
 } from "../form/catalog";
-import { defaultsFor, usesCommissionerFields } from "../form/defaults";
+import {
+  DEFAULTS_BY_TRACK,
+  defaultsFor,
+  hasCommissioner,
+  hasFaithCorps,
+} from "../form/defaults";
 import type { ApplicationData, AvailabilitySlot } from "../form/model";
 import { Ans, Cb, Lbl, Line, Page, splitDate, splitMonth } from "./parts";
 import "./document.css";
@@ -107,8 +112,11 @@ const col = (n: number): CSSProperties => ({ width: `${(n / 12) * 100}%` });
  * ------------------------------------------------------------------ */
 
 function PageOne({ data }: { data: ApplicationData }) {
+  const dc = DEFAULTS_BY_TRACK.commissioner;
+  const df = DEFAULTS_BY_TRACK.faithCorps;
   const d = defaultsFor(data.track);
-  const commissioner = usesCommissionerFields(data.track);
+  const commissioner = hasCommissioner(data.track);
+  const faithCorps = hasFaithCorps(data.track);
 
   return (
     <Page number={1}>
@@ -156,8 +164,8 @@ function PageOne({ data }: { data: ApplicationData }) {
 
       <div className="doc-p">
         <strong>(1)</strong> 報名項目Application for:{" "}
-        <Cb on={data.track === "commissioner"}>培訓委員Commissioner Training</Cb>
-        <Cb on={data.track === "faithCorps"}>培訓慈誠 Faith Corps Training</Cb>
+        <Cb on={commissioner}>培訓委員Commissioner Training</Cb>
+        <Cb on={faithCorps}>培訓慈誠 Faith Corps Training</Cb>
       </div>
 
       <div className="doc-p" style={{ marginTop: "1.4mm" }}>
@@ -196,9 +204,9 @@ function PageOne({ data }: { data: ApplicationData }) {
         <strong>(4)</strong> ◎直屬委員Commissioner Mentor
       </div>
       <div className="doc-p" style={{ paddingLeft: "5mm" }}>
-        姓名Name:<Line width="30mm">{commissioner ? d.directMentor.name : ""}</Line>　證號Badge
-        Number:<Line width="22mm">{commissioner ? d.directMentor.badgeNumber : ""}</Line>
-        　電話Tel:<Line width="26mm">{commissioner ? d.directMentor.tel : ""}</Line>
+        姓名Name:<Line width="30mm">{commissioner ? dc.directMentor.name : ""}</Line>　證號Badge
+        Number:<Line width="22mm">{commissioner ? dc.directMentor.badgeNumber : ""}</Line>
+        　電話Tel:<Line width="26mm">{commissioner ? dc.directMentor.tel : ""}</Line>
       </div>
       <div className="doc-en-note" style={{ color: "#4a4a4a", marginTop: "0.6mm" }}>
         若與您不同社區，請其或組隊協助推薦與您同互愛(或和氣)之委員，承擔您的資深委員，並填入以下資料：
@@ -211,17 +219,17 @@ function PageOne({ data }: { data: ApplicationData }) {
         ◎同互愛(或和氣)之直屬委員Mutual Love (or Harmony) Team Mentor
       </div>
       <div className="doc-p" style={{ paddingLeft: "5mm" }}>
-        姓名Name:<Line width="30mm">{commissioner ? d.mutualLoveMentor.name : ""}</Line>
+        姓名Name:<Line width="30mm">{commissioner ? dc.mutualLoveMentor.name : ""}</Line>
         　證號Badge Number:
-        <Line width="22mm">{commissioner ? d.mutualLoveMentor.badgeNumber : ""}</Line>　電話Tel:
-        <Line width="26mm">{commissioner ? d.mutualLoveMentor.tel : ""}</Line>
+        <Line width="22mm">{commissioner ? dc.mutualLoveMentor.badgeNumber : ""}</Line>　電話Tel:
+        <Line width="26mm">{commissioner ? dc.mutualLoveMentor.tel : ""}</Line>
       </div>
 
       <div className="doc-p" style={{ marginTop: "1.2mm" }}>㊣推薦人Recommending Person</div>
       <div className="doc-p" style={{ paddingLeft: "5mm" }}>
-        姓名Name:<Line width="30mm">{commissioner ? "" : d.directMentor.name}</Line>　證號Badge
-        Number:<Line width="22mm">{commissioner ? "" : d.directMentor.badgeNumber}</Line>
-        　電話Tel:<Line width="26mm">{commissioner ? "" : d.directMentor.tel}</Line>
+        姓名Name:<Line width="30mm">{faithCorps ? df.directMentor.name : ""}</Line>　證號Badge
+        Number:<Line width="22mm">{faithCorps ? df.directMentor.badgeNumber : ""}</Line>
+        　電話Tel:<Line width="26mm">{faithCorps ? df.directMentor.tel : ""}</Line>
       </div>
       <div className="doc-en-note" style={{ color: "#4a4a4a", marginTop: "0.6mm" }}>
         若為女眾或與您不同社區，請其或組隊協助推薦與您同互愛(或和氣)之慈誠，承擔您的直屬推薦人，並填入以下資料：
@@ -234,10 +242,10 @@ function PageOne({ data }: { data: ApplicationData }) {
         同互愛(或和氣)之推薦人Mutual Love (or Harmony) Team Mentor
       </div>
       <div className="doc-p" style={{ paddingLeft: "5mm" }}>
-        姓名Name:<Line width="30mm">{commissioner ? "" : d.mutualLoveMentor.name}</Line>
+        姓名Name:<Line width="30mm">{faithCorps ? df.mutualLoveMentor.name : ""}</Line>
         　證號Badge Number:
-        <Line width="22mm">{commissioner ? "" : d.mutualLoveMentor.badgeNumber}</Line>　電話Tel:
-        <Line width="26mm">{commissioner ? "" : d.mutualLoveMentor.tel}</Line>
+        <Line width="22mm">{faithCorps ? df.mutualLoveMentor.badgeNumber : ""}</Line>　電話Tel:
+        <Line width="26mm">{faithCorps ? df.mutualLoveMentor.tel : ""}</Line>
       </div>
 
       <div className="doc-p" style={{ marginTop: "1.4mm" }}>
@@ -246,7 +254,7 @@ function PageOne({ data }: { data: ApplicationData }) {
         <br />
         <span style={{ paddingLeft: "5mm" }}>
           ㊣會員編號Donating Member Number:
-          <Line width="34mm">{commissioner ? "" : data.fundraisingNumber}</Line>
+          <Line width="34mm">{faithCorps ? data.memberNumber : ""}</Line>
         </span>
       </div>
     </Page>
@@ -305,11 +313,7 @@ function PageTwo({ data }: { data: ApplicationData }) {
               <Ans>{data.surname}</Ans>
             </td>
             <td className="doc-photo-cell" rowSpan={6}>
-              {data.photo ? (
-                <img className="doc-photo" src={data.photo} alt="Applicant headshot" />
-              ) : (
-                <div className="doc-photo doc-photo--empty" />
-              )}
+              <div className="doc-photo doc-photo--empty" />
               <div className="doc-photo-note">
                 推薦受證，於此浮貼二吋制服照片一張；報名培訓請貼二吋照片一張
                 <br />
@@ -480,7 +484,8 @@ function PageTwo({ data }: { data: ApplicationData }) {
 const FAMILY_ROWS = 8;
 
 function PageThree({ data }: { data: ApplicationData }) {
-  const rows = Array.from({ length: FAMILY_ROWS }, (_, index) => data.family[index] ?? null);
+  const rowCount = Math.max(FAMILY_ROWS, data.family.length);
+  const rows = Array.from({ length: rowCount }, (_, index) => data.family[index] ?? null);
 
   return (
     <Page number={3}>
@@ -852,11 +857,7 @@ function PageSeven({ data }: { data: ApplicationData }) {
               <Lbl zh="區域" en="Area" />
             </td>
             <td className="doc-val">
-              <AreaCell
-                harmony={data.communityAreaHarmony}
-                mutualLove={data.communityAreaMutualLove}
-                concerted={data.communityAreaConcertedEffort}
-              />
+              <AreaCell harmony="" mutualLove="" concerted="" />
             </td>
           </tr>
           <tr>
@@ -960,7 +961,7 @@ function PageSeven({ data }: { data: ApplicationData }) {
             <td className="doc-val" colSpan={4}>
               推薦人所投入的功能組
               <span className="en">Functional groups you are a part of:</span>
-              <Line width="70mm">{data.certificationFunctionalGroups}</Line>
+              <Line width="70mm">{d.functionalGroups}</Line>
               <div style={{ marginTop: "0.8mm" }}>
                 <Cb>
                   僅落實組隊，無投入功能組{" "}
@@ -1027,7 +1028,7 @@ function PageSeven({ data }: { data: ApplicationData }) {
             <td className="doc-val">
               志工背心 <span className="en">Volunteer Vest</span>
               <div style={{ marginTop: "0.6mm" }}>
-                <CbList choices={VEST_SIZES} selected={[data.vestSize]} />
+                <CbList choices={VEST_SIZES} selected={[]} />
               </div>
             </td>
           </tr>
@@ -1035,7 +1036,7 @@ function PageSeven({ data }: { data: ApplicationData }) {
             <td className="doc-val">
               琉璃念珠 <span className="en">Buddhist Beads Bracelet</span>
               <div style={{ marginTop: "0.6mm" }}>
-                <CbList choices={BEADS_SIZES} selected={[data.beadsSize]} />
+                <CbList choices={BEADS_SIZES} selected={[]} />
               </div>
             </td>
           </tr>
@@ -1051,7 +1052,7 @@ function PageSeven({ data }: { data: ApplicationData }) {
 
 function PageEight({ data }: { data: ApplicationData }) {
   const d = defaultsFor(data.track);
-  const commissioner = usesCommissionerFields(data.track);
+  const commissioner = hasCommissioner(data.track);
   const signedOn = data.signedAt ? new Date(data.signedAt) : null;
 
   return (

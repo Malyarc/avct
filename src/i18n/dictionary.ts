@@ -224,9 +224,10 @@ export const D = {
     openTo: p("Open to %s applicants", "限%s報名"),
     female: p("female", "女眾"),
     male: p("male", "男眾"),
+    maleFemale: p("male and female", "男女眾"),
     note: p(
-      "This choice decides which fields on the official form apply to you, and which mentor and recommending person are recorded. You can change it later.",
-      "此選擇會決定正式表單上適用的欄位，以及所登錄的直屬委員或推薦人。之後仍可修改。",
+      "You may apply for Commissioner, Faith Corps, or both. This choice decides which fields on the official form apply to you. You can change it later.",
+      "您可以報名培訓委員、慈誠，或兩者皆報。此選擇會決定正式表單上適用的欄位，之後仍可修改。",
     ),
     chooseError: p(
       "Please choose the training you are applying for.",
@@ -273,10 +274,13 @@ export const D = {
     ),
     bloodType: p("Blood type", "血型"),
     bloodTypeOther: p("Please specify your blood type", "請說明您的血型"),
-    idNumber: p("ID number", "身分證號"),
+    idNumber: p(
+      "ID Number (US Driver License # or Taiwan ID #)",
+      "身分證號（美國駕照或台灣身分證號）",
+    ),
     idNumberHint: p(
-      "Driver license or passport number.",
-      "駕照或護照號碼皆可。",
+      "US driver license number or Taiwan ID number.",
+      "美國駕照號碼或台灣身分證號皆可。",
     ),
     maritalStatus: p("Marital status", "婚姻狀況"),
     maritalStatusOther: p("Please specify", "請說明"),

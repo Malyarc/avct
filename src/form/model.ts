@@ -11,7 +11,7 @@ import type {
   PreceptKey,
   SkillCategoryKey,
   TimeSlotKey,
-  Track,
+  TrackSelection,
   WeekdayKey,
 } from "./catalog";
 
@@ -31,11 +31,12 @@ export interface FamilyMember {
 export type AvailabilitySlot = `${WeekdayKey}:${TimeSlotKey}`;
 
 export interface ApplicationData {
-  /* (1) 報名項目 — Application for */
-  track: Track | "";
+  /* (1) 報名項目 — Application for (one track or both) */
+  track: TrackSelection;
 
-  /* (5) 勸募/會員編號 — Fundraising / membership number */
+  /* (5) 勸募/會員編號 — Fundraising number (Commissioner) and member number (Faith Corps) */
   fundraisingNumber: string;
+  memberNumber: string;
 
   /* (6) 個人基本資料 — Personal information */
   chineseName: string;
@@ -57,8 +58,6 @@ export interface ApplicationData {
   emergencyName: string;
   emergencyRelationship: string;
   emergencyTel: string;
-  /** 2-inch headshot, stored as a data URL (JPEG, downscaled client-side). */
-  photo: string | null;
 
   /* (7) 通訊資料 — Contact information */
   homeAddress: string;
@@ -86,19 +85,12 @@ export interface ApplicationData {
   skillTranslationOther: string;
   skillOtherSpecify: string;
 
-  /* (12) 志工經歷 — Volunteer experience */
+  /* (12) 志工經歷 — Volunteer experience (only the start date is asked; the
+     rest of section (12) is filled from the department defaults) */
   communityStart: string; // yyyy-mm
-  communityAreaHarmony: string;
-  communityAreaMutualLove: string;
-  communityAreaConcertedEffort: string;
-  certificationFunctionalGroups: string;
 
   /* (13) 方便投入的時段 — Availability */
   availability: AvailabilitySlot[];
-
-  /* (14) 尺寸 — Sizing */
-  vestSize: string;
-  beadsSize: string;
 
   /* (15) 自省 — Ten precepts, percentage observed at the start of training */
   precepts: Record<PreceptKey, number | null>;
@@ -166,6 +158,7 @@ export function createEmptyApplication(): ApplicationData {
   return {
     track: "",
     fundraisingNumber: "",
+    memberNumber: "",
 
     chineseName: "",
     firstName: "",
@@ -186,7 +179,6 @@ export function createEmptyApplication(): ApplicationData {
     emergencyName: "",
     emergencyRelationship: "",
     emergencyTel: "",
-    photo: null,
 
     homeAddress: "",
     businessAddress: "",
@@ -210,15 +202,8 @@ export function createEmptyApplication(): ApplicationData {
     skillOtherSpecify: "",
 
     communityStart: "",
-    communityAreaHarmony: "",
-    communityAreaMutualLove: "",
-    communityAreaConcertedEffort: "",
-    certificationFunctionalGroups: "",
 
     availability: [],
-
-    vestSize: "",
-    beadsSize: "",
 
     precepts: { ...EMPTY_PRECEPTS },
 
@@ -235,7 +220,7 @@ export function createEmptyApplication(): ApplicationData {
  * whether a stored draft is worth restoring (and announcing) at all.
  */
 export function isApplicationStarted(data: ApplicationData): boolean {
-  if (data.track !== "" || data.photo || data.signature) return true;
+  if (data.track !== "" || data.signature) return true;
   if (data.family.length > 0 || data.availability.length > 0) return true;
   if (data.activities.length > 0) return true;
   if (Object.values(data.missions).some((list) => list.length > 0)) return true;

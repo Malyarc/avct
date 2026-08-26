@@ -13,7 +13,6 @@
 
 import {
   ACTIVITIES,
-  BEADS_SIZES,
   BLOOD_TYPES,
   EDUCATION_LEVELS,
   MARITAL_STATUSES,
@@ -22,8 +21,6 @@ import {
   PRECEPTS,
   SKILL_CATEGORIES,
   TIME_SLOTS,
-  TRACKS,
-  VEST_SIZES,
   WEEKDAYS,
   type Choice,
 } from "./catalog";
@@ -43,7 +40,7 @@ const IMAGE_DATA_URL = /^data:image\/(png|jpeg|jpg|webp);base64,[A-Za-z0-9+/]+={
 
 /** Longest single free-text answer we will store. */
 const MAX_TEXT = 400;
-const MAX_FAMILY_MEMBERS = 8;
+const MAX_FAMILY_MEMBERS = 100;
 
 export function isSafeImageDataUrl(value: unknown): value is string {
   return (
@@ -113,9 +110,10 @@ export function normalizeApplication(input: unknown): ApplicationData {
   if (input == null || typeof input !== "object") return base;
   const raw = input as Record<string, unknown>;
 
-  const track = TRACKS.some((candidate) => candidate.key === raw.track)
-    ? (raw.track as ApplicationData["track"])
-    : "";
+  const track: ApplicationData["track"] =
+    raw.track === "commissioner" || raw.track === "faithCorps" || raw.track === "both"
+      ? raw.track
+      : "";
   const gender: ApplicationData["gender"] =
     raw.gender === "male" || raw.gender === "female" ? raw.gender : "";
 
@@ -154,6 +152,7 @@ export function normalizeApplication(input: unknown): ApplicationData {
   return {
     track,
     fundraisingNumber: text(raw.fundraisingNumber, 60),
+    memberNumber: text(raw.memberNumber, 60),
 
     chineseName: text(raw.chineseName, 60),
     firstName: text(raw.firstName, 80),
@@ -174,7 +173,6 @@ export function normalizeApplication(input: unknown): ApplicationData {
     emergencyName: text(raw.emergencyName, 80),
     emergencyRelationship: text(raw.emergencyRelationship, 60),
     emergencyTel: text(raw.emergencyTel, 60),
-    photo: isSafeImageDataUrl(raw.photo) ? raw.photo : null,
 
     homeAddress: text(raw.homeAddress, 200),
     businessAddress: text(raw.businessAddress, 200),
@@ -198,15 +196,8 @@ export function normalizeApplication(input: unknown): ApplicationData {
     skillOtherSpecify: text(raw.skillOtherSpecify, 120),
 
     communityStart: isoMonth(raw.communityStart),
-    communityAreaHarmony: text(raw.communityAreaHarmony, 120),
-    communityAreaMutualLove: text(raw.communityAreaMutualLove, 120),
-    communityAreaConcertedEffort: text(raw.communityAreaConcertedEffort, 120),
-    certificationFunctionalGroups: text(raw.certificationFunctionalGroups, 240),
 
     availability,
-
-    vestSize: oneOf(raw.vestSize, VEST_SIZES),
-    beadsSize: oneOf(raw.beadsSize, BEADS_SIZES),
 
     precepts,
 

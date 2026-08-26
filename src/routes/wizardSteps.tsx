@@ -16,7 +16,6 @@ import {
 } from "react";
 import {
   ACTIVITIES,
-  BEADS_SIZES,
   BLOOD_TYPES,
   EDUCATION_LEVELS,
   GENDERS,
@@ -27,11 +26,11 @@ import {
   SKILL_CATEGORIES,
   TIME_SLOTS,
   TRACKS,
-  VEST_SIZES,
   WEEKDAYS,
-  type Choice,
+  type Track,
+  type TrackSelection,
 } from "../form/catalog";
-import { defaultsFor, usesCommissionerFields } from "../form/defaults";
+import { defaultsFor, hasCommissioner, hasFaithCorps } from "../form/defaults";
 import {
   createFamilyMember,
   type ApplicationData,
@@ -41,7 +40,6 @@ import {
 import { useApplication } from "../form/ApplicationContext";
 import { trackPatch } from "../form/trackPatch";
 import type { FieldErrors } from "../form/steps";
-import { PhotoUpload } from "../components/PhotoUpload";
 import { useT, type Translate } from "../i18n/language";
 import { D, format } from "../i18n/dictionary";
 import type { Phrase } from "../i18n/types";
@@ -139,6 +137,18 @@ function Section({
  * 1 — Training track
  * ================================================================== */
 
+/** Add or remove one track from the current selection (one, the other, or both). */
+function toggleTrack(current: TrackSelection, key: Track): TrackSelection {
+  let commissioner = hasCommissioner(current);
+  let faithCorps = hasFaithCorps(current);
+  if (key === "commissioner") commissioner = !commissioner;
+  else faithCorps = !faithCorps;
+  if (commissioner && faithCorps) return "both";
+  if (commissioner) return "commissioner";
+  if (faithCorps) return "faithCorps";
+  return "";
+}
+
 export function TrackStep({ errors }: StepProps): ReactElement {
   const { data, update } = useApplication();
   const tr = useT();
@@ -146,21 +156,29 @@ export function TrackStep({ errors }: StepProps): ReactElement {
   return (
     <div className="flex min-w-0 flex-col gap-6">
       <div
-        role="radiogroup"
+        role="group"
         aria-label={tr.s(D.step.trackTitle)}
         className="grid gap-4 sm:grid-cols-2"
       >
         {TRACKS.map((track) => {
-          const selected = data.track === track.key;
-          const audience = tr.s(track.key === "commissioner" ? D.track.female : D.track.male);
+          const selected =
+            track.key === "commissioner"
+              ? hasCommissioner(data.track)
+              : hasFaithCorps(data.track);
+          const audience = tr.s(
+            track.key === "commissioner" ? D.track.maleFemale : D.track.male,
+          );
           return (
             <button
               key={track.key}
               type="button"
-              role="radio"
+              role="checkbox"
               aria-checked={selected}
               onClick={() =>
-                update((previous) => ({ ...previous, ...trackPatch(track.key, previous) }))
+                update((previous) => ({
+                  ...previous,
+                  ...trackPatch(toggleTrack(previous.track, track.key)),
+                }))
               }
               className={`flex flex-col gap-3 rounded-2xl border p-6 text-left transition-all duration-150 ${
                 selected
@@ -181,7 +199,7 @@ export function TrackStep({ errors }: StepProps): ReactElement {
                 </div>
                 <span
                   aria-hidden="true"
-                  className={`mt-1 flex size-6 flex-none items-center justify-center rounded-full border-2 transition-colors ${
+                  className={`mt-1 flex size-6 flex-none items-center justify-center rounded-md border-2 transition-colors ${
                     selected ? "border-accent bg-accent text-white" : "border-line"
                   }`}
                 >
@@ -344,18 +362,6 @@ export function PersonalStep({ errors }: StepProps): ReactElement {
           ) : null}
         </Section>
 
-        <Field
-          label={tr.t(D.personal.photo)}
-          required
-          error={errors.photo}
-          hint={tr.s(D.personal.photoHint)}
-        >
-          <PhotoUpload
-            value={data.photo}
-            onChange={(photo) => set("photo", photo)}
-            invalid={Boolean(errors.photo)}
-          />
-        </Field>
       </div>
 
       <Section title={D.personal.educationSection} tr={tr}>
@@ -985,19 +991,6 @@ export function ExperienceStep({ errors }: StepProps): ReactElement {
     [D.experience.badgeNumber, d.certificationRecommender.badgeNumber],
   ];
 
-  const areaField = (zh: string, en: string, field: keyof ApplicationData) => (
-    <Field
-      label={
-        <span className="font-normal">
-          <Zh>{zh}</Zh>
-          {tr.isZh ? null : ` ${en}`}
-        </span>
-      }
-    >
-      <TextInput {...bind(field)} maxLength={MAX.medium} />
-    </Field>
-  );
-
   return (
     <div className="flex min-w-0 flex-col gap-8">
       <Section
@@ -1005,19 +998,28 @@ export function ExperienceStep({ errors }: StepProps): ReactElement {
         description={D.experience.communityBlurb}
         tr={tr}
       >
-        <Field
-          label={tr.t(
-            usesCommissionerFields(data.track)
-              ? D.experience.fundraisingNumber
-              : D.experience.donatingNumber,
-          )}
-          required
-          error={errors.fundraisingNumber}
-          hint={tr.s(D.experience.numberHint)}
-          className="max-w-xs"
-        >
-          <TextInput {...bind("fundraisingNumber")} maxLength={MAX.medium} />
-        </Field>
+        {hasCommissioner(data.track) ? (
+          <Field
+            label={tr.t(D.experience.fundraisingNumber)}
+            required
+            error={errors.fundraisingNumber}
+            hint={tr.s(D.experience.numberHint)}
+            className="max-w-xs"
+          >
+            <TextInput {...bind("fundraisingNumber")} maxLength={MAX.medium} />
+          </Field>
+        ) : null}
+        {hasFaithCorps(data.track) ? (
+          <Field
+            label={tr.t(D.experience.donatingNumber)}
+            required
+            error={errors.memberNumber}
+            hint={tr.s(D.experience.numberHint)}
+            className="max-w-xs"
+          >
+            <TextInput {...bind("memberNumber")} maxLength={MAX.medium} />
+          </Field>
+        ) : null}
 
         <Field
           label={tr.t(D.experience.started)}
@@ -1033,25 +1035,6 @@ export function ExperienceStep({ errors }: StepProps): ReactElement {
           />
         </Field>
 
-        <fieldset className="flex flex-col gap-2">
-          <legend className="mb-2 flex items-center gap-1.5 text-[0.8125rem] font-semibold text-ink">
-            {tr.t(D.experience.areas)}
-            <span className="text-rose-ink" aria-hidden="true">
-              *
-            </span>
-          </legend>
-          {errors.communityArea ? (
-            <Callout tone="error" className="mb-1">
-              {tr.s(errors.communityArea)}
-            </Callout>
-          ) : null}
-          <div className="grid gap-4 sm:grid-cols-3">
-            {areaField("和氣", "Harmony", "communityAreaHarmony")}
-            {areaField("互愛", "Mutual Love", "communityAreaMutualLove")}
-            {areaField("協力", "Concerted Effort", "communityAreaConcertedEffort")}
-          </div>
-          <span className="text-[0.78125rem] text-faint">{tr.s(D.experience.areasHint)}</span>
-        </fieldset>
       </Section>
 
       <Section
@@ -1068,25 +1051,6 @@ export function ExperienceStep({ errors }: StepProps): ReactElement {
           ))}
         </Card>
 
-        <Field
-          label={tr.t(D.experience.functionalGroups)}
-          required
-          error={errors.certificationFunctionalGroups}
-          hint={tr.s(D.experience.functionalGroupsHint)}
-        >
-          <TextInput
-            {...bind("certificationFunctionalGroups")}
-            maxLength={MAX.long}
-            adornment={
-              <QuickFill
-                label={tr.s(D.experience.volunteerWorkOnly)}
-                onClick={() =>
-                  set("certificationFunctionalGroups", tr.s(D.experience.volunteerWorkOnly))
-                }
-              />
-            }
-          />
-        </Field>
       </Section>
     </div>
   );
@@ -1096,15 +1060,8 @@ export function ExperienceStep({ errors }: StepProps): ReactElement {
  * 8 — Availability & sizing
  * ================================================================== */
 
-/* The paper form spells the "already received" bracelet option out in full;
-   the generic choice renderer would print it as "已領過 Already received". */
-function beadsLabel(choice: Choice, lang: "en" | "zh"): string {
-  if (choice.key !== "received") return `${choice.zh} ${choice.en}`;
-  return lang === "zh" ? "已領過（無需再申請）" : "已領過 Already received";
-}
-
 export function AvailabilityStep({ errors }: StepProps): ReactElement {
-  const { data, set, update } = useApplication();
+  const { data, update } = useApplication();
   const tr = useT();
   const selected = new Set<AvailabilitySlot>(data.availability);
 
@@ -1256,43 +1213,6 @@ export function AvailabilityStep({ errors }: StepProps): ReactElement {
         </Card>
       </Section>
 
-      <Section
-        title={D.availability.sizingTitle}
-        description={D.availability.sizingBlurb}
-        tr={tr}
-      >
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card className="flex flex-col gap-4 p-5">
-            <div className="flex items-baseline gap-2.5">
-              <Zh className="text-base font-semibold text-accent-text">志工背心</Zh>
-              {tr.isZh ? null : <h3 className="text-base">Volunteer Vest</h3>}
-            </div>
-            <PillGroup
-              name="vestSize"
-              choices={VEST_SIZES}
-              value={data.vestSize}
-              onChange={(key) => set("vestSize", key)}
-            />
-            {errors.vestSize ? <Callout tone="error">{tr.s(errors.vestSize)}</Callout> : null}
-          </Card>
-
-          <Card className="flex flex-col gap-4 p-5">
-            <div className="flex items-baseline gap-2.5">
-              <Zh className="text-base font-semibold text-accent-text">琉璃念珠</Zh>
-              {tr.isZh ? null : <h3 className="text-base">Buddhist Beads Bracelet</h3>}
-            </div>
-            <PillGroup
-              name="beadsSize"
-              choices={BEADS_SIZES}
-              value={data.beadsSize}
-              onChange={(key) => set("beadsSize", key)}
-              labelFor={beadsLabel}
-            />
-            {errors.beadsSize ? <Callout tone="error">{tr.s(errors.beadsSize)}</Callout> : null}
-            <p className="text-[0.78125rem] text-faint">{tr.s(D.availability.beadsNote)}</p>
-          </Card>
-        </div>
-      </Section>
     </div>
   );
 }
