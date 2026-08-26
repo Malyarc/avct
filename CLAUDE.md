@@ -53,14 +53,19 @@ department's request, shifting sections (12)–(17) up a page. `PAGE_COUNT` is 7
 and `tests/document.test.tsx` asserts seven. So the printed "8 pages" is
 deliberately one more than the physical count — do not "fix" it, and if HQ ever
 needs the physical count to match, split skills back across two pages rather
-than editing the .docx text. Every text input still carries a `maxLength` and
-family rows are capped at 8 so no answer can overflow a page. If a page ever
-needs more room, shorten the cap — do not let it grow.
+than editing the .docx text. Every text input still carries a `maxLength` so a
+single answer cannot overflow its page; the family table is the one section
+allowed to grow, adding rows (and pages) to fit everyone the applicant entered.
 
-**◎ is Commissioner, ㊣ is Faith Corps.** The form gives each role a parallel
-pair of blocks. `usesCommissionerFields()` decides which pair is filled; the
-other stays blank. This is why the fundraising number lands in 勸募編號 for one
-track and 會員編號 for the other.
+**◎ is Commissioner, ㊣ is Faith Corps — and an applicant may be both.** (1) is
+now multi-select: the `track` is `commissioner | faithCorps | both | ""`.
+`hasCommissioner(track)` and `hasFaithCorps(track)` decide which parallel blocks
+fill — both sides fill for "both". The Commissioner fundraising number lands in
+勸募編號 (`fundraisingNumber`) and the Faith Corps member number in 會員編號
+(`memberNumber`); when both tracks are chosen, both numbers are asked and both
+print. The Neon `applications.track` CHECK constraint must allow `both` — the
+widened constraint is in `db/schema.sql`, so `npm run db:migrate` has to run
+when this deploys or "both" submissions are rejected.
 
 **Derived state uses `update()`, never `set()`.** A handler that computes from
 the current answers (toggling a checkbox, adding a family row) must use the
@@ -73,6 +78,11 @@ server for every submission and on the client for every stored draft. It drops
 unknown keys, rejects choice keys that are not on the form, caps text lengths,
 and refuses anything in `photo`/`signature` that is not a bounded image data
 URL. Do not bypass it.
+
+**Run the migration when the schema changes.** `db/schema.sql` is idempotent;
+`npm run db:migrate` (with `DATABASE_URL` set) applies it. It currently adds the
+`both` track value and the `site_content` table — both must land before or with
+the matching deploy.
 
 **Light only, two languages.** No dark mode: the portal mirrors printed paper
 and one appearance keeps the preview honest. English mode carries the Chinese
@@ -126,6 +136,30 @@ The `ignore` rule guards against an empty `$CACHED_COMMIT_REF` with a `test -n`
 prefix. Without it the command collapses to a diff against a clean working
 tree, returns 0, and skips **every** build — which would silently freeze the
 site the first time someone cleared the build cache.
+
+## What the applicant is (not) asked
+
+The 8.24.2026 sheet made most of the form optional and moved several fields to
+the department's defaults. Only these are required: track, first/last name,
+email, gender, birthday, ID number, education, the three emergency-contact
+fields, home address, community-volunteering start month, the track's
+fundraising/member number, availability, all ten precepts, practical-training
+duration, consent and signature. Everything else (blood type, marital status,
+school, major, employer, position, mobile, business address, the other phones,
+family, activities, volunteer interests, skills) is optional. **The photo and
+the uniform/beads sizing were removed** from the form entirely — the photo cell
+and the (14) sizing boxes print blank. **Community area and functional groups**
+are department defaults (`慈少、慈青` for the latter), not asked. Family is
+unlimited (server-capped at 100) and the PDF grows past 8 rows. Keep the wizard
+`required`/`optional` field markers in step with `validate` in `steps.ts`.
+
+**`/guidelines` text is admin-editable.** `src/content/guidelinesContent.ts`
+lists the editable fields; the page fetches `GET /api/guidelines` and merges the
+stored override over the dictionary defaults, so the layout is fixed in code and
+only the words change. The admin editor (`AdminGuidelines`, reachable from the
+dashboard header) saves the diff-from-defaults to the `site_content` table via
+`PUT /api/admin/guidelines`. The table is created by `db/schema.sql`; until the
+migration runs the page simply shows the built-in defaults.
 
 ## Known limitations
 

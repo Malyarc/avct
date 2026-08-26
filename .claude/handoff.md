@@ -26,6 +26,17 @@ the source `.docx` is present. One renderer serves preview, print and PDF.
 form reads; 中文 is Traditional Chinese throughout. Switchable in the header of
 every page, persisted per browser.
 
+## Latest change — Excel-driven overhaul (not yet deployed)
+
+The 8.24.2026 sheet reshaped the form; all local, nothing pushed. Both-track
+selection, most fields optional, new department defaults, photo + sizing +
+functional-groups + community-area removed from the form, unlimited family, the
+homepage/guidelines upload copy removed, and a DB-backed admin editor for
+`/guidelines`. Lint/typecheck/114 tests/build green; layout audit 0/140; the
+both-track flow, document, guidelines page and editor were walked through live.
+**On deploy, run `npm run db:migrate`** (widens the track CHECK to `both`, adds
+`site_content`) or both-track submissions and guideline saves will fail.
+
 ## Verified in production
 
 - Two applications submitted live end to end — one Commissioner (`AVCT-2026-0001`),
