@@ -7,6 +7,7 @@
  */
 
 import type { ApplicationData } from "../form/model";
+import type { GuidelinesOverride } from "../content/guidelinesContent";
 import { D } from "../i18n/dictionary";
 import type { Phrase } from "../i18n/types";
 
@@ -15,7 +16,7 @@ const BASE = "/api";
 export interface ApplicationSummary {
   id: string;
   reference: string;
-  track: "commissioner" | "faithCorps";
+  track: "commissioner" | "faithCorps" | "both";
   chineseName: string;
   firstName: string;
   surname: string;
@@ -109,4 +110,14 @@ export function adminGetApplication(
   id: string,
 ): Promise<ApiResult<{ application: ApplicationRecord }>> {
   return request(`/admin/applications/${encodeURIComponent(id)}`);
+}
+
+export function getGuidelinesOverride(): Promise<ApiResult<{ content: GuidelinesOverride | null }>> {
+  return request("/guidelines");
+}
+
+export function adminSaveGuidelines(
+  content: GuidelinesOverride,
+): Promise<ApiResult<{ content: GuidelinesOverride }>> {
+  return request("/admin/guidelines", { method: "PUT", json: { content } });
 }

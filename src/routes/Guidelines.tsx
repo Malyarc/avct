@@ -5,48 +5,22 @@
  * Alumni" and translated in `i18n/dictionary.ts`.
  */
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { SiteFooter, SiteHeader, SkipLink } from "../components/Chrome";
 import { useT } from "../i18n/language";
 import { D } from "../i18n/dictionary";
-import type { Phrase } from "../i18n/types";
-import { ArrowRightIcon, ExternalIcon, MailIcon } from "../components/ui";
+import { getGuidelinesOverride } from "../lib/api";
+import { mergeGuidelines, type GuidelinesOverride } from "../content/guidelinesContent";
+import { ArrowRightIcon, MailIcon } from "../components/ui";
 
-const SECTIONS: { id: string; label: Phrase }[] = [
-  { id: "eligibility", label: D.guidelines.navEligibility },
-  { id: "registration", label: D.guidelines.navRegistration },
-  { id: "schedule", label: D.guidelines.navSchedule },
-  { id: "certification", label: D.guidelines.navCertification },
-  { id: "contact", label: D.guidelines.navContact },
-];
-
-const ELIGIBILITY: Phrase[] = [
-  D.guidelines.eligibility1,
-  D.guidelines.eligibility2,
-  D.guidelines.eligibility3,
-];
-
-const REGISTRATION: Phrase[] = [
-  D.guidelines.registration1,
-  D.guidelines.registration2,
-  D.guidelines.registration3,
-];
-
-const CLASS_NOTES: Phrase[] = [
-  D.guidelines.classNote1,
-  D.guidelines.classNote2,
-  D.guidelines.classNote3,
-];
-
-const CERTIFICATION: { text: Phrase; strong?: Phrase }[] = [
-  { text: D.guidelines.certification1, strong: D.guidelines.certification1Strong },
-  { text: D.guidelines.certification2, strong: D.guidelines.certification2Strong },
-  { text: D.guidelines.certification3 },
-  { text: D.guidelines.certification4, strong: D.guidelines.certification4Strong },
-  { text: D.guidelines.certification5 },
-  { text: D.guidelines.certification6 },
-];
+const SECTION_META = [
+  { id: "eligibility", nav: "navEligibility" },
+  { id: "registration", nav: "navRegistration" },
+  { id: "schedule", nav: "navSchedule" },
+  { id: "certification", nav: "navCertification" },
+  { id: "contact", nav: "navContact" },
+] as const;
 
 const CLASSES: {
   year: string;
@@ -80,8 +54,6 @@ const EN_MONTHS = [
   "Dec",
 ];
 
-const AUTOBIOGRAPHY_UPLOAD_URL =
-  "https://drive.google.com/drive/folders/1S0dKuZ9pDc6kTzV1kFBzhOerJVv2CQ1G?usp=sharing";
 
 function NumberedItem({ index, children }: { index: number; children: ReactNode }) {
   return (
@@ -109,11 +81,36 @@ function Emphasised({ text, strong }: { text: string; strong?: string }) {
 
 export default function Guidelines() {
   const { s, isZh } = useT();
-  const [active, setActive] = useState<string>(SECTIONS[0].id);
+  const [active, setActive] = useState<string>("eligibility");
+
+  // Admins can override the page text; merge their version over the defaults.
+  const [override, setOverride] = useState<GuidelinesOverride | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void getGuidelinesOverride().then((res) => {
+      if (alive && res.ok) setOverride(res.value.content);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const g = useMemo(() => mergeGuidelines(override), [override]);
+
+  const ELIGIBILITY = [g.eligibility1, g.eligibility2, g.eligibility3];
+  const REGISTRATION = [g.registration1];
+  const CLASS_NOTES = [g.classNote1, g.classNote2, g.classNote3];
+  const CERTIFICATION = [
+    { text: g.certification1, strong: g.certification1Strong },
+    { text: g.certification2, strong: g.certification2Strong },
+    { text: g.certification3 },
+    { text: g.certification4, strong: g.certification4Strong },
+    { text: g.certification5 },
+    { text: g.certification6 },
+  ];
 
   useEffect(() => {
-    document.title = s(D.guidelines.pageTitle);
-  }, [s]);
+    document.title = s(g.pageTitle);
+  }, [s, g]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -125,7 +122,7 @@ export default function Guidelines() {
       },
       { rootMargin: "-96px 0px -60% 0px", threshold: 0 },
     );
-    for (const section of SECTIONS) {
+    for (const section of SECTION_META) {
       const element = document.getElementById(section.id);
       if (element) observer.observe(element);
     }
@@ -157,12 +154,12 @@ export default function Guidelines() {
 
       <div className="mx-auto flex w-full max-w-[76rem] flex-1 gap-0 px-0">
         <nav
-          aria-label={s(D.guidelines.onThisPage)}
+          aria-label={s(g.onThisPage)}
           className="hidden w-60 flex-none border-r border-line-soft px-5 py-12 lg:block"
         >
           <div className="sticky top-28 flex flex-col gap-1">
-            <span className="eyebrow px-3 pb-2 text-faint">{s(D.guidelines.onThisPage)}</span>
-            {SECTIONS.map((section) => (
+            <span className="eyebrow px-3 pb-2 text-faint">{s(g.onThisPage)}</span>
+            {SECTION_META.map((section) => (
               <a
                 key={section.id}
                 href={`#${section.id}`}
@@ -172,7 +169,7 @@ export default function Guidelines() {
                     : "text-muted hover:text-ink"
                 }`}
               >
-                {s(section.label)}
+                {s(g[section.nav])}
               </a>
             ))}
           </div>
@@ -185,21 +182,21 @@ export default function Guidelines() {
           <header className="flex flex-col gap-4">
             <div className="flex items-center gap-2.5">
               <span aria-hidden="true" className="block h-px w-5 bg-green-500" />
-              <span className="eyebrow text-accent-text">{s(D.guidelines.eyebrow)}</span>
+              <span className="eyebrow text-accent-text">{s(g.eyebrow)}</span>
             </div>
             <h1
               lang={isZh ? "zh-Hant" : undefined}
               className={`max-w-3xl text-[2.25rem] leading-[1.1] sm:text-[2.75rem] ${isZh ? "font-zh" : ""}`}
             >
-              {s(D.guidelines.title)}
+              {s(g.title)}
             </h1>
           </header>
 
           {/* ── Eligibility ────────────────────────────────────── */}
           <section id="eligibility" className="flex max-w-3xl scroll-mt-28 flex-col gap-5">
-            <h2 className="text-[1.6875rem]">{s(D.guidelines.eligibilityTitle)}</h2>
+            <h2 className="text-[1.6875rem]">{s(g.eligibilityTitle)}</h2>
             <p className="text-[0.96rem] leading-relaxed text-muted">
-              {s(D.guidelines.eligibilityLede)}
+              {s(g.eligibilityLede)}
             </p>
             <ol className="flex list-none flex-col gap-3.5 p-0">
               {ELIGIBILITY.map((item, index) => (
@@ -210,12 +207,12 @@ export default function Guidelines() {
             </ol>
             <div className="flex flex-col gap-2 rounded-2xl border border-accent-soft-line bg-accent-soft px-6 py-5">
               <h3 className="text-[1rem] text-accent-text">
-                {s(D.guidelines.flexibilityTitle)}
+                {s(g.flexibilityTitle)}
               </h3>
               <p className="text-[0.9rem] leading-relaxed text-accent-text/85">
                 <Emphasised
-                  text={s(D.guidelines.flexibilityBody)}
-                  strong={s(D.guidelines.flexibilityStrong)}
+                  text={s(g.flexibilityBody)}
+                  strong={s(g.flexibilityStrong)}
                 />
               </p>
             </div>
@@ -225,35 +222,26 @@ export default function Guidelines() {
 
           {/* ── Registration ───────────────────────────────────── */}
           <section id="registration" className="flex max-w-3xl scroll-mt-28 flex-col gap-5">
-            <h2 className="text-[1.6875rem]">{s(D.guidelines.registrationTitle)}</h2>
+            <h2 className="text-[1.6875rem]">{s(g.registrationTitle)}</h2>
             <ol className="flex list-none flex-col gap-3.5 p-0">
               {REGISTRATION.map((item, index) => (
                 <NumberedItem key={item.en} index={index + 1}>
                   {s(item)}
                 </NumberedItem>
               ))}
-              <NumberedItem index={4}>
-                {s(D.guidelines.registration4Label)}{" "}
-                {s(D.guidelines.registration4)}
+              <NumberedItem index={2}>
+                {s(g.registration4Label)}{" "}
+                {s(g.registration4)}
               </NumberedItem>
             </ol>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3">
               <Link
                 to="/apply/track"
                 className="flex min-h-14 items-center gap-2.5 rounded-xl border border-green-300 bg-card px-4 text-[0.84rem] font-semibold text-accent-text no-underline transition-colors hover:bg-accent-soft hover:no-underline"
               >
                 <ArrowRightIcon size={15} />
-                {s(D.guidelines.linkRegistrationForm)}
+                {s(g.linkRegistrationForm)}
               </Link>
-              <a
-                href={AUTOBIOGRAPHY_UPLOAD_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex min-h-14 items-center gap-2.5 rounded-xl border border-line bg-card px-4 text-[0.84rem] text-muted no-underline transition-colors hover:border-green-300 hover:no-underline"
-              >
-                <ExternalIcon size={15} />
-                {s(D.guidelines.linkAutobiography)}
-              </a>
             </div>
           </section>
 
@@ -261,7 +249,7 @@ export default function Guidelines() {
 
           {/* ── Schedule ───────────────────────────────────────── */}
           <section id="schedule" className="flex max-w-3xl scroll-mt-28 flex-col gap-5">
-            <h2 className="text-[1.6875rem]">{s(D.guidelines.scheduleTitle)}</h2>
+            <h2 className="text-[1.6875rem]">{s(g.scheduleTitle)}</h2>
             <div className="overflow-hidden rounded-2xl border border-line bg-card shadow-card">
               <ul className="grid list-none grid-cols-2 p-0 sm:grid-cols-4">
                 {CLASSES.map((entry, index) => (
@@ -286,16 +274,16 @@ export default function Guidelines() {
                     <span
                       className={`text-[0.72rem] ${entry.inPerson ? "text-accent-text" : "text-muted"}`}
                     >
-                      {s(entry.inPerson ? D.guidelines.inPerson : D.guidelines.onZoom)}
+                      {s(entry.inPerson ? g.inPerson : g.onZoom)}
                     </span>
                   </li>
                 ))}
               </ul>
               <div className="flex flex-wrap gap-x-6 gap-y-2 px-4 py-4">
                 {[
-                  [D.guidelines.classHours, D.guidelines.classHoursValue],
-                  [D.guidelines.conductedBy, D.guidelines.conductedByValue],
-                  [D.guidelines.closingCeremony, D.guidelines.closingCeremonyValue],
+                  [g.classHours, g.classHoursValue],
+                  [g.conductedBy, g.conductedByValue],
+                  [g.closingCeremony, g.closingCeremonyValue],
                 ].map(([label, value]) => (
                   <span key={label.en} className="text-[0.84rem] text-muted">
                     <strong className="font-semibold text-ink">{s(label)}</strong> {s(value)}
@@ -320,7 +308,7 @@ export default function Guidelines() {
 
           {/* ── Certification ──────────────────────────────────── */}
           <section id="certification" className="flex max-w-3xl scroll-mt-28 flex-col gap-5">
-            <h2 className="text-[1.6875rem]">{s(D.guidelines.certificationTitle)}</h2>
+            <h2 className="text-[1.6875rem]">{s(g.certificationTitle)}</h2>
             <ol className="flex list-none flex-col gap-3.5 p-0">
               {CERTIFICATION.map((item, index) => (
                 <NumberedItem key={item.text.en} index={index + 1}>
@@ -339,7 +327,7 @@ export default function Guidelines() {
             className="flex max-w-3xl scroll-mt-28 flex-col gap-5 rounded-2xl bg-green-900 px-9 py-8 text-white sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="flex flex-col gap-1.5">
-              <h2 className="text-[1.25rem] text-white">{s(D.guidelines.contactTitle)}</h2>
+              <h2 className="text-[1.25rem] text-white">{s(g.contactTitle)}</h2>
               <p className="text-[0.9rem] text-green-200">
                 {s(D.org.contactName)} · {s(D.org.contactRole)}
               </p>

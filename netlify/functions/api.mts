@@ -8,10 +8,13 @@
  *   GET    /api/admin/session         — is this browser signed in?
  *   GET    /api/admin/applications    — list submissions
  *   GET    /api/admin/applications/:id — one submission, with full answers
+ *   GET    /api/guidelines             — the /guidelines text override (public)
+ *   PUT    /api/admin/guidelines       — save the /guidelines text override
  */
 
 import type { Config, Context } from "@netlify/functions";
 import { normalizeApplication } from "../../src/form/normalize";
+import { normalizeGuidelinesOverride } from "../../src/content/guidelinesContent";
 import { validateAll } from "../../src/form/steps";
 import { sql, hasDatabase, ConfigError } from "./_lib/db.mts";
 import {
@@ -34,7 +37,7 @@ const MAX_BODY_BYTES = 2 * 1024 * 1024;
 interface ApplicationRow {
   id: string;
   reference: string;
-  track: "commissioner" | "faithCorps";
+  track: "commissioner" | "faithCorps" | "both";
   chinese_name: string;
   first_name: string;
   surname: string;
@@ -213,6 +216,47 @@ async function adminGet(id: string): Promise<Response> {
 }
 
 /* ------------------------------------------------------------------ *
+ * Guidelines content (public read, admin write)
+ * ------------------------------------------------------------------ */
+
+async function getGuidelines(): Promise<Response> {
+  if (!hasDatabase()) return json({ content: null });
+  try {
+    const rows = (await sql()`
+      SELECT value FROM site_content WHERE key = 'guidelines'
+    `) as { value: unknown }[];
+    return json({ content: rows[0]?.value ?? null });
+  } catch (cause) {
+    // Table may not exist yet; fall back to the built-in defaults.
+    console.error("guidelines get failed", cause);
+    return json({ content: null });
+  }
+}
+
+async function putGuidelines(request: Request): Promise<Response> {
+  let body: unknown;
+  try {
+    body = await readJson(request);
+  } catch {
+    return badRequest("The guidelines could not be read.");
+  }
+  const content = normalizeGuidelinesOverride((body as { content?: unknown } | null)?.content);
+  if (!hasDatabase()) return serverError("The database is not configured.");
+  try {
+    await sql()`
+      INSERT INTO site_content (key, value, updated_at)
+           VALUES ('guidelines', ${JSON.stringify(content)}::jsonb, now())
+      ON CONFLICT (key) DO UPDATE
+              SET value = EXCLUDED.value, updated_at = now()
+    `;
+    return json({ content });
+  } catch (cause) {
+    console.error("guidelines put failed", cause);
+    return serverError("Could not save the guidelines.");
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * Router
  * ------------------------------------------------------------------ */
 
@@ -227,6 +271,11 @@ export default async function handler(
   if (path === "/applications") {
     if (method !== "POST") return methodNotAllowed(["POST"]);
     return submit(request, context);
+  }
+
+  if (path === "/guidelines") {
+    if (method !== "GET") return methodNotAllowed(["GET"]);
+    return getGuidelines();
   }
 
   if (path === "/admin/login") {
@@ -251,6 +300,11 @@ export default async function handler(
     if (path === "/admin/applications") {
       if (method !== "GET") return methodNotAllowed(["GET"]);
       return adminList();
+    }
+
+    if (path === "/admin/guidelines") {
+      if (method !== "PUT") return methodNotAllowed(["PUT"]);
+      return putGuidelines(request);
     }
 
     const match = /^\/admin\/applications\/([^/]+)$/.exec(path);

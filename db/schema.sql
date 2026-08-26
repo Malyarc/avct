@@ -56,3 +56,18 @@ BEGIN
   RETURN 'AVCT-' || p_year::text || '-' || lpad(next_value::text, 4, '0');
 END;
 $$;
+
+-- Applicants may now train for one track or both; widen the constraint.
+ALTER TABLE applications DROP CONSTRAINT IF EXISTS applications_track_check;
+ALTER TABLE applications
+  ADD CONSTRAINT applications_track_check
+  CHECK (track IN ('commissioner', 'faithCorps', 'both'));
+
+-- Editable site content. Currently just the /guidelines page: a bilingual
+-- override the app merges over its built-in defaults, so the words can change
+-- while the layout stays fixed. One row, keyed 'guidelines'.
+CREATE TABLE IF NOT EXISTS site_content (
+  key        text PRIMARY KEY,
+  value      jsonb       NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);

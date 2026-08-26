@@ -27,6 +27,7 @@ import {
   CloseIcon,
   DownloadIcon,
   MailIcon,
+  PencilIcon,
   PrintIcon,
   SearchIcon,
   SignOutIcon,
@@ -39,6 +40,7 @@ type Tab = "form" | "answers" | "signature";
 const TRACK_LABEL: Record<string, { en: string; zh: string }> = {
   commissioner: { en: "委員 Comm.", zh: "培訓委員" },
   faithCorps: { en: "慈誠 Faith", zh: "培訓慈誠" },
+  both: { en: "委員+慈誠 Both", zh: "委員暨慈誠" },
 };
 
 function initials(row: ApplicationSummary): string {
@@ -73,7 +75,13 @@ function StatCard({ label, value, tone }: { label: string; value: number; tone?:
   );
 }
 
-export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
+export function AdminDashboard({
+  onSignOut,
+  onEditGuidelines,
+}: {
+  onSignOut: () => void;
+  onEditGuidelines: () => void;
+}) {
   const { s: str, isZh } = useT();
   const [rows, setRows] = useState<ApplicationSummary[] | null>(null);
   /* Stamped when a list arrives, so the "this week" count is derived from a
@@ -149,7 +157,8 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
     if (!rows) return [];
     const needle = query.trim().toLowerCase();
     return rows.filter((row) => {
-      if (trackFilter !== "all" && row.track !== trackFilter) return false;
+      if (trackFilter !== "all" && row.track !== trackFilter && row.track !== "both")
+        return false;
       if (!needle) return true;
       return [row.firstName, row.surname, row.chineseName, row.email, row.reference]
         .join(" ")
@@ -163,8 +172,12 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
     const weekAgo = loadedAt - 7 * 24 * 60 * 60 * 1000;
     return {
       total: all.length,
-      commissioner: all.filter((row) => row.track === "commissioner").length,
-      faithCorps: all.filter((row) => row.track === "faithCorps").length,
+      commissioner: all.filter(
+        (row) => row.track === "commissioner" || row.track === "both",
+      ).length,
+      faithCorps: all.filter(
+        (row) => row.track === "faithCorps" || row.track === "both",
+      ).length,
       thisWeek: all.filter((row) => new Date(row.submittedAt).getTime() >= weekAgo).length,
     };
   }, [rows, loadedAt]);
@@ -214,6 +227,16 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
         </div>
 
         <div className="flex flex-none items-center gap-1.5 sm:gap-2">
+          <button
+            type="button"
+            onClick={onEditGuidelines}
+            aria-label={str(D.adminGuidelines.open)}
+            title={str(D.adminGuidelines.open)}
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-white/16 px-3 text-[0.8125rem] text-green-100 transition-colors hover:bg-white/8"
+          >
+            <PencilIcon size={15} />
+            <span className="hidden lg:inline">{str(D.adminGuidelines.open)}</span>
+          </button>
           <button
             type="button"
             onClick={exportCsv}
@@ -475,13 +498,17 @@ export function AdminDashboard({ onSignOut }: { onSignOut: () => void }) {
                             : "bg-[#e7eef7] text-[#1e3e6b]"
                         }`}
                       >
-                        {record.track === "commissioner"
+                        {record.track === "both"
                           ? isZh
-                            ? "培訓委員"
-                            : "培訓委員 Commissioner Training"
-                          : isZh
-                            ? "培訓慈誠"
-                            : "培訓慈誠 Faith Corps Training"}
+                            ? "培訓委員暨慈誠"
+                            : "培訓委員暨慈誠 Commissioner & Faith Corps"
+                          : record.track === "commissioner"
+                            ? isZh
+                              ? "培訓委員"
+                              : "培訓委員 Commissioner Training"
+                            : isZh
+                              ? "培訓慈誠"
+                              : "培訓慈誠 Faith Corps Training"}
                       </span>
                       <span className="mt-0.5 text-[0.75rem] text-faint">
                         {record.reference}

@@ -9,12 +9,10 @@ import {
   ArrowRightIcon,
   DocumentIcon,
   ExternalIcon,
-  ImageIcon,
   MapPinIcon,
 } from "../components/ui";
 
 const READY_ITEMS: [Phrase, Phrase][] = [
-  [D.landing.ready1, D.landing.ready1Detail],
   [D.landing.ready2, D.landing.ready2Detail],
   [D.landing.ready3, D.landing.ready3Detail],
   [D.landing.ready4, D.landing.ready4Detail],
@@ -134,7 +132,7 @@ export default function Landing() {
         </section>
 
         {/* ── Before you begin ─────────────────────────────────── */}
-        <section className="mx-auto grid w-full max-w-[84rem] gap-5 px-5 pb-20 sm:px-8 lg:grid-cols-2">
+        <section className="mx-auto w-full max-w-2xl px-5 pb-20 sm:px-8">
           <div className="flex flex-col gap-5 rounded-2xl bg-green-900 p-9 text-white">
             <h2 className="text-[1.375rem] text-white">{s(D.landing.readyTitle)}</h2>
             <ul className="flex list-none flex-col gap-3.5 p-0">
@@ -153,32 +151,11 @@ export default function Landing() {
               ))}
             </ul>
           </div>
-
-          <div className="flex flex-col gap-5 rounded-2xl border border-line bg-card p-9 shadow-card">
-            <h2 className="text-[1.375rem]">{s(D.landing.separateTitle)}</h2>
-            <p className="text-[0.9rem] leading-relaxed text-muted">
-              {s(D.landing.separateBody)}
-            </p>
-            <ul className="flex list-none flex-col gap-3 p-0">
-              <li className="flex items-center gap-3 rounded-xl border border-line-soft bg-paper px-4 py-3.5">
-                <span className="flex-none text-accent-text">
-                  <DocumentIcon size={17} />
-                </span>
-                <span className="text-[0.9rem] font-semibold">{s(D.landing.separate1)}</span>
-              </li>
-              <li className="flex items-center gap-3 rounded-xl border border-line-soft bg-paper px-4 py-3.5">
-                <span className="flex-none text-accent-text">
-                  <ImageIcon size={17} />
-                </span>
-                <span className="text-[0.9rem] font-semibold">{s(D.landing.separate2)}</span>
-              </li>
-            </ul>
-            <p className="mt-auto border-t border-line-soft pt-4 text-[0.84rem] text-muted">
-              {s(D.landing.questions)}{" "}
-              <a href="mailto:ashley.yong@tzuchi.us">ashley.yong@tzuchi.us</a> ·{" "}
-              {s(D.org.contactRole)}
-            </p>
-          </div>
+          <p className="mt-5 text-center text-[0.84rem] text-muted">
+            {s(D.landing.questions)}{" "}
+            <a href="mailto:ashley.yong@tzuchi.us">ashley.yong@tzuchi.us</a> ·{" "}
+            {s(D.org.contactRole)}
+          </p>
         </section>
       </main>
 

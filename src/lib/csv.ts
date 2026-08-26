@@ -22,7 +22,11 @@ export function applicationsToCsv(rows: readonly ApplicationSummary[]): string {
     lines.push(
       [
         row.reference,
-        row.track === "commissioner" ? "Commissioner 委員" : "Faith Corps 慈誠",
+        row.track === "both"
+          ? "Both 委員+慈誠"
+          : row.track === "commissioner"
+            ? "Commissioner 委員"
+            : "Faith Corps 慈誠",
         row.surname,
         row.firstName,
         row.chineseName,

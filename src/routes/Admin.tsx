@@ -12,6 +12,7 @@ import { useT } from "../i18n/language";
 import { D } from "../i18n/dictionary";
 import type { Phrase } from "../i18n/types";
 import { AdminDashboard } from "./AdminDashboard";
+import { AdminGuidelines } from "./AdminGuidelines";
 import { ArrowRightIcon, Button, Callout, LockIcon, SpinnerIcon } from "../components/ui";
 
 type Phase = "checking" | "signedOut" | "signedIn";
@@ -63,7 +64,7 @@ export default function Admin() {
   }
 
   if (phase === "signedIn") {
-    return <AdminDashboard onSignOut={() => setPhase("signedOut")} />;
+    return <SignedInAdmin onSignOut={() => setPhase("signedOut")} />;
   }
 
   return (
@@ -163,5 +164,17 @@ export default function Admin() {
         </p>
       </main>
     </div>
+  );
+}
+
+/** Once signed in, the admin can switch between the applications list and the
+ *  Program Guidelines editor. */
+function SignedInAdmin({ onSignOut }: { onSignOut: () => void }) {
+  const [view, setView] = useState<"applications" | "guidelines">("applications");
+  if (view === "guidelines") {
+    return <AdminGuidelines onBack={() => setView("applications")} onSignOut={onSignOut} />;
+  }
+  return (
+    <AdminDashboard onSignOut={onSignOut} onEditGuidelines={() => setView("guidelines")} />
   );
 }

@@ -841,6 +841,32 @@ export const D = {
   },
 
   /* ------------------------------------------------------------------ *
+   * Guidelines editor (admin)
+   * ------------------------------------------------------------------ */
+  adminGuidelines: {
+    open: p("Guidelines", "培訓辦法"),
+    applications: p("Applications", "報名表"),
+    title: p("Edit Program Guidelines", "編輯培訓辦法"),
+    subtitle: p(
+      "Change the text applicants read on the Program Guidelines page. English and 中文 are saved together.",
+      "修改申請人在培訓辦法頁面看到的文字，中英文會一起儲存。",
+    ),
+    loading: p("Loading the current text…", "正在載入目前內容…"),
+    save: p("Save changes", "儲存變更"),
+    saving: p("Saving…", "儲存中…"),
+    saved: p("Guidelines updated — applicants see the new text now.", "培訓辦法已更新，申請人現在會看到新內容。"),
+    restore: p("Restore defaults", "還原預設"),
+    restoreHint: p(
+      "Resets every field to the built-in wording. You still need to save.",
+      "將每個欄位還原為內建文字，仍需按儲存才會生效。",
+    ),
+    english: p("English", "英文"),
+    chinese: p("中文", "中文"),
+    changedBadge: p("edited", "已修改"),
+    preview: p("Open the live page", "開啟實際頁面"),
+  },
+
+  /* ------------------------------------------------------------------ *
    * Answers read-out (admin)
    * ------------------------------------------------------------------ */
   answers: {
