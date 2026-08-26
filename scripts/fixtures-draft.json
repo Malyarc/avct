@@ -1,1 +1,140 @@
-{"track": "commissioner", "fundraisingNumber": "SA88214", "chineseName": "陳薇玲", "firstName": "Wei-Ling", "surname": "Chen", "email": "weiling.chen@example.com", "gender": "female", "birthday": "1994-03-18", "bloodType": "A", "bloodTypeOther": "", "idNumber": "D1234567", "maritalStatus": "single", "maritalStatusOther": "", "education": "bachelor", "school": "UC Irvine", "major": "Public Health", "employer": "Kaiser Permanente", "position": "Health Educator", "emergencyName": "Mei-Hua Chen", "emergencyRelationship": "Mother", "emergencyTel": "626-555-0177", "photo": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/9oACAEBAAA/APn+iiigD//Z", "homeAddress": "1920 S Hacienda Blvd, Hacienda Heights, CA 91745", "businessAddress": "1100 S Main St, San Dimas, CA 91773", "telHome": "626-555-0102", "telCompany": "626-555-0190", "telFax": "", "telMobile": "626-555-0148", "family": [{"id": "f1", "relationship": "Mother", "name": "Mei-Hua Chen", "birthDate": "1962-07-04", "commissionerNo": "SA12345", "faithCorpsNo": "", "honoraryBoardNo": "HB0099", "tel": "626-555-0177"}, {"id": "f2", "relationship": "Spouse", "name": "Cheng-Wei Lin", "birthDate": "1992-11-22", "commissionerNo": "", "faithCorpsNo": "", "honoraryBoardNo": "", "tel": "626-555-0166"}], "activities": ["tzuChing", "documentation", "recycling", "other"], "activitiesOther": "Campus outreach team", "missions": {"charity": ["caseVisit", "youthCare"], "medicine": ["hospital", "freeClinic"], "education": ["happyCampus"], "humanistic": ["photography", "translation"]}, "freeClinicProfession": "Registered Nurse", "skills": {"language": ["mandarin", "english", "taiwanese"], "computer": ["wordProcessing", "programming"], "activity": ["retreatLeadership"], "artsCrafts": [], "documentation": ["photography"], "healthCare": ["nurse"], "driving": [], "music": ["instrument"], "translation": ["enZh", "zhEn"], "construction": [], "editing": [], "fineArts": [], "other": []}, "skillLanguageOther": "", "skillMusicInstrument": "Guzheng 古箏", "skillTranslationOther": "", "skillOtherSpecify": "", "communityStart": "2021-06", "communityAreaHarmony": "Midwest LA 中西洛", "communityAreaMutualLove": "Hacienda 哈崗", "communityAreaConcertedEffort": "", "certificationFunctionalGroups": "TCCA Alumni, Documentation 人文真善美", "availability": ["sat:morning", "sat:afternoon", "sun:morning", "sun:afternoon", "tue:evening", "thu:evening"], "vestSize": "L", "beadsSize": "S", "precepts": {"noKilling": 100, "noStealing": 100, "noSexualMisconduct": 100, "noLying": 95, "noDrinking": 100, "noSmoking": 100, "noGambling": 100, "filialPiety": 85, "trafficRules": 90, "noPolitics": 100, "vegetarian": 60}, "practicalDuration": "oneYear", "consent": false, "signature": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "signedAt": null}
+{
+  "track": "commissioner",
+  "fundraisingNumber": "SA88214",
+  "chineseName": "陳薇玲",
+  "firstName": "Wei-Ling",
+  "surname": "Chen",
+  "email": "weiling.chen@example.com",
+  "gender": "female",
+  "birthday": "1994-03-18",
+  "bloodType": "A",
+  "bloodTypeOther": "",
+  "idNumber": "D1234567",
+  "maritalStatus": "single",
+  "maritalStatusOther": "",
+  "education": "bachelor",
+  "school": "UC Irvine",
+  "major": "Public Health",
+  "employer": "Kaiser Permanente",
+  "position": "Health Educator",
+  "emergencyName": "Mei-Hua Chen",
+  "emergencyRelationship": "Mother",
+  "emergencyTel": "626-555-0177",
+  "homeAddress": "1920 S Hacienda Blvd, Hacienda Heights, CA 91745",
+  "businessAddress": "1100 S Main St, San Dimas, CA 91773",
+  "telHome": "626-555-0102",
+  "telCompany": "626-555-0190",
+  "telFax": "",
+  "telMobile": "626-555-0148",
+  "family": [
+    {
+      "id": "f1",
+      "relationship": "Mother",
+      "name": "Mei-Hua Chen",
+      "birthDate": "1962-07-04",
+      "commissionerNo": "SA12345",
+      "faithCorpsNo": "",
+      "honoraryBoardNo": "HB0099",
+      "tel": "626-555-0177"
+    },
+    {
+      "id": "f2",
+      "relationship": "Spouse",
+      "name": "Cheng-Wei Lin",
+      "birthDate": "1992-11-22",
+      "commissionerNo": "",
+      "faithCorpsNo": "",
+      "honoraryBoardNo": "",
+      "tel": "626-555-0166"
+    }
+  ],
+  "activities": [
+    "tzuChing",
+    "documentation",
+    "recycling",
+    "other"
+  ],
+  "activitiesOther": "Campus outreach team",
+  "missions": {
+    "charity": [
+      "caseVisit",
+      "youthCare"
+    ],
+    "medicine": [
+      "hospital",
+      "freeClinic"
+    ],
+    "education": [
+      "happyCampus"
+    ],
+    "humanistic": [
+      "photography",
+      "translation"
+    ]
+  },
+  "freeClinicProfession": "Registered Nurse",
+  "skills": {
+    "language": [
+      "mandarin",
+      "english",
+      "taiwanese"
+    ],
+    "computer": [
+      "wordProcessing",
+      "programming"
+    ],
+    "activity": [
+      "retreatLeadership"
+    ],
+    "artsCrafts": [],
+    "documentation": [
+      "photography"
+    ],
+    "healthCare": [
+      "nurse"
+    ],
+    "driving": [],
+    "music": [
+      "instrument"
+    ],
+    "translation": [
+      "enZh",
+      "zhEn"
+    ],
+    "construction": [],
+    "editing": [],
+    "fineArts": [],
+    "other": []
+  },
+  "skillLanguageOther": "",
+  "skillMusicInstrument": "Guzheng 古箏",
+  "skillTranslationOther": "",
+  "skillOtherSpecify": "",
+  "communityStart": "2021-06",
+  "availability": [
+    "sat:morning",
+    "sat:afternoon",
+    "sun:morning",
+    "sun:afternoon",
+    "tue:evening",
+    "thu:evening"
+  ],
+  "precepts": {
+    "noKilling": 100,
+    "noStealing": 100,
+    "noSexualMisconduct": 100,
+    "noLying": 95,
+    "noDrinking": 100,
+    "noSmoking": 100,
+    "noGambling": 100,
+    "filialPiety": 85,
+    "trafficRules": 90,
+    "noPolitics": 100,
+    "vegetarian": 60
+  },
+  "practicalDuration": "oneYear",
+  "consent": false,
+  "signature": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "signedAt": null,
+  "memberNumber": ""
+}

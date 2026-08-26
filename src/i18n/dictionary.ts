@@ -175,8 +175,8 @@ export const D = {
     ),
     personalTitle: p("Personal Details", "個人基本資料"),
     personalBlurb: p(
-      "Your name, identification and emergency contact, plus your headshot.",
-      "您的姓名、身分資料、緊急聯絡人，以及大頭照。",
+      "Your name, identification and emergency contact.",
+      "您的姓名、身分資料與緊急聯絡人。",
     ),
     contactTitle: p("Contact Information", "通訊資料"),
     contactBlurb: p(
@@ -353,8 +353,8 @@ export const D = {
       "正式表單請填寫父母、公婆、配偶及子女中，同意供慈濟相關活動連繫者的資料——「請依個人意願填寫」。若不便提供，可以留空。",
     ),
     empty: p(
-      "No family members added. You can add up to %s, matching the rows on the paper form.",
-      "尚未新增親屬。最多可新增 %s 位，與紙本表單的列數相同。",
+      "No family members added yet. This section is optional — add as many as apply.",
+      "尚未新增親屬資料，此部分為選填，可依實際情況新增。",
     ),
     addFirst: p("Add a family member", "新增親屬"),
     addAnother: p("Add another family member", "再新增一位親屬"),

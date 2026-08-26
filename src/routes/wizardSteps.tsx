@@ -308,7 +308,7 @@ export function PersonalStep({ errors }: StepProps): ReactElement {
             </Field>
           </div>
 
-          <Field label={tr.t(D.personal.bloodType)} required asGroup error={errors.bloodType}>
+          <Field label={tr.t(D.personal.bloodType)} optional asGroup error={errors.bloodType}>
             <PillGroup
               name="bloodType"
               choices={BLOOD_TYPES}
@@ -338,7 +338,7 @@ export function PersonalStep({ errors }: StepProps): ReactElement {
             </Field>
             <Field
               label={tr.t(D.personal.maritalStatus)}
-              required
+              optional
               asGroup
               error={errors.maritalStatus}
             >
@@ -375,10 +375,10 @@ export function PersonalStep({ errors }: StepProps): ReactElement {
         </Field>
         {schoolApplies ? (
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={tr.t(D.personal.school)} required error={errors.school}>
+            <Field label={tr.t(D.personal.school)} optional error={errors.school}>
               <TextInput {...bind("school")} maxLength={MAX.medium} />
             </Field>
-            <Field label={tr.t(D.personal.major)} required error={errors.major}>
+            <Field label={tr.t(D.personal.major)} optional error={errors.major}>
               <TextInput {...bind("major")} maxLength={MAX.medium} />
             </Field>
           </div>
@@ -386,7 +386,7 @@ export function PersonalStep({ errors }: StepProps): ReactElement {
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
             label={tr.t(D.personal.employer)}
-            required
+            optional
             error={errors.employer}
             hint={tr.s(D.personal.employerHint)}
           >
@@ -397,7 +397,7 @@ export function PersonalStep({ errors }: StepProps): ReactElement {
               adornment={<QuickFill onClick={() => set("employer", "N/A")} />}
             />
           </Field>
-          <Field label={tr.t(D.personal.position)} required error={errors.position}>
+          <Field label={tr.t(D.personal.position)} optional error={errors.position}>
             <TextInput
               {...bind("position")}
               maxLength={MAX.medium}
@@ -471,7 +471,7 @@ export function ContactStep({ errors }: StepProps): ReactElement {
 
       <Section title={D.contact.phoneSection} description={D.contact.phoneBlurb} tr={tr}>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={tr.t(D.contact.mobile)} required error={errors.telMobile}>
+          <Field label={tr.t(D.contact.mobile)} optional>
             <TextInput
               {...bind("telMobile")}
               type="tel"
@@ -505,7 +505,7 @@ export function ContactStep({ errors }: StepProps): ReactElement {
  * 4 — Family information
  * ================================================================== */
 
-const MAX_FAMILY = 8;
+const MAX_FAMILY = 100;
 let familyCounter = 0;
 const nextFamilyId = () => `f${(familyCounter += 1)}-${Math.random().toString(36).slice(2, 7)}`;
 
@@ -545,7 +545,7 @@ export function FamilyStep({ errors }: StepProps): ReactElement {
       {data.family.length === 0 ? (
         <Card className="flex flex-col items-center gap-4 px-6 py-10 text-center">
           <p className="max-w-md text-[0.9375rem] leading-relaxed text-muted">
-            {format(tr.s(D.family.empty), MAX_FAMILY)}
+            {tr.s(D.family.empty)}
           </p>
           <button
             type="button"
