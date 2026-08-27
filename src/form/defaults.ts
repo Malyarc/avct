@@ -56,45 +56,38 @@ const ASHLEY_YONG: PersonReference = {
 
 const COMMON = {
   unityTeam: "Headquarters 美西",
-  harmonyTeam: "Midwest LA 中西洛",
-  mutualLoveTeam: "北亞",
-  concertedEffortTeam: "協力一",
-  // The source sheet lists this leader's Badge Number in phone format
-  // (323-618-1288) and the Tel as a badge-style number (65896) — clearly
-  // transposed in the spreadsheet, so they are placed in the sensible fields
-  // here. Flagged to the department to confirm.
-  concertedEffortTeamLeader: { name: "郭玉珊", badgeNumber: "65896", tel: "323-618-1288" },
+  // The 8.24.2026 (2) sheet marks the rest of the team allocation "Leave blank".
+  harmonyTeam: "",
+  mutualLoveTeam: "",
+  concertedEffortTeam: "",
+  concertedEffortTeamLeader: { name: "", badgeNumber: "", tel: "" },
   directMentor: ASHLEY_YONG,
   dharmaName: "N/A",
   communityRecommender: { name: "Ashley Yong", badgeNumber: "SA63508", tel: "" },
   certificationStart: "2026-09",
-  certificationAreaHarmony: "Midwest LA 中西洛",
+  // Area is left blank per the 8.24.2026 (2) sheet.
+  certificationAreaHarmony: "",
   certificationAreaMutualLove: "",
   certificationAreaConcertedEffort: "",
   certificationRecommender: { name: "Ashley Yong", badgeNumber: "SA63508", tel: "" },
   functionalGroups: "慈少、慈青",
-  signatureDirectMentor: "Ashley Yong",
-  signatureConcertedEffortTeamLeader: "郭玉珊",
+  // Section (17) recommender signatures print blank — the 8.24.2026 (2) sheet
+  // marks every signature row "Leave blank".
+  signatureDirectMentor: "",
+  signatureConcertedEffortTeamLeader: "",
 } as const;
 
 export const DEFAULTS_BY_TRACK = {
   commissioner: {
     ...COMMON,
-    mutualLoveMentor: {
-      name: "Ling Ling Hsu 許玲玲",
-      badgeNumber: "52807",
-      tel: "626-319-7679",
-    },
-    signatureMutualLoveMentor: "Ling Ling Hsu",
+    // Mutual Love (or Harmony) Team Mentor is "Leave blank" on the 8.24.2026 (2) sheet.
+    mutualLoveMentor: { name: "", badgeNumber: "", tel: "" },
+    signatureMutualLoveMentor: "",
   },
   faithCorps: {
     ...COMMON,
-    mutualLoveMentor: {
-      name: "Ju Shua Tan 陳奕樺",
-      badgeNumber: "63526",
-      tel: "626-232-0524",
-    },
-    signatureMutualLoveMentor: "Ju Shua Tan",
+    mutualLoveMentor: { name: "", badgeNumber: "", tel: "" },
+    signatureMutualLoveMentor: "",
   },
 } satisfies Record<"commissioner" | "faithCorps", TrackDefaults>;
 

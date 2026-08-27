@@ -158,7 +158,11 @@ export default function Apply() {
           key={candidate.id}
           index={candidateIndex}
           title={s(candidate.title)}
-          optional={candidate.id === "family"}
+          optional={
+            candidate.id === "family" ||
+            candidate.id === "involvement" ||
+            candidate.id === "skills"
+          }
           optionalLabel={s(D.field.optional)}
           state={stateOf(candidateIndex)}
           onClick={() => goto(candidateIndex)}
@@ -309,9 +313,11 @@ export default function Apply() {
               >
                 {t(step.title)}
               </h1>
-              <p className="max-w-2xl text-[1rem] leading-relaxed text-muted">
-                {s(step.blurb)}
-              </p>
+              {step.blurb ? (
+                <p className="max-w-2xl text-[1rem] leading-relaxed text-muted">
+                  {s(step.blurb)}
+                </p>
+              ) : null}
             </div>
 
             {showErrors && errorCount > 0 ? (

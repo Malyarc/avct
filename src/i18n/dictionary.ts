@@ -90,12 +90,9 @@ export const D = {
    * ------------------------------------------------------------------ */
   landing: {
     title: p(
-      "Advanced Volunteer Certification Training (AVCT)",
-      "委員慈誠培訓報名",
+      "TCCA Alumni Advanced Volunteer Certification Training (AVCT) - Headquarters Region",
+      "總會合心區慈青學長姊委員慈誠培訓報名",
     ),
-    // Smaller audience line beneath the hero title; carries the TCCA-alumni note
-    // that used to sit inside the title.
-    audienceTag: p("(TCCA Alumni)", "（慈青學長姊）"),
     // Eligibility note beneath the primary call to action.
     hqOnly: p("For Headquarters Region only", "僅限總會區"),
     statTime: p("~20 min", "約 20 分鐘"),
@@ -203,11 +200,7 @@ export const D = {
       "When you began serving in your community and the groups you serve with.",
       "您開始投入社區的時間，以及所屬的組隊。",
     ),
-    availabilityTitle: p("Availability & Sizing", "時段與尺寸"),
-    availabilityBlurb: p(
-      "When you can serve, and the sizes for your vest and prayer beads.",
-      "您方便投入的時段，以及志工背心與琉璃念珠的尺寸。",
-    ),
+    availabilityTitle: p("Availability", "時段"),
     reflectionTitle: p("Self-Reflection", "自省"),
     reflectionBlurb: p(
       "An honest self-evaluation on the Ten Precepts, and your training pace.",
@@ -226,8 +219,8 @@ export const D = {
     male: p("male", "男眾"),
     maleFemale: p("male and female", "男女眾"),
     note: p(
-      "You may apply for Commissioner, Faith Corps, or both. This choice decides which fields on the official form apply to you. You can change it later.",
-      "您可以報名培訓委員、慈誠，或兩者皆報。此選擇會決定正式表單上適用的欄位，之後仍可修改。",
+      "Male applicants can select both.",
+      "男眾可同時選擇兩者。",
     ),
     chooseError: p(
       "Please choose the training you are applying for.",
@@ -493,10 +486,6 @@ export const D = {
       "Choose every slot that usually works.",
       "請勾選平時方便的時段。",
     ),
-    blurbDesktop: p(
-      "Tap a day or a row heading to select the whole line.",
-      "點選星期或時段名稱可以整排勾選。",
-    ),
     tableCaption: p(
       "Availability by day and time of day",
       "依星期與時段標示可投入的時間",
@@ -712,7 +701,24 @@ export const D = {
 
     scheduleTitle: p("Class Schedule", "課程時間"),
     inPerson: p("In person · Headquarters", "實體・總會"),
-    onZoom: p("Zoom, local center", "線上・各地會所"),
+    onZoom: p("Zoom", "線上"),
+    // The eight class dates and their times — admin-editable, one pair per row.
+    schedule1Date: p("Sept 27", "9 月 27 日"),
+    schedule1Time: p("8:00 AM – 4:00 PM", "上午 8:00 至下午 4:00"),
+    schedule2Date: p("Oct 18", "10 月 18 日"),
+    schedule2Time: p("12:00 PM – 4:00 PM", "中午 12:00 至下午 4:00"),
+    schedule3Date: p("Nov 15", "11 月 15 日"),
+    schedule3Time: p("12:00 PM – 4:00 PM", "中午 12:00 至下午 4:00"),
+    schedule4Date: p("Jan 17", "1 月 17 日"),
+    schedule4Time: p("12:00 PM – 4:00 PM", "中午 12:00 至下午 4:00"),
+    schedule5Date: p("Feb 21", "2 月 21 日"),
+    schedule5Time: p("12:00 PM – 4:00 PM", "中午 12:00 至下午 4:00"),
+    schedule6Date: p("Apr 18", "4 月 18 日"),
+    schedule6Time: p("12:00 PM – 4:00 PM", "中午 12:00 至下午 4:00"),
+    schedule7Date: p("May 16", "5 月 16 日"),
+    schedule7Time: p("12:00 PM – 4:00 PM", "中午 12:00 至下午 4:00"),
+    schedule8Date: p("Jun 27 (Closing Ceremony)", "6 月 27 日（圓緣）"),
+    schedule8Time: p("8:00 AM – 4:00 PM", "上午 8:00 至下午 4:00"),
     classHours: p("Class hours", "上課時間"),
     classHoursValue: p("12:00 PM – 4:00 PM", "中午 12:00 至下午 4:00"),
     conductedBy: p("Conducted by", "授課單位"),

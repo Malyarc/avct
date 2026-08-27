@@ -134,7 +134,8 @@ describe("ApplicationDocument", () => {
     expect(commissioner.container.textContent).toContain("SA88214");
     // Ashley Yong appears against the ◎ Commissioner Mentor block.
     expect(commissioner.container.textContent).toContain("Ashley Yong 楊妤緗");
-    expect(commissioner.container.textContent).toContain("Ling Ling Hsu 許玲玲");
+    // The Mutual Love mentor is left blank per the 8.24.2026 (2) sheet.
+    expect(commissioner.container.textContent).not.toContain("Ling Ling Hsu");
     commissioner.unmount();
 
     const faith = render(
@@ -142,13 +143,14 @@ describe("ApplicationDocument", () => {
         data={filled({ track: "faithCorps", gender: "male", memberNumber: "MB90210" })}
       />,
     );
-    // Faith Corps fills the ㊣ member number, and gets the other Mutual Love mentor.
+    // Faith Corps fills the ㊣ member number; the recommending person is Ashley Yong.
     expect(faith.container.textContent).toContain("MB90210");
-    expect(faith.container.textContent).toContain("Ju Shua Tan 陳奕樺");
+    expect(faith.container.textContent).toContain("Ashley Yong 楊妤緗");
+    expect(faith.container.textContent).not.toContain("Ju Shua Tan");
     expect(faith.container.textContent).not.toContain("Ling Ling Hsu");
   });
 
-  it("fills both mentor pairs and both numbers when both tracks are chosen", () => {
+  it("fills both numbers and both direct-mentor blocks when both tracks are chosen", () => {
     const both = render(
       <ApplicationDocument
         data={filled({ track: "both", fundraisingNumber: "SA88214", memberNumber: "MB90210" })}
@@ -157,8 +159,10 @@ describe("ApplicationDocument", () => {
     const text = both.container.textContent ?? "";
     expect(text).toContain("SA88214");
     expect(text).toContain("MB90210");
-    expect(text).toContain("Ling Ling Hsu 許玲玲");
-    expect(text).toContain("Ju Shua Tan 陳奕樺");
+    // Both ◎ and ㊣ direct-mentor blocks fill; the Mutual Love mentors are blank.
+    expect(text).toContain("Ashley Yong 楊妤緗");
+    expect(text).not.toContain("Ling Ling Hsu");
+    expect(text).not.toContain("Ju Shua Tan");
   });
 
   it("prints eight family rows whether or not they are filled", () => {
@@ -207,13 +211,18 @@ describe("ApplicationDocument", () => {
     expect(official.container.querySelector(".doc-sig-notice")).toBeTruthy();
   });
 
-  it("prints the mentor names beside the section (17) signature lines", () => {
+  it("leaves the section (17) signature rows blank for wet signatures", () => {
     const { container } = render(<ApplicationDocument data={filled()} mode="official" />);
     const block = container.querySelector(".doc-sig-official") as HTMLElement;
-    expect(within(block).getByText("Ashley Yong")).toBeInTheDocument();
-    expect(within(block).getByText("Ling Ling Hsu")).toBeInTheDocument();
-    // The signing lines themselves stay blank for a wet signature.
+    // The 8.24.2026 (2) sheet marks every (17) signature row "Leave blank", so
+    // no recommender name prints beside the lines.
+    expect(within(block).queryByText("Ashley Yong")).toBeNull();
+    expect(within(block).queryByText("Ling Ling Hsu")).toBeNull();
+    // The four signing lines stay in place, blank, for a wet signature.
     expect(block.querySelectorAll(".doc-sig-row__line")).toHaveLength(4);
+    for (const name of block.querySelectorAll(".doc-sig-row__name")) {
+      expect(name.textContent).toBe("");
+    }
   });
 
   it("places the applicant's signature on the consent line", () => {

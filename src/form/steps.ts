@@ -41,8 +41,9 @@ export interface StepDefinition {
    * localised: "Section 6" / "第 6 項".
    */
   formSections: Phrase;
-  /** One-line orientation shown under the step heading. */
-  blurb: Phrase;
+  /** One-line orientation shown under the step heading. Omitted on steps that
+   *  read cleaner without one (availability). */
+  blurb?: Phrase;
   validate: (data: ApplicationData) => FieldErrors;
 }
 
@@ -315,7 +316,6 @@ export const STEPS: readonly StepDefinition[] = [
     id: "availability",
     title: D.step.availabilityTitle,
     formSections: twoSections(13, 14),
-    blurb: D.step.availabilityBlurb,
     validate: validateAvailability,
   },
   {

@@ -537,11 +537,6 @@ export function FamilyStep({ errors }: StepProps): ReactElement {
 
   return (
     <div className="flex min-w-0 flex-col gap-6">
-      <Callout tone="info">
-        <strong className="font-semibold text-ink">{tr.s(D.family.voluntary)}</strong>{" "}
-        {tr.s(D.family.voluntaryBody)}
-      </Callout>
-
       {data.family.length === 0 ? (
         <Card className="flex flex-col items-center gap-4 px-6 py-10 text-center">
           <p className="max-w-md text-[0.9375rem] leading-relaxed text-muted">
@@ -692,7 +687,6 @@ export function InvolvementStep({ errors }: StepProps): ReactElement {
       >
         <Field
           label={tr.t(D.involvement.activitiesLabel)}
-          required
           asGroup
           error={errors.activities}
         >
@@ -1137,11 +1131,8 @@ export function AvailabilityStep({ errors }: StepProps): ReactElement {
           })}
         </div>
 
-        <p className="hidden text-[0.875rem] leading-relaxed text-muted sm:block">
-          {tr.s(D.availability.blurbDesktop)}
-        </p>
         <Card className="hidden min-w-0 overflow-x-auto p-4 sm:block sm:p-5">
-          <table className="w-full min-w-[34rem] border-separate border-spacing-1.5">
+          <table className="w-full min-w-[34rem] table-fixed border-separate border-spacing-1.5">
             <caption className="sr-only-focusable absolute size-px">
               {tr.s(D.availability.tableCaption)}
             </caption>

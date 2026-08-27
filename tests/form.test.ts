@@ -158,24 +158,39 @@ describe("catalog", () => {
  * ------------------------------------------------------------------ */
 
 describe("defaults", () => {
-  it("assigns the mentor the spreadsheet names for each track", () => {
-    expect(DEFAULTS_BY_TRACK.commissioner.mutualLoveMentor.name).toBe("Ling Ling Hsu 許玲玲");
-    expect(DEFAULTS_BY_TRACK.faithCorps.mutualLoveMentor.name).toBe("Ju Shua Tan 陳奕樺");
-    expect(DEFAULTS_BY_TRACK.commissioner.signatureMutualLoveMentor).toBe("Ling Ling Hsu");
-    expect(DEFAULTS_BY_TRACK.faithCorps.signatureMutualLoveMentor).toBe("Ju Shua Tan");
+  it("leaves the Mutual Love mentor blank per the 8.24.2026 (2) sheet", () => {
+    expect(DEFAULTS_BY_TRACK.commissioner.mutualLoveMentor.name).toBe("");
+    expect(DEFAULTS_BY_TRACK.faithCorps.mutualLoveMentor.name).toBe("");
+    expect(DEFAULTS_BY_TRACK.commissioner.signatureMutualLoveMentor).toBe("");
+    expect(DEFAULTS_BY_TRACK.faithCorps.signatureMutualLoveMentor).toBe("");
   });
 
   it("shares the department-wide values across both tracks", () => {
     for (const track of ["commissioner", "faithCorps"] as const) {
       const d = defaultsFor(track);
+      // Kept from the sheet.
       expect(d.directMentor.name).toBe("Ashley Yong 楊妤緗");
       expect(d.directMentor.badgeNumber).toBe("SA63508");
       expect(d.directMentor.tel).toBe("626-366-6482");
       expect(d.unityTeam).toBe("Headquarters 美西");
-      expect(d.harmonyTeam).toBe("Midwest LA 中西洛");
       expect(d.dharmaName).toBe("N/A");
       expect(d.certificationStart).toBe("2026-09");
       expect(d.certificationRecommender.badgeNumber).toBe("SA63508");
+    }
+  });
+
+  it("blanks every field the 8.24.2026 (2) sheet marks Leave blank", () => {
+    for (const track of ["commissioner", "faithCorps"] as const) {
+      const d = defaultsFor(track);
+      expect(d.harmonyTeam).toBe("");
+      expect(d.mutualLoveTeam).toBe("");
+      expect(d.concertedEffortTeam).toBe("");
+      expect(d.concertedEffortTeamLeader.name).toBe("");
+      expect(d.concertedEffortTeamLeader.badgeNumber).toBe("");
+      expect(d.concertedEffortTeamLeader.tel).toBe("");
+      expect(d.certificationAreaHarmony).toBe("");
+      expect(d.signatureDirectMentor).toBe("");
+      expect(d.signatureConcertedEffortTeamLeader).toBe("");
     }
   });
 
@@ -394,8 +409,12 @@ describe("steps", () => {
     for (const step of STEPS) {
       expect(step.title.en).toBeTruthy();
       expect(step.title.zh).toBeTruthy();
-      expect(step.blurb.en).toBeTruthy();
-      expect(step.blurb.zh).toBeTruthy();
+      // A blurb is optional (the availability step has none); when present it
+      // must carry both languages.
+      if (step.blurb) {
+        expect(step.blurb.en).toBeTruthy();
+        expect(step.blurb.zh).toBeTruthy();
+      }
       expect(step.formSections.en).toBeTruthy();
       expect(step.formSections.zh).toBeTruthy();
     }

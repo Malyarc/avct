@@ -70,14 +70,6 @@ export default function Landing() {
               >
                 {s(D.landing.title)}
               </h1>
-              <p
-                lang={isZh ? "zh-Hant" : undefined}
-                className={`text-[0.9375rem] font-medium tracking-[0.02em] text-faint sm:text-[1rem] ${
-                  isZh ? "font-zh" : ""
-                }`}
-              >
-                {s(D.landing.audienceTag)}
-              </p>
             </div>
             <p
               lang={isZh ? undefined : "zh-Hant"}

@@ -11,47 +11,40 @@ import { SiteFooter, SiteHeader, SkipLink } from "../components/Chrome";
 import { useT } from "../i18n/language";
 import { D } from "../i18n/dictionary";
 import { getGuidelinesOverride } from "../lib/api";
-import { mergeGuidelines, type GuidelinesOverride } from "../content/guidelinesContent";
-import { ArrowRightIcon, MailIcon } from "../components/ui";
+import {
+  mergeGuidelines,
+  type GuidelinesKey,
+  type GuidelinesOverride,
+} from "../content/guidelinesContent";
+import { ArrowRightIcon } from "../components/ui";
 
 const SECTION_META = [
   { id: "eligibility", nav: "navEligibility" },
   { id: "registration", nav: "navRegistration" },
   { id: "schedule", nav: "navSchedule" },
   { id: "certification", nav: "navCertification" },
-  { id: "contact", nav: "navContact" },
 ] as const;
 
+/**
+ * The eight class dates. `year` and the in-person flag are structural — the
+ * flag drives the row highlight and which mode label (in person / Zoom) shows.
+ * The date and time text are admin-editable, read from the guidelines content
+ * by these keys.
+ */
 const CLASSES: {
   year: string;
-  month: number;
-  day: number;
   inPerson: boolean;
-  closing?: boolean;
+  dateKey: GuidelinesKey;
+  timeKey: GuidelinesKey;
 }[] = [
-  { year: "2026", month: 9, day: 27, inPerson: true },
-  { year: "2026", month: 10, day: 18, inPerson: false },
-  { year: "2026", month: 11, day: 15, inPerson: false },
-  { year: "2027", month: 1, day: 17, inPerson: false },
-  { year: "2027", month: 2, day: 21, inPerson: false },
-  { year: "2027", month: 4, day: 18, inPerson: false },
-  { year: "2027", month: 5, day: 16, inPerson: false },
-  { year: "2027", month: 6, day: 27, inPerson: true, closing: true },
-];
-
-const EN_MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sept",
-  "Oct",
-  "Nov",
-  "Dec",
+  { year: "2026", inPerson: true, dateKey: "schedule1Date", timeKey: "schedule1Time" },
+  { year: "2026", inPerson: false, dateKey: "schedule2Date", timeKey: "schedule2Time" },
+  { year: "2026", inPerson: false, dateKey: "schedule3Date", timeKey: "schedule3Time" },
+  { year: "2027", inPerson: false, dateKey: "schedule4Date", timeKey: "schedule4Time" },
+  { year: "2027", inPerson: false, dateKey: "schedule5Date", timeKey: "schedule5Time" },
+  { year: "2027", inPerson: false, dateKey: "schedule6Date", timeKey: "schedule6Time" },
+  { year: "2027", inPerson: false, dateKey: "schedule7Date", timeKey: "schedule7Time" },
+  { year: "2027", inPerson: true, dateKey: "schedule8Date", timeKey: "schedule8Time" },
 ];
 
 
@@ -128,14 +121,6 @@ export default function Guidelines() {
     }
     return () => observer.disconnect();
   }, []);
-
-  const dateLabel = (entry: (typeof CLASSES)[number]) => {
-    const base = isZh
-      ? `${entry.month} 月 ${entry.day} 日`
-      : `${EN_MONTHS[entry.month - 1]} ${entry.day}`;
-    if (!entry.closing) return base;
-    return isZh ? `${base}（圓緣）` : `${base} (Closing Ceremony)`;
-  };
 
   return (
     <div className="flex min-h-dvh flex-col bg-paper">
@@ -254,7 +239,7 @@ export default function Guidelines() {
               <ul className="grid list-none grid-cols-2 p-0 sm:grid-cols-4">
                 {CLASSES.map((entry, index) => (
                   <li
-                    key={`${entry.year}-${entry.month}`}
+                    key={entry.dateKey}
                     className={`flex flex-col gap-0.5 border-b border-line-soft px-4 py-4 ${
                       index % 2 === 0 ? "border-r" : ""
                     } ${index % 4 !== 3 ? "sm:border-r" : "sm:border-r-0"} ${
@@ -269,7 +254,12 @@ export default function Guidelines() {
                     <span
                       className={`text-[1rem] font-semibold ${entry.inPerson ? "text-accent-text" : ""}`}
                     >
-                      {dateLabel(entry)}
+                      {s(g[entry.dateKey])}
+                    </span>
+                    <span
+                      className={`text-[0.8125rem] ${entry.inPerson ? "text-accent-text" : "text-muted"}`}
+                    >
+                      {s(g[entry.timeKey])}
                     </span>
                     <span
                       className={`text-[0.72rem] ${entry.inPerson ? "text-accent-text" : "text-muted"}`}
@@ -279,17 +269,6 @@ export default function Guidelines() {
                   </li>
                 ))}
               </ul>
-              <div className="flex flex-wrap gap-x-6 gap-y-2 px-4 py-4">
-                {[
-                  [g.classHours, g.classHoursValue],
-                  [g.conductedBy, g.conductedByValue],
-                  [g.closingCeremony, g.closingCeremonyValue],
-                ].map(([label, value]) => (
-                  <span key={label.en} className="text-[0.84rem] text-muted">
-                    <strong className="font-semibold text-ink">{s(label)}</strong> {s(value)}
-                  </span>
-                ))}
-              </div>
             </div>
             <ul className="flex list-none flex-col gap-3 p-0">
               {CLASS_NOTES.map((note) => (
@@ -319,26 +298,6 @@ export default function Guidelines() {
                 </NumberedItem>
               ))}
             </ol>
-          </section>
-
-          {/* ── Contact ────────────────────────────────────────── */}
-          <section
-            id="contact"
-            className="flex max-w-3xl scroll-mt-28 flex-col gap-5 rounded-2xl bg-green-900 px-9 py-8 text-white sm:flex-row sm:items-center sm:justify-between"
-          >
-            <div className="flex flex-col gap-1.5">
-              <h2 className="text-[1.25rem] text-white">{s(g.contactTitle)}</h2>
-              <p className="text-[0.9rem] text-green-200">
-                {s(D.org.contactName)} · {s(D.org.contactRole)}
-              </p>
-            </div>
-            <a
-              href="mailto:ashley.yong@tzuchi.us"
-              className="inline-flex min-h-11 flex-none items-center gap-2.5 rounded-full bg-white px-6 text-[0.9rem] font-semibold text-green-900 no-underline transition-opacity hover:opacity-90 hover:no-underline"
-            >
-              <MailIcon size={15} />
-              ashley.yong@tzuchi.us
-            </a>
           </section>
         </main>
       </div>
