@@ -44,6 +44,7 @@ interface ApplicationRow {
   email: string;
   tel_mobile: string;
   submitted_at: string | Date;
+  archived_at?: string | Date | null;
   data?: unknown;
 }
 
@@ -58,6 +59,7 @@ function toSummary(row: ApplicationRow) {
     email: row.email ?? "",
     telMobile: row.tel_mobile ?? "",
     submittedAt: new Date(row.submitted_at).toISOString(),
+    archivedAt: row.archived_at ? new Date(row.archived_at).toISOString() : null,
   };
 }
 
@@ -173,20 +175,56 @@ function adminLogout(request: Request): Response {
   return json({ ok: true }, 200, { "set-cookie": clearedCookie(request) });
 }
 
-async function adminList(): Promise<Response> {
+async function adminList(archived: boolean): Promise<Response> {
   if (!hasDatabase()) return serverError("The database is not configured.");
   try {
-    const rows = (await sql()`
-      SELECT id, reference, track, chinese_name, first_name, surname, email,
-             tel_mobile, submitted_at
-        FROM applications
-    ORDER BY submitted_at DESC
-       LIMIT 1000
-    `) as ApplicationRow[];
+    // Active submissions list newest-submitted-first; the Archive lists
+    // newest-deleted-first so the most recent deletion is on top.
+    const rows = (
+      archived
+        ? await sql()`
+            SELECT id, reference, track, chinese_name, first_name, surname, email,
+                   tel_mobile, submitted_at, archived_at
+              FROM applications
+             WHERE archived_at IS NOT NULL
+          ORDER BY archived_at DESC
+             LIMIT 1000
+          `
+        : await sql()`
+            SELECT id, reference, track, chinese_name, first_name, surname, email,
+                   tel_mobile, submitted_at, archived_at
+              FROM applications
+             WHERE archived_at IS NULL
+          ORDER BY submitted_at DESC
+             LIMIT 1000
+          `
+    ) as ApplicationRow[];
     return json({ applications: rows.map(toSummary) });
   } catch (cause) {
     console.error("admin list failed", cause);
     return serverError("Could not load applications.");
+  }
+}
+
+/**
+ * Soft delete: move an active submission to the Archive by stamping
+ * `archived_at`. The row and its reference number stay, so nothing is reused.
+ */
+async function adminDelete(id: string): Promise<Response> {
+  if (!UUID.test(id)) return notFound("No such application.");
+  if (!hasDatabase()) return serverError("The database is not configured.");
+  try {
+    const rows = (await sql()`
+      UPDATE applications
+         SET archived_at = now()
+       WHERE id = ${id}::uuid AND archived_at IS NULL
+   RETURNING id
+    `) as { id: string }[];
+    if (rows.length === 0) return notFound("No such application.");
+    return json({ ok: true });
+  } catch (cause) {
+    console.error("admin delete failed", cause);
+    return serverError("Could not delete that application.");
   }
 }
 
@@ -198,7 +236,7 @@ async function adminGet(id: string): Promise<Response> {
   try {
     const rows = (await sql()`
       SELECT id, reference, track, chinese_name, first_name, surname, email,
-             tel_mobile, submitted_at, data
+             tel_mobile, submitted_at, archived_at, data
         FROM applications
        WHERE id = ${id}::uuid
     `) as ApplicationRow[];
@@ -299,7 +337,8 @@ export default async function handler(
 
     if (path === "/admin/applications") {
       if (method !== "GET") return methodNotAllowed(["GET"]);
-      return adminList();
+      const archived = new URL(request.url).searchParams.get("archived") === "1";
+      return adminList(archived);
     }
 
     if (path === "/admin/guidelines") {
@@ -309,8 +348,10 @@ export default async function handler(
 
     const match = /^\/admin\/applications\/([^/]+)$/.exec(path);
     if (match) {
-      if (method !== "GET") return methodNotAllowed(["GET"]);
-      return adminGet(decodeURIComponent(match[1]));
+      const id = decodeURIComponent(match[1]);
+      if (method === "GET") return adminGet(id);
+      if (method === "DELETE") return adminDelete(id);
+      return methodNotAllowed(["GET", "DELETE"]);
     }
   }
 

@@ -116,20 +116,6 @@ export default function Submitted() {
             </div>
           </dl>
 
-          <div className="flex max-w-xl flex-col gap-3 rounded-2xl border border-line bg-card p-6 shadow-card">
-            <span className="eyebrow text-faint">{s(D.submitted.twoThings)}</span>
-            <ol className="flex list-none flex-col gap-3 p-0">
-              {[D.submitted.todo1, D.submitted.todo2].map((todo, index) => (
-                <li key={todo.en} className="flex items-start gap-3">
-                  <span className="flex size-[1.375rem] flex-none items-center justify-center rounded-full border-[1.5px] border-green-300 text-[0.72rem] font-bold text-accent-text">
-                    {index + 1}
-                  </span>
-                  <span className="text-[0.9rem] leading-relaxed">{s(todo)}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-
           <p className="text-[0.9rem] text-muted">
             {s(D.landing.questions)}{" "}
             <a href="mailto:ashley.yong@tzuchi.us">ashley.yong@tzuchi.us</a> ·{" "}

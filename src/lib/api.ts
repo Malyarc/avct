@@ -23,6 +23,8 @@ export interface ApplicationSummary {
   email: string;
   telMobile: string;
   submittedAt: string;
+  /** Non-null once the submission has been moved to the Archive. */
+  archivedAt: string | null;
 }
 
 export interface ApplicationRecord extends ApplicationSummary {
@@ -100,16 +102,21 @@ export function adminSession(): Promise<ApiResult<{ authenticated: boolean }>> {
   return request("/admin/session");
 }
 
-export function adminListApplications(): Promise<
-  ApiResult<{ applications: ApplicationSummary[] }>
-> {
-  return request("/admin/applications");
+export function adminListApplications(
+  options?: { archived?: boolean },
+): Promise<ApiResult<{ applications: ApplicationSummary[] }>> {
+  return request(`/admin/applications${options?.archived ? "?archived=1" : ""}`);
 }
 
 export function adminGetApplication(
   id: string,
 ): Promise<ApiResult<{ application: ApplicationRecord }>> {
   return request(`/admin/applications/${encodeURIComponent(id)}`);
+}
+
+/** Soft-delete: moves an active submission to the Archive. */
+export function adminDeleteApplication(id: string): Promise<ApiResult<{ ok: true }>> {
+  return request(`/admin/applications/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
 
 export function getGuidelinesOverride(): Promise<ApiResult<{ content: GuidelinesOverride | null }>> {

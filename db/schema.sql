@@ -71,3 +71,13 @@ CREATE TABLE IF NOT EXISTS site_content (
   value      jsonb       NOT NULL,
   updated_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- Soft delete: the admin "Archive" section. A deleted submission keeps its row
+-- with `archived_at` stamped, so the admin can still see it and the per-year
+-- reference counter is never rolled back — deleted numbers are not reused.
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS archived_at timestamptz;
+
+-- The active list ("archived_at IS NULL, newest first") is the hot path.
+CREATE INDEX IF NOT EXISTS applications_active_idx
+  ON applications (submitted_at DESC)
+  WHERE archived_at IS NULL;

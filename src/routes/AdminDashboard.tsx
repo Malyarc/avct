@@ -5,6 +5,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  adminDeleteApplication,
   adminGetApplication,
   adminListApplications,
   adminLogout,
@@ -32,10 +33,12 @@ import {
   SearchIcon,
   SignOutIcon,
   SpinnerIcon,
+  TrashIcon,
 } from "../components/ui";
 
 type TrackFilter = "all" | "commissioner" | "faithCorps";
 type Tab = "form" | "answers" | "signature";
+type ListView = "active" | "archived";
 
 const TRACK_LABEL: Record<string, { en: string; zh: string }> = {
   commissioner: { en: "委員 Comm.", zh: "培訓委員" },
@@ -90,12 +93,16 @@ export function AdminDashboard({
   const [listError, setListError] = useState<Phrase | null>(null);
   const [query, setQuery] = useState("");
   const [trackFilter, setTrackFilter] = useState<TrackFilter>("all");
+  const [view, setView] = useState<ListView>("active");
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [record, setRecord] = useState<ApplicationRecord | null>(null);
   const [recordError, setRecordError] = useState<Phrase | null>(null);
   const [loadingRecord, setLoadingRecord] = useState(false);
   const [tab, setTab] = useState<Tab>("form");
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<Phrase | null>(null);
 
   const documentRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState<ExportProgress | null>(null);
@@ -103,7 +110,7 @@ export function AdminDashboard({
 
   const load = useCallback(async () => {
     setListError(null);
-    const result = await adminListApplications();
+    const result = await adminListApplications({ archived: view === "archived" });
     if (!result.ok) {
       setListError(result.error);
       setRows([]);
@@ -112,7 +119,7 @@ export function AdminDashboard({
     }
     setRows(result.value.applications);
     setLoadedAt(Date.now());
-  }, []);
+  }, [view]);
 
   useEffect(() => {
     // Fetching on mount: `load` only calls setState after an await.
@@ -204,6 +211,31 @@ export function AdminDashboard({
     downloadBlob(blob, `avct-applications-${new Date().toISOString().slice(0, 10)}.csv`);
   };
 
+  const switchView = (next: ListView) => {
+    if (next === view) return;
+    setView(next);
+    setRows(null);
+    setSelectedId(null);
+    setConfirmingDelete(false);
+    setDeleteError(null);
+  };
+
+  /** Soft-delete the open submission — it moves to the Archive. */
+  const remove = async () => {
+    if (!selectedId) return;
+    setDeleting(true);
+    setDeleteError(null);
+    const result = await adminDeleteApplication(selectedId);
+    setDeleting(false);
+    if (!result.ok) {
+      setDeleteError(result.error);
+      return;
+    }
+    setConfirmingDelete(false);
+    setSelectedId(null);
+    await load();
+  };
+
   return (
     <div className="flex min-h-dvh flex-col bg-paper">
       <header className="flex items-center justify-between gap-3 bg-green-950 px-4 py-3 text-white sm:px-8">
@@ -273,6 +305,28 @@ export function AdminDashboard({
               <p className="text-[0.9rem] text-muted">{str(D.admin.cohort)}</p>
             </div>
             <div className="flex flex-wrap gap-2.5">
+              <div
+                role="tablist"
+                aria-label={str(D.admin.applications)}
+                className="inline-flex min-h-10 flex-none rounded-xl border border-line bg-card p-0.5"
+              >
+                {(["active", "archived"] as ListView[]).map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    role="tab"
+                    aria-selected={view === v}
+                    onClick={() => switchView(v)}
+                    className={`min-h-9 rounded-lg px-3.5 text-[0.8125rem] font-semibold transition-colors ${
+                      view === v
+                        ? "bg-accent-soft text-accent-text"
+                        : "text-muted hover:text-ink"
+                    }`}
+                  >
+                    {str(v === "active" ? D.admin.viewActive : D.admin.viewArchived)}
+                  </button>
+                ))}
+              </div>
               <div className="flex min-h-10 w-full items-center gap-2.5 rounded-xl border border-line bg-card px-3.5 sm:w-64">
                 <SearchIcon size={15} className="flex-none text-faint" />
                 <input
@@ -327,10 +381,14 @@ export function AdminDashboard({
               <div className="flex flex-col items-center gap-2 px-6 py-20 text-center">
                 <AlertIcon size={22} className="text-faint" />
                 <p className="text-[0.9375rem] font-semibold">
-                  {rows.length === 0 ? str(D.admin.empty) : str(D.admin.noMatch)}
+                  {rows.length === 0
+                    ? str(view === "archived" ? D.admin.archiveEmpty : D.admin.empty)
+                    : str(D.admin.noMatch)}
                 </p>
                 <p className="max-w-sm text-[0.84rem] text-muted">
-                  {rows.length === 0 ? str(D.admin.emptyBody) : str(D.admin.noMatchBody)}
+                  {rows.length === 0
+                    ? str(view === "archived" ? D.admin.archiveEmptyBody : D.admin.emptyBody)
+                    : str(D.admin.noMatchBody)}
                 </p>
               </div>
             ) : (
@@ -363,6 +421,8 @@ export function AdminDashboard({
                         onClick={() => {
                           setSelectedId(row.id);
                           setTab("form");
+                          setConfirmingDelete(false);
+                          setDeleteError(null);
                         }}
                         aria-current={active || undefined}
                         className={`grid w-full grid-cols-1 items-center gap-2 px-4 py-3.5 text-left transition-colors sm:grid-cols-[minmax(0,2.1fr)_8rem_minmax(0,1fr)_2.75rem] ${
@@ -564,7 +624,73 @@ export function AdminDashboard({
                   >
                     <MailIcon size={15} />
                   </a>
+                  {view === "active" ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConfirmingDelete(true);
+                        setDeleteError(null);
+                      }}
+                      aria-label={str(D.admin.delete)}
+                      title={str(D.admin.delete)}
+                      className="flex min-h-9 w-11 flex-none items-center justify-center rounded-lg border border-rose-line text-rose-ink transition-colors hover:bg-rose-bg"
+                    >
+                      <TrashIcon size={15} />
+                    </button>
+                  ) : null}
                 </div>
+
+                {confirmingDelete ? (
+                  <Callout tone="error">
+                    <div className="flex flex-col gap-2.5">
+                      <span className="flex flex-col gap-0.5">
+                        <strong className="font-semibold">{str(D.admin.deleteConfirm)}</strong>
+                        <span className="text-[0.8125rem] font-normal">
+                          {str(D.admin.deleteConfirmBody)}
+                        </span>
+                      </span>
+                      {deleteError ? (
+                        <span className="text-[0.8125rem] font-semibold">{str(deleteError)}</span>
+                      ) : null}
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          busy={deleting}
+                          onClick={() => void remove()}
+                          className="rounded-lg"
+                        >
+                          {deleting ? str(D.admin.deleting) : str(D.admin.delete)}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={deleting}
+                          onClick={() => {
+                            setConfirmingDelete(false);
+                            setDeleteError(null);
+                          }}
+                          className="rounded-lg"
+                        >
+                          {str(D.admin.deleteCancel)}
+                        </Button>
+                      </div>
+                    </div>
+                  </Callout>
+                ) : null}
+
+                {record.archivedAt ? (
+                  <div className="flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-[0.8125rem] text-muted">
+                    <TrashIcon size={14} className="flex-none" />
+                    {format(
+                      str(D.admin.deletedOn),
+                      new Date(record.archivedAt).toLocaleString(isZh ? "zh-Hant" : undefined, {
+                        dateStyle: "long",
+                        timeStyle: "short",
+                      }),
+                    )}
+                  </div>
+                ) : null}
               </div>
 
               <div

@@ -844,6 +844,25 @@ export const D = {
       "無法在此產生 PDF。請使用「列印」並選擇「另存為 PDF」。",
     ),
     emailApplicant: p("Email %s", "寄信給 %s"),
+
+    // Active list vs. the Archive of deleted submissions.
+    viewActive: p("Active", "報名中"),
+    viewArchived: p("Archive", "封存區"),
+    archiveEmpty: p("No deleted submissions", "封存區沒有報名表"),
+    archiveEmptyBody: p(
+      "Submissions you delete move here. Their reference numbers are never reused.",
+      "您刪除的報名表會移到這裡，其報名編號不會被重複使用。",
+    ),
+    delete: p("Delete", "刪除"),
+    deleteConfirm: p("Delete this submission?", "確定刪除這份報名表嗎？"),
+    deleteConfirmBody: p(
+      "It moves to the Archive. The reference number is kept and not reused.",
+      "報名表會移至封存區，報名編號會保留、不會重複使用。",
+    ),
+    deleteCancel: p("Cancel", "取消"),
+    deleting: p("Deleting…", "刪除中…"),
+    deleteFailed: p("Could not delete that submission.", "無法刪除該份報名表。"),
+    deletedOn: p("Deleted %s", "刪除於 %s"),
   },
 
   /* ------------------------------------------------------------------ *
