@@ -9,6 +9,7 @@ import {
   adminGetApplication,
   adminListApplications,
   adminLogout,
+  adminSetCompleted,
   type ApplicationRecord,
   type ApplicationSummary,
 } from "../lib/api";
@@ -18,6 +19,8 @@ import { downloadBlob, exportDocumentAsPdf, type ExportProgress } from "../docum
 import { DocumentViewer } from "../components/DocumentViewer";
 import { AdminAnswers } from "./AdminAnswers";
 import { AdminFillEditor } from "./AdminFillEditor";
+import { AdminFillTab } from "./AdminFillTab";
+import { CompleteToggle, FillStatusBadge } from "../components/FillStatusBadge";
 import { LanguageToggle } from "../components/Chrome";
 import { useT } from "../i18n/language";
 import { D, format } from "../i18n/dictionary";
@@ -39,7 +42,7 @@ import {
 } from "../components/ui";
 
 type TrackFilter = "all" | "commissioner" | "faithCorps";
-type Tab = "form" | "answers" | "signature";
+type Tab = "form" | "fields" | "answers" | "signature";
 type ListView = "active" | "archived";
 
 const TRACK_LABEL: Record<string, { en: string; zh: string }> = {
@@ -110,6 +113,19 @@ export function AdminDashboard({
   const documentRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState<ExportProgress | null>(null);
   const [pdfError, setPdfError] = useState<string | null>(null);
+
+  // Which row's completion toggle is in flight, and a gentle auto-dismissing note.
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [toast, setToast] = useState<Phrase | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = useCallback((message: Phrase) => {
+    setToast(message);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3200);
+  }, []);
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }, []);
 
   const load = useCallback(async () => {
     setListError(null);
@@ -241,13 +257,45 @@ export function AdminDashboard({
     await load();
   };
 
+  /** Reflect a saved record in both the open detail panel and its list row,
+      without a full refetch. */
+  const patchRow = useCallback(
+    (rec: ApplicationRecord) => {
+      setRecord((current) => (current && current.id === rec.id ? rec : current));
+      setRows((prev) =>
+        prev
+          ? prev.map((row) =>
+              row.id === rec.id
+                ? { ...row, fillStatus: rec.fillStatus, completed: rec.completed }
+                : row,
+            )
+          : prev,
+      );
+    },
+    [],
+  );
+
+  /** Tap the completion circle. Blocked (with a gentle note) until every field
+      is filled; toggles off freely. */
+  const toggleCompleted = async (row: ApplicationSummary) => {
+    if (togglingId) return;
+    if (!row.completed && row.fillStatus !== "filled") {
+      showToast(D.adminFill.completeBlocked);
+      return;
+    }
+    setTogglingId(row.id);
+    const result = await adminSetCompleted(row.id, !row.completed);
+    setTogglingId(null);
+    if (!result.ok) {
+      showToast(result.error);
+      return;
+    }
+    patchRow(result.value.application);
+  };
+
   if (editing && record) {
     return (
-      <AdminFillEditor
-        record={record}
-        onBack={() => setEditing(false)}
-        onSaved={(updated) => setRecord(updated)}
-      />
+      <AdminFillEditor record={record} onBack={() => setEditing(false)} onSaved={patchRow} />
     );
   }
 
@@ -342,7 +390,7 @@ export function AdminDashboard({
                   </button>
                 ))}
               </div>
-              <div className="flex min-h-10 w-full items-center gap-2.5 rounded-xl border border-line bg-card px-3.5 sm:w-64">
+              <div className="flex min-h-11 w-full items-center gap-2.5 rounded-xl border border-line bg-card px-3.5 sm:w-64">
                 <SearchIcon size={15} className="flex-none text-faint" />
                 <input
                   type="search"
@@ -350,7 +398,7 @@ export function AdminDashboard({
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder={str(D.admin.search)}
                   aria-label={str(D.admin.searchLabel)}
-                  className="w-full bg-transparent text-[0.875rem] outline-none placeholder:text-faint"
+                  className="w-full self-stretch bg-transparent text-[0.875rem] outline-none placeholder:text-faint"
                 />
               </div>
               <select
@@ -410,27 +458,47 @@ export function AdminDashboard({
               <ul className="m-0 list-none p-0">
                 <li
                   aria-hidden="true"
-                  className="hidden grid-cols-[minmax(0,2.1fr)_8rem_minmax(0,1fr)_2.75rem] border-b border-line-soft px-4 pb-2.5 pt-4 sm:grid"
+                  className="hidden items-center border-b border-line-soft px-2 pb-2.5 pt-4 sm:flex"
                 >
-                  {[
-                    str(D.admin.colApplicant),
-                    str(D.admin.colTrack),
-                    str(D.admin.colSubmitted),
-                    "",
-                  ].map((heading, position) => (
-                    <span
-                      key={heading || `actions-${position}`}
-                      className="eyebrow text-[0.6875rem] text-faint"
-                    >
-                      {heading}
-                    </span>
-                  ))}
+                  <span className="eyebrow w-11 flex-none pl-1.5 text-[0.6875rem] text-faint">
+                    {str(D.adminFill.colDone)}
+                  </span>
+                  <div className="grid flex-1 grid-cols-[minmax(0,2fr)_6.5rem_8rem_minmax(0,0.9fr)_1.25rem] gap-2 pl-2">
+                    {[
+                      str(D.admin.colApplicant),
+                      str(D.adminFill.colFields),
+                      str(D.admin.colTrack),
+                      str(D.admin.colSubmitted),
+                      "",
+                    ].map((heading, position) => (
+                      <span
+                        key={heading || `sp-${position}`}
+                        className="eyebrow text-[0.6875rem] text-faint"
+                      >
+                        {heading}
+                      </span>
+                    ))}
+                  </div>
                 </li>
                 {filtered.map((row) => {
                   const when = formatDate(row.submittedAt, isZh ? "zh-Hant" : undefined);
                   const active = row.id === selectedId;
                   return (
-                    <li key={row.id} className="border-b border-line-soft last:border-b-0">
+                    <li
+                      key={row.id}
+                      className={`flex items-stretch border-b border-l-[3px] border-b-line-soft transition-colors last:border-b-0 ${
+                        active
+                          ? "border-l-accent bg-accent-soft"
+                          : "border-l-transparent hover:bg-accent-soft"
+                      }`}
+                    >
+                      <div className="flex flex-none items-center pl-1.5">
+                        <CompleteToggle
+                          completed={row.completed}
+                          busy={togglingId === row.id}
+                          onClick={() => void toggleCompleted(row)}
+                        />
+                      </div>
                       <button
                         type="button"
                         onClick={() => {
@@ -441,11 +509,7 @@ export function AdminDashboard({
                           setDeleteError(null);
                         }}
                         aria-current={active || undefined}
-                        className={`grid w-full grid-cols-1 items-center gap-2 px-4 py-3.5 text-left transition-colors sm:grid-cols-[minmax(0,2.1fr)_8rem_minmax(0,1fr)_2.75rem] ${
-                          active
-                            ? "border-l-[3px] border-l-accent bg-accent-soft pl-[calc(1rem-3px)]"
-                            : "border-l-[3px] border-l-transparent pl-[calc(1rem-3px)] hover:bg-accent-soft"
-                        }`}
+                        className="flex min-w-0 flex-1 flex-col gap-2 py-3.5 pl-2 pr-4 text-left sm:grid sm:grid-cols-[minmax(0,2fr)_6.5rem_8rem_minmax(0,0.9fr)_1.25rem] sm:items-center sm:gap-2"
                       >
                         <span className="flex min-w-0 items-center gap-3">
                           <span className="flex size-9 flex-none items-center justify-center rounded-full bg-green-100 text-[0.78125rem] font-bold text-green-900">
@@ -479,9 +543,11 @@ export function AdminDashboard({
                           </span>
                         </span>
 
-                        <span className="flex">
+                        {/* Fill status + track — inline on mobile, own columns on desktop */}
+                        <div className="flex flex-wrap items-center gap-2 sm:contents">
+                          <FillStatusBadge fillStatus={row.fillStatus} completed={row.completed} />
                           <span
-                            className={`rounded-full px-2.5 py-0.5 text-[0.72rem] font-semibold ${
+                            className={`w-fit rounded-full px-2.5 py-0.5 text-[0.72rem] font-semibold ${
                               row.track === "commissioner"
                                 ? "bg-green-100 text-green-900"
                                 : "bg-[#e7eef7] text-[#1e3e6b]"
@@ -491,7 +557,7 @@ export function AdminDashboard({
                               ? (TRACK_LABEL[row.track]?.zh ?? row.track)
                               : (TRACK_LABEL[row.track]?.en ?? row.track)}
                           </span>
-                        </span>
+                        </div>
 
                         <span className="flex flex-col text-[0.84rem] text-muted">
                           <span>{when.date}</span>
@@ -637,7 +703,7 @@ export function AdminDashboard({
                     size="sm"
                     busy={progress !== null}
                     onClick={() => void downloadPdf()}
-                    className="flex-1 rounded-lg"
+                    className="min-w-0 flex-1 rounded-lg"
                   >
                     {progress ? (
                       progress.page === 0 ? (
@@ -657,7 +723,7 @@ export function AdminDashboard({
                     variant="secondary"
                     onClick={() => window.print()}
                     disabled={progress !== null}
-                    className="flex-1 rounded-lg"
+                    className="min-w-0 flex-1 rounded-lg"
                   >
                     <PrintIcon size={14} />
                     {str(D.action.print)}
@@ -741,11 +807,12 @@ export function AdminDashboard({
               <div
                 role="tablist"
                 aria-label={str(D.admin.detail)}
-                className="flex gap-1 border-b border-line-soft px-6 pt-3"
+                className="flex gap-1 overflow-x-auto border-b border-line-soft px-6 pt-3 no-scrollbar"
               >
                 {(
                   [
                     ["form", str(D.admin.tabForm)],
+                    ["fields", str(D.adminFill.tab)],
                     ["answers", str(D.admin.tabAnswers)],
                     ["signature", str(D.admin.tabSignature)],
                   ] as [Tab, string][]
@@ -756,7 +823,7 @@ export function AdminDashboard({
                     role="tab"
                     aria-selected={tab === key}
                     onClick={() => setTab(key)}
-                    className={`min-h-10 border-b-2 px-3 pb-2.5 text-[0.84rem] transition-colors ${
+                    className={`min-h-10 flex-none whitespace-nowrap border-b-2 px-3 pb-2.5 text-[0.84rem] transition-colors ${
                       tab === key
                         ? "border-accent font-semibold text-accent-text"
                         : "border-transparent text-muted hover:text-ink"
@@ -774,6 +841,13 @@ export function AdminDashboard({
                     mode="official"
                     documentRef={documentRef}
                     showZoom
+                  />
+                ) : tab === "fields" ? (
+                  <AdminFillTab
+                    key={record.id}
+                    record={record}
+                    onSaved={patchRow}
+                    onOpenExpanded={() => setEditing(true)}
                   />
                 ) : tab === "answers" ? (
                   <AdminAnswers data={record.data} />
@@ -817,6 +891,19 @@ export function AdminDashboard({
             </>
           ) : null}
         </aside>
+      </div>
+
+      {/* Gentle, auto-dismissing note (e.g. can't complete before filling). */}
+      <div
+        aria-live="polite"
+        className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4"
+      >
+        {toast ? (
+          <div className="pointer-events-auto flex max-w-sm items-center gap-2.5 rounded-xl border border-amber-line bg-amber-bg px-4 py-3 text-[0.84rem] font-medium text-amber-ink shadow-float">
+            <AlertIcon size={16} className="flex-none" />
+            {str(toast)}
+          </div>
+        ) : null}
       </div>
     </div>
   );

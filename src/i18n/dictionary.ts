@@ -914,16 +914,12 @@ export const D = {
     // Section (4)
     section4: p("Mutual Love (or Harmony) Team Mentor", "同互愛（或和氣）之直屬委員／推薦人"),
     mentorHint: p(
-      "Entered once — it prints on the mentor line for the applicant's track; an applicant training for both gets the same entry on both lines, exactly as the paper form is filled by hand.",
-      "只需填寫一次，會印在對應報名項目的推薦人欄位；同時培訓委員與慈誠者，兩欄會印上相同內容，與紙本親筆填寫方式一致。",
+      "Entered once. It prints on the mentor line for this applicant's track.",
+      "只需填寫一次，會印在對應報名項目的推薦人欄位。",
     ),
     printsOn: p("Prints on the form: %s", "印於表單：%s"),
     sideCommissioner: p("◎ Commissioner block", "◎ 直屬委員欄"),
-    sideFaith: p("㊣ Faith Corps (Recommending Person) block", "㊣ 推薦人欄"),
-    sideBoth: p(
-      "◎ Commissioner and ㊣ Faith Corps blocks (same entry on both)",
-      "◎ 直屬委員欄與 ㊣ 推薦人欄（兩欄相同）",
-    ),
+    sideFaith: p("㊣ Recommending Person block", "㊣ 推薦人欄"),
 
     // Shared field labels
     name: p("Name", "姓名"),
@@ -956,13 +952,32 @@ export const D = {
       "第 1 頁・第 (3)、(4) 項會隨輸入即時更新",
     ),
 
-    // Detail-panel entry point
+    // Detail-panel entry point + tab
     open: p("Add / edit form fields", "新增／編輯表單欄位"),
+    openExpanded: p("Open expanded editor", "開啟完整編輯"),
     notFilledYet: p(
       "Team & mentor fields not yet completed",
       "尚未填寫組隊與推薦人欄位",
     ),
     filledOn: p("Form fields saved %s", "表單欄位儲存於 %s"),
+    tab: p("Team & mentor", "組隊與推薦人"),
+
+    // Per-field input history dropdown
+    forget: p("Remove", "移除"),
+
+    // List status badge (fill progress) + completion
+    statusNone: p("Not started", "待處理"),
+    statusPartial: p("In progress", "填寫中"),
+    statusFilled: p("Filled", "已填寫"),
+    statusCompleted: p("Completed", "已完成"),
+    colFields: p("Fields", "欄位"),
+    colDone: p("Done", "完成"),
+    markComplete: p("Mark completed", "標記為已完成"),
+    markIncomplete: p("Mark not completed", "取消已完成標記"),
+    completeBlocked: p(
+      "Fill in the form fields for this applicant first.",
+      "請先完成這位報名者的表單欄位。",
+    ),
   },
 
   /* ------------------------------------------------------------------ *

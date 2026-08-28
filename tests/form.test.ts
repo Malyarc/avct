@@ -37,7 +37,9 @@ import {
   createEmptyAdminFills,
   createEmptyApplication,
   createFamilyMember,
+  fillStatusOf,
   isApplicationStarted,
+  type AdminFills,
   type ApplicationData,
 } from "../src/form/model";
 import {
@@ -253,6 +255,44 @@ describe("resolveTeamFills", () => {
     expect(r.concertedEffortTeam).toBe("");
     expect(r.concertedEffortTeamLeader).toEqual({ name: "", badgeNumber: "", tel: "" });
     expect(r.mutualLoveMentor.name).toBe("");
+  });
+});
+
+/* ------------------------------------------------------------------ *
+ * fillStatusOf — the list badge (none / partial / filled)
+ * ------------------------------------------------------------------ */
+
+describe("fillStatusOf", () => {
+  const full: AdminFills = {
+    harmonyTeam: "和氣一組",
+    mutualLoveTeam: "互愛三組",
+    concertedEffortTeam: "協力二組",
+    concertedEffortTeamLeader: { name: "林美惠", badgeNumber: "SA71204", tel: "626-555-0193" },
+    mutualLoveMentor: { name: "王淑芬", badgeNumber: "SA60318", tel: "626-555-0175" },
+    updatedAt: null,
+    completed: false,
+  };
+
+  it("is 'none' when every field is blank", () => {
+    expect(fillStatusOf(createEmptyAdminFills())).toBe("none");
+  });
+
+  it("is 'partial' when only some fields are filled", () => {
+    expect(fillStatusOf({ ...createEmptyAdminFills(), harmonyTeam: "和氣一組" })).toBe("partial");
+    expect(fillStatusOf({ ...full, mutualLoveMentor: { ...full.mutualLoveMentor, tel: "" } })).toBe(
+      "partial",
+    );
+  });
+
+  it("is 'filled' only when all nine fields are entered", () => {
+    expect(fillStatusOf(full)).toBe("filled");
+  });
+
+  it("ignores the completion flag and timestamp when counting", () => {
+    expect(fillStatusOf({ ...createEmptyAdminFills(), completed: true })).toBe("none");
+    expect(fillStatusOf({ ...full, completed: true, updatedAt: "2026-08-28T00:00:00.000Z" })).toBe(
+      "filled",
+    );
   });
 });
 
@@ -686,5 +726,12 @@ describe("normalizeAdminFills", () => {
     expect(f.concertedEffortTeamLeader).toEqual({ name: "", badgeNumber: "", tel: "" });
     expect(f.mutualLoveMentor).toEqual({ name: "", badgeNumber: "", tel: "" });
     expect(f.updatedAt).toBeNull();
+  });
+
+  it("reads completed only as a literal true", () => {
+    expect(normalizeAdminFills({}).completed).toBe(false);
+    expect(normalizeAdminFills({ completed: "yes" }).completed).toBe(false);
+    expect(normalizeAdminFills({ completed: 1 }).completed).toBe(false);
+    expect(normalizeAdminFills({ completed: true }).completed).toBe(true);
   });
 });

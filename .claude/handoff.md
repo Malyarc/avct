@@ -26,35 +26,37 @@ the source `.docx` is present. One renderer serves preview, print and PDF.
 form reads; 中文 is Traditional Chinese throughout. Switchable in the header of
 every page, persisted per browser.
 
-## Latest change — admin form-fill for sections (3)/(4) (local, not deployed)
+## Latest change — admin form-fill for sections (3)/(4)
 
-Admins can now complete the department's own cells on a submitted application.
-From the dashboard detail panel, **Add / edit form fields** opens a focused
-editor (`src/routes/AdminFillEditor.tsx`) with a live A4 preview showing exactly
-where each value lands. The nine editable cells are the green highlights on the
-8.24.2026 sheet: section (3) team allocation (和氣 / 互愛 / 協力 and the 協力組隊長
-name/badge/tel) and the section (4) 同互愛(或和氣)之直屬委員／推薦人 (name/badge/
-tel). Save writes them to `data.adminFills` — **no schema change**: it lives in
-the existing JSONB and flows through `normalizeApplication` like every other
-field — and the preview, print and PDF pick them up immediately.
+Admins complete the department's own cells on a submitted application — the nine
+green highlights on the 8.24.2026 sheet: section (3) team allocation (和氣/互愛/
+協力 and the 協力組隊長 name/badge/tel) and the section (4) 同互愛之直屬委員／推薦人
+(name/badge/tel). Stored in `data.adminFills` — **no schema change**, it rides
+the existing JSONB. Two surfaces share the fields (`AdminFillFields`), each box
+carrying a remembered-input dropdown (`src/lib/fillHistory.ts`, per-browser,
+click to fill, × to forget):
 
-**One input, printed like a hand-filled paper.** The Mutual Love mentor is a
-single input in the editor; the form writes it on every parallel line whose
-track applies — the ◎ line for a commissioner, the ㊣ line for Faith Corps, and
-BOTH lines for a both-track applicant, because the form's key marks ◎ mandatory
-for Commissioner and ㊣ mandatory for Faith Corps and that is how a person fills
-the paper (the fixed direct mentor already prints on both blocks for "both").
-`resolveTeamFills` in `src/form/defaults.ts` is the one place fills merge over
-the (blank) defaults; the document renderer and the admin answers read-out both
-call it.
+- **Expanded editor** (`AdminFillEditor`, "Add / edit form fields") — live A4
+  preview; on Save it returns to `/admin` with the applicant still selected.
+- **Team-&-mentor tab** (`AdminFillTab`) in the detail panel — the same fields,
+  single-column, no instructions, saves in place.
 
-Server: `PUT /api/admin/applications/:id` re-normalises the stored answers and
-replaces only `adminFills`, stamping `updatedAt` itself so a client value is
-never trusted. Verified live against a local mock backend across all three
-tracks (placement DOM-checked: mentor on each applicable line, both for "both"),
-both languages, desktop and mobile; the save round-trip, the detail-panel
-saved / not-filled status, and the capped-height preview were all walked
-through. Lint/typecheck/130 tests/build green; layout audit 0/140.
+**Placement (each applicant listed once).** Commissioner-only → ◎ blocks; Faith
+Corps → ㊣ blocks; **both → ㊣ side only, the two ◎ Commissioner mentor rows stay
+blank** (the `commissionerOnly` gate). `resolveTeamFills` in `defaults.ts` is the
+one merge point; the renderer and answers read-out both call it.
+
+**List indicators.** A gentle status badge per row (`fillStatusOf`:
+none → rose "Not started", partial → amber "In progress", filled → green
+"Filled", plus green "Completed"), and a circular completion toggle left of the
+name. Completing is blocked until every field is filled — the server returns 422
+and the list shows a gentle auto-dismissing toast.
+
+Server: `PUT /api/admin/applications/:id` takes `{adminFills}` (replace) or
+`{completed}` (toggle); it re-normalises the stored answers, touches only
+`adminFills`, and stamps `updatedAt` itself. Verified live (local mock) across
+all three tracks (placement DOM-checked), both languages, desktop, and 320/390px
+mobile; lint/typecheck/139 tests/build green.
 
 ## Latest change — Excel-driven overhaul (not yet deployed)
 

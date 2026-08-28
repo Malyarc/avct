@@ -150,7 +150,7 @@ describe("ApplicationDocument", () => {
     expect(faith.container.textContent).not.toContain("Ling Ling Hsu");
   });
 
-  it("fills both numbers and both direct-mentor blocks when both tracks are chosen", () => {
+  it("fills both numbers and lists the mentor once on the ㊣ side for both tracks", () => {
     const both = render(
       <ApplicationDocument
         data={filled({ track: "both", fundraisingNumber: "SA88214", memberNumber: "MB90210" })}
@@ -159,8 +159,10 @@ describe("ApplicationDocument", () => {
     const text = both.container.textContent ?? "";
     expect(text).toContain("SA88214");
     expect(text).toContain("MB90210");
-    // Both ◎ and ㊣ direct-mentor blocks fill; the Mutual Love mentors are blank.
-    expect(text).toContain("Ashley Yong 楊妤緗");
+    // For "both" the two ◎ Commissioner mentor rows are blank; the direct mentor
+    // prints once, on the ㊣ Recommending Person line.
+    expect(text.split("Ashley Yong 楊妤緗").length - 1).toBe(1);
+    expect(text.indexOf("Ashley Yong 楊妤緗")).toBeGreaterThan(text.indexOf("㊣推薦人"));
     expect(text).not.toContain("Ling Ling Hsu");
     expect(text).not.toContain("Ju Shua Tan");
   });
@@ -267,6 +269,7 @@ const ADMIN_FILLS = {
   },
   mutualLoveMentor: { name: "Mentor-MLX9137", badgeNumber: "SA60318", tel: "626-555-0175" },
   updatedAt: "2026-08-27T00:00:00.000Z",
+  completed: false,
 };
 
 const occurrences = (haystack: string, needle: string) => haystack.split(needle).length - 1;
@@ -306,17 +309,31 @@ describe("admin fills — sections (3) and (4)", () => {
     expect(text.indexOf("Mentor-MLX9137")).toBeGreaterThan(text.indexOf("㊣推薦人"));
   });
 
-  it("writes the one mentor entry on both lines when both tracks are chosen", () => {
+  it("lists the mentor once, on the ㊣ side, and blanks the ◎ rows for both tracks", () => {
     const { container } = render(
       <ApplicationDocument data={filled({ track: "both", adminFills: ADMIN_FILLS })} />,
     );
     const text = container.textContent ?? "";
-    // A both-track applicant hand-filling the paper satisfies both tracks'
-    // mandatory fields, so the single admin entry prints on the ◎ line AND the
-    // ㊣ line — exactly as the direct mentor (Ashley Yong) already does.
-    expect(occurrences(text, "Mentor-MLX9137")).toBe(2);
+    // A both-track applicant is listed once, on the ㊣ Recommending Person side;
+    // both ◎ Commissioner mentor rows stay blank (no double-listing).
+    expect(occurrences(text, "Mentor-MLX9137")).toBe(1);
+    expect(text.indexOf("Mentor-MLX9137")).toBeGreaterThan(text.indexOf("㊣推薦人"));
+    // The ◎ direct mentor (Ashley Yong) is also blank for both — it prints only
+    // on the ㊣ Recommending Person line.
+    expect(occurrences(text, "Ashley Yong 楊妤緗")).toBe(1);
+    expect(text.indexOf("Ashley Yong 楊妤緗")).toBeGreaterThan(text.indexOf("㊣推薦人"));
+  });
+
+  it("fills the ◎ mentor rows, and leaves the ㊣ side blank, for a commissioner", () => {
+    const { container } = render(
+      <ApplicationDocument data={filled({ track: "commissioner", adminFills: ADMIN_FILLS })} />,
+    );
+    const text = container.textContent ?? "";
+    expect(occurrences(text, "Mentor-MLX9137")).toBe(1);
     expect(text.indexOf("Mentor-MLX9137")).toBeLessThan(text.indexOf("㊣推薦人"));
-    expect(text.lastIndexOf("Mentor-MLX9137")).toBeGreaterThan(text.indexOf("㊣推薦人"));
+    // ◎ direct mentor prints; the ㊣ recommending person is blank.
+    expect(occurrences(text, "Ashley Yong 楊妤緗")).toBe(1);
+    expect(text.indexOf("Ashley Yong 楊妤緗")).toBeLessThan(text.indexOf("㊣推薦人"));
   });
 
   it("leaves sections (3)/(4) blank when there are no admin fills", () => {

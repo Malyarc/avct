@@ -134,6 +134,7 @@ export function normalizeAdminFills(value: unknown): AdminFills {
     concertedEffortTeamLeader: adminFillPerson(raw.concertedEffortTeamLeader),
     mutualLoveMentor: adminFillPerson(raw.mutualLoveMentor),
     updatedAt: isoTimestamp(raw.updatedAt),
+    completed: raw.completed === true,
   };
 }
 

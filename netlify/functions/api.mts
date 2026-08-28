@@ -14,6 +14,7 @@
 
 import type { Config, Context } from "@netlify/functions";
 import { normalizeAdminFills, normalizeApplication } from "../../src/form/normalize";
+import { fillStatusOf } from "../../src/form/model";
 import { normalizeGuidelinesOverride } from "../../src/content/guidelinesContent";
 import { validateAll } from "../../src/form/steps";
 import { sql, hasDatabase, ConfigError } from "./_lib/db.mts";
@@ -46,9 +47,17 @@ interface ApplicationRow {
   submitted_at: string | Date;
   archived_at?: string | Date | null;
   data?: unknown;
+  admin_fills?: unknown;
 }
 
 function toSummary(row: ApplicationRow) {
+  // The list query selects just `data->'adminFills'`; the detail query selects
+  // the whole `data`. Accept either so the fill status/badge is always present.
+  const source =
+    row.admin_fills !== undefined
+      ? row.admin_fills
+      : (row.data as { adminFills?: unknown } | undefined)?.adminFills;
+  const fills = normalizeAdminFills(source);
   return {
     id: row.id,
     reference: row.reference,
@@ -60,6 +69,8 @@ function toSummary(row: ApplicationRow) {
     telMobile: row.tel_mobile ?? "",
     submittedAt: new Date(row.submitted_at).toISOString(),
     archivedAt: row.archived_at ? new Date(row.archived_at).toISOString() : null,
+    fillStatus: fillStatusOf(fills),
+    completed: fills.completed,
   };
 }
 
@@ -184,7 +195,7 @@ async function adminList(archived: boolean): Promise<Response> {
       archived
         ? await sql()`
             SELECT id, reference, track, chinese_name, first_name, surname, email,
-                   tel_mobile, submitted_at, archived_at
+                   tel_mobile, submitted_at, archived_at, data->'adminFills' AS admin_fills
               FROM applications
              WHERE archived_at IS NOT NULL
           ORDER BY archived_at DESC
@@ -192,7 +203,7 @@ async function adminList(archived: boolean): Promise<Response> {
           `
         : await sql()`
             SELECT id, reference, track, chinese_name, first_name, surname, email,
-                   tel_mobile, submitted_at, archived_at
+                   tel_mobile, submitted_at, archived_at, data->'adminFills' AS admin_fills
               FROM applications
              WHERE archived_at IS NULL
           ORDER BY submitted_at DESC
@@ -254,11 +265,12 @@ async function adminGet(id: string): Promise<Response> {
 }
 
 /**
- * Save the department-completed cells (sections (3)/(4)) for one submission.
- * Only `data.adminFills` is touched: the stored answers are re-normalised and
- * everything the applicant submitted is preserved verbatim, so this endpoint can
- * never be used to rewrite an application. The updated record is returned so the
- * dashboard can refresh the preview without a second round-trip.
+ * Update the department-completed cells (sections (3)/(4)) for one submission.
+ * Two shapes: `{ adminFills }` replaces the fill fields; `{ completed }` toggles
+ * only the completion flag. Only `data.adminFills` is touched — the stored
+ * answers are re-normalised and everything the applicant submitted is preserved
+ * verbatim, so this endpoint can never rewrite an application. The updated
+ * record is returned so the dashboard can refresh without a second round-trip.
  */
 async function adminUpdateFills(id: string, request: Request): Promise<Response> {
   if (!UUID.test(id)) return notFound("No such application.");
@@ -273,18 +285,37 @@ async function adminUpdateFills(id: string, request: Request): Promise<Response>
     }
     return badRequest("The request could not be read.");
   }
-
-  const fills = normalizeAdminFills((body as { adminFills?: unknown } | null)?.adminFills);
-  // The server stamps the time; a client value is never trusted.
-  fills.updatedAt = new Date().toISOString();
+  const raw = body as { adminFills?: unknown; completed?: unknown } | null;
 
   try {
     const rows = (await sql()`
       SELECT data FROM applications WHERE id = ${id}::uuid
     `) as ApplicationRow[];
     if (rows.length === 0) return notFound("No such application.");
+    const existing = normalizeApplication(rows[0].data);
 
-    const next = { ...normalizeApplication(rows[0].data), adminFills: fills };
+    let nextFills;
+    if (raw?.adminFills !== undefined) {
+      // Save the fill fields. The server stamps the time; a client value is
+      // never trusted. Completion survives only while every field stays filled.
+      const fills = normalizeAdminFills(raw.adminFills);
+      fills.updatedAt = new Date().toISOString();
+      fills.completed = existing.adminFills.completed && fillStatusOf(fills) === "filled";
+      nextFills = fills;
+    } else if (typeof raw?.completed === "boolean") {
+      // Toggle completion only. Cannot be set until every field is filled.
+      if (raw.completed && fillStatusOf(existing.adminFills) !== "filled") {
+        return json(
+          { error: "Fill in every form field before marking this applicant complete." },
+          422,
+        );
+      }
+      nextFills = { ...existing.adminFills, completed: raw.completed };
+    } else {
+      return badRequest("Nothing to update.");
+    }
+
+    const next = { ...existing, adminFills: nextFills };
 
     const [updated] = (await sql()`
       UPDATE applications

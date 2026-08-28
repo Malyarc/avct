@@ -67,24 +67,33 @@ print. The Neon `applications.track` CHECK constraint must allow `both` — the
 widened constraint is in `db/schema.sql`, so `npm run db:migrate` has to run
 when this deploys or "both" submissions are rejected.
 
-**Admin fills complete sections (3)/(4); entered once, printed as a human
-hand-fills the paper.** The department's own cells — the green highlights on the
-8.24.2026 sheet — are filled per applicant by an admin, not by the applicant,
-and stored in `data.adminFills` (the applicant's copy is always empty). They are
-section (3) team allocation (和氣/互愛/協力 and the 協力組隊長 name/badge/tel)
-and the section (4) 同互愛之直屬委員／推薦人 (name/badge/tel).
-`resolveTeamFills()` in `defaults.ts` merges the fills over the (blank) track
-defaults and is the single place that merge happens — the document renderer and
-`AdminAnswers` both call it. The Mutual Love mentor is ONE input in the editor;
-`ApplicationDocument` writes it on every parallel line whose track applies —
-the ◎ line for `commissioner`, the ㊣ line for `faithCorps`, BOTH lines for
-`both` — because the form's own key marks ◎ mandatory for Commissioner and ㊣
-mandatory for Faith Corps, and that is how one person hand-fills the paper (the
-direct mentor already fills both blocks for `both`; keep the two consistent).
-`AdminFillEditor` is the UI; the save goes through
-`PUT /api/admin/applications/:id`, which replaces only `adminFills` and stamps
-`updatedAt` server-side. No schema change — it rides the existing `data` JSONB
-and is sanitised by `normalizeAdminFills`.
+**Admin fills complete sections (3)/(4); each applicant listed once.** The
+department's own cells — the green highlights on the 8.24.2026 sheet — are filled
+per applicant by an admin, not by the applicant, and stored in `data.adminFills`
+(the applicant's copy is always empty). They are section (3) team allocation
+(和氣/互愛/協力 and the 協力組隊長 name/badge/tel) and the section (4)
+同互愛之直屬委員／推薦人 (name/badge/tel). `resolveTeamFills()` in `defaults.ts`
+merges the fills over the (blank) track defaults and is the single merge point —
+the document renderer and `AdminAnswers` both call it.
+
+Placement by track (`ApplicationDocument`, PageOne): a **Commissioner-only**
+applicant fills the ◎ blocks (Commissioner Mentor + ◎ Mutual Love mentor), ㊣
+blank. A **Faith-Corps** applicant fills the ㊣ blocks (Recommending Person + ㊣
+Mutual Love mentor), ◎ blank. A **both**-track applicant is listed once on the
+㊣ side only — the two ◎ Commissioner mentor rows (直屬委員 and 同互愛之直屬委員)
+stay blank, so nothing is double-listed. The `commissionerOnly = commissioner &&
+!faithCorps` gate drives the ◎ rows (including the fixed direct mentor).
+
+State & UI: `adminFills` also carries `completed` (an explicit admin flag) and
+`updatedAt`. `fillStatusOf()` derives the list badge — `none`/`partial`/`filled`
+over the nine fields; `completed` can only be set once `filled` (server enforces
+422, the list shows a gentle toast). Two fill surfaces share `AdminFillFields`
+(with a remembered-input dropdown per box, `src/lib/fillHistory.ts`): the
+expanded `AdminFillEditor` (live preview) and the detail-panel Team-&-mentor tab
+(`AdminFillTab`). The save goes through `PUT /api/admin/applications/:id`, which
+replaces only `adminFills` (or toggles `completed`) and stamps `updatedAt`
+server-side. No schema change — it rides the existing `data` JSONB and is
+sanitised by `normalizeAdminFills`; the list query reads `data->'adminFills'`.
 
 **Derived state uses `update()`, never `set()`.** A handler that computes from
 the current answers (toggling a checkbox, adding a family row) must use the
@@ -216,11 +225,11 @@ migration runs the page simply shows the built-in defaults.
 
 | File | Covers |
 |---|---|
-| `tests/form.test.ts` | Catalog transcription, track defaults, every validation rule in isolation, `normalizeApplication` / `normalizeAdminFills` against hostile input, `resolveTeamFills` merge |
-| `tests/document.test.tsx` | Eight pages, answers in the right cells, ticks, section (17) modes, signature placement, admin-fill placement (mentor on each applicable line; both lines for "both"), file naming |
+| `tests/form.test.ts` | Catalog transcription, track defaults, every validation rule in isolation, `normalizeApplication` / `normalizeAdminFills` against hostile input, `resolveTeamFills` merge, `fillStatusOf` |
+| `tests/document.test.tsx` | Eight pages, answers in the right cells, ticks, section (17) modes, signature placement, admin-fill placement (◎ for commissioner, ㊣ for faith corps / both, once), file naming |
 | `tests/fidelity.test.tsx` | Every phrase of the official `.docx` present in the render, sections in order, footers |
 | `tests/i18n.test.ts` | Both languages filled in for every phrase, matching placeholders, no English left in a Chinese slot |
-| `tests/api.test.ts` | The `PUT /api/admin/applications/:id` fill-save handler: admin-only, writes only `adminFills`, preserves the applicant's answers, stamps `updatedAt` server-side |
+| `tests/api.test.ts` | `PUT /api/admin/applications/:id`: admin-only, writes only `adminFills`, preserves answers, stamps `updatedAt`; completion toggle gated on `filled` (422 otherwise) |
 
 Validation rules are mutation-tested: deleting any single rule from
 `src/form/steps.ts` must fail the suite.

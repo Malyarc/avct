@@ -1,43 +1,32 @@
 /**
- * Admin editor for the department-completed cells of one submission — the green
- * section (3)/(4) fields on the 8.24.2026 sheet. The admin fills the team
- * allocation and the single Mutual Love (or Harmony) Team Mentor; the live
- * preview on the right shows exactly where each value lands, and Save writes the
- * fills back to `data.adminFills` so the preview, print and PDF stay in sync.
- *
- * The applicant's own answers are never editable here — only `adminFills`.
+ * Expanded editor for the department-completed cells of one submission — the
+ * green section (3)/(4) fields on the 8.24.2026 sheet — with a live preview of
+ * exactly where each value lands. Save writes the fills to `data.adminFills`
+ * (the applicant's own answers are never touched) and returns to the dashboard
+ * with the applicant still selected. The same fields, with the same remembered-
+ * input dropdowns, also live in the detail panel's Form-fields tab.
  */
 
 import { useMemo, useRef, useState } from "react";
-import {
-  adminUpdateApplicationFills,
-  type ApplicationRecord,
-} from "../lib/api";
+import { adminUpdateApplicationFills, type ApplicationRecord } from "../lib/api";
 import { applicantFullName, createEmptyAdminFills, type AdminFills } from "../form/model";
+import { recordFillHistory } from "../lib/fillHistory";
 import { exportDocumentAsPdf, type ExportProgress } from "../document/pdf";
 import { DocumentViewer } from "../components/DocumentViewer";
+import { AdminFillFields } from "../components/AdminFillFields";
 import { LanguageToggle } from "../components/Chrome";
 import { useT } from "../i18n/language";
 import { D, format } from "../i18n/dictionary";
 import type { Phrase } from "../i18n/types";
-import {
-  ArrowLeftIcon,
-  Button,
-  Callout,
-  DownloadIcon,
-  Field,
-  PrintIcon,
-  SpinnerIcon,
-  TextInput,
-} from "../components/ui";
+import { ArrowLeftIcon, Button, Callout, DownloadIcon, PrintIcon, SpinnerIcon } from "../components/ui";
 
 type Person = AdminFills["concertedEffortTeamLeader"];
 
 const samePerson = (x: Person, y: Person) =>
   x.name === y.name && x.badgeNumber === y.badgeNumber && x.tel === y.tel;
 
-/** Compares two fill sets ignoring the server-stamped timestamp. */
-function sameFills(a: AdminFills, b: AdminFills): boolean {
+/** Compares two fill sets ignoring bookkeeping (timestamp, completion). */
+export function sameFills(a: AdminFills, b: AdminFills): boolean {
   return (
     a.harmonyTeam === b.harmonyTeam &&
     a.mutualLoveTeam === b.mutualLoveTeam &&
@@ -45,6 +34,15 @@ function sameFills(a: AdminFills, b: AdminFills): boolean {
     samePerson(a.concertedEffortTeamLeader, b.concertedEffortTeamLeader) &&
     samePerson(a.mutualLoveMentor, b.mutualLoveMentor)
   );
+}
+
+/** A deep copy so edits never mutate the record's stored fills. */
+export function cloneFills(fills: AdminFills): AdminFills {
+  return {
+    ...fills,
+    concertedEffortTeamLeader: { ...fills.concertedEffortTeamLeader },
+    mutualLoveMentor: { ...fills.mutualLoveMentor },
+  };
 }
 
 export function AdminFillEditor({
@@ -56,14 +54,10 @@ export function AdminFillEditor({
   onBack: () => void;
   onSaved: (record: ApplicationRecord) => void;
 }) {
-  const { s: str, t, isZh } = useT();
-  const [draft, setDraft] = useState<AdminFills>(() => ({
-    ...record.data.adminFills,
-    concertedEffortTeamLeader: { ...record.data.adminFills.concertedEffortTeamLeader },
-    mutualLoveMentor: { ...record.data.adminFills.mutualLoveMentor },
-  }));
+  const { s: str, isZh } = useT();
+  const [draft, setDraft] = useState<AdminFills>(() => cloneFills(record.data.adminFills));
   const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState<{ ok: boolean; message: Phrase } | null>(null);
+  const [error, setError] = useState<Phrase | null>(null);
 
   const documentRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState<ExportProgress | null>(null);
@@ -72,49 +66,26 @@ export function AdminFillEditor({
   const dirty = useMemo(() => !sameFills(draft, record.data.adminFills), [draft, record]);
 
   // Preview from the current draft, so sections (3)/(4) update as the admin types.
-  const previewData = useMemo(
-    () => ({ ...record.data, adminFills: draft }),
-    [record.data, draft],
-  );
+  const previewData = useMemo(() => ({ ...record.data, adminFills: draft }), [record.data, draft]);
 
-  const setField = (key: "harmonyTeam" | "mutualLoveTeam" | "concertedEffortTeam", value: string) => {
-    setStatus(null);
-    setDraft((prev) => ({ ...prev, [key]: value }));
-  };
-  const setPerson = (
-    key: "concertedEffortTeamLeader" | "mutualLoveMentor",
-    field: keyof Person,
-    value: string,
-  ) => {
-    setStatus(null);
-    setDraft((prev) => ({ ...prev, [key]: { ...prev[key], [field]: value } }));
-  };
-
-  const clearAll = () => {
-    setStatus(null);
-    setDraft(createEmptyAdminFills());
+  const change = (next: AdminFills) => {
+    setError(null);
+    setDraft(next);
   };
 
   const save = async () => {
     setSaving(true);
-    setStatus(null);
+    setError(null);
     const result = await adminUpdateApplicationFills(record.id, draft);
     setSaving(false);
     if (!result.ok) {
-      setStatus({ ok: false, message: result.error });
+      setError(result.error);
       return;
     }
-    // Adopt the server's canonical record (its stamped updatedAt included) so the
-    // dirty check resets and the parent list/detail can refresh.
+    recordFillHistory(draft);
     onSaved(result.value.application);
-    setDraft({
-      ...result.value.application.data.adminFills,
-      concertedEffortTeamLeader: {
-        ...result.value.application.data.adminFills.concertedEffortTeamLeader,
-      },
-      mutualLoveMentor: { ...result.value.application.data.adminFills.mutualLoveMentor },
-    });
-    setStatus({ ok: true, message: D.adminFill.saved });
+    // Back to the dashboard with this applicant still selected.
+    onBack();
   };
 
   const downloadPdf = async () => {
@@ -132,13 +103,9 @@ export function AdminFillEditor({
   };
 
   const mentorSide =
-    record.track === "faithCorps"
-      ? D.adminFill.sideFaith
-      : record.track === "both"
-        ? D.adminFill.sideBoth
-        : D.adminFill.sideCommissioner;
-
-  const name = isZh && record.chineseName ? record.chineseName : `${record.firstName} ${record.surname}`;
+    record.track === "commissioner" ? D.adminFill.sideCommissioner : D.adminFill.sideFaith;
+  const name =
+    isZh && record.chineseName ? record.chineseName : `${record.firstName} ${record.surname}`;
 
   return (
     <div className="flex min-h-dvh flex-col bg-paper">
@@ -182,111 +149,25 @@ export function AdminFillEditor({
           <div className="flex flex-col gap-1.5">
             <span className="eyebrow text-accent-text">{str(D.adminFill.eyebrow)}</span>
             <h1 className="text-[1.75rem]">{str(D.adminFill.heading)}</h1>
-            <p className="text-[0.9375rem] leading-relaxed text-muted">
-              {str(D.adminFill.subtitle)}
-            </p>
+            <p className="text-[0.9375rem] leading-relaxed text-muted">{str(D.adminFill.subtitle)}</p>
           </div>
 
-          {/* Section (3) */}
-          <section className="flex flex-col gap-4">
-            <SectionHeading n="3" phrase={D.adminFill.section3} />
-            <Field label={t(D.adminFill.harmonyTeam)}>
-              <TextInput
-                value={draft.harmonyTeam}
-                maxLength={120}
-                onChange={(e) => setField("harmonyTeam", e.target.value)}
-              />
-            </Field>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label={t(D.adminFill.mutualLoveTeam)}>
-                <TextInput
-                  value={draft.mutualLoveTeam}
-                  maxLength={120}
-                  onChange={(e) => setField("mutualLoveTeam", e.target.value)}
-                />
-              </Field>
-              <Field label={t(D.adminFill.concertedEffortTeam)}>
-                <TextInput
-                  value={draft.concertedEffortTeam}
-                  maxLength={120}
-                  onChange={(e) => setField("concertedEffortTeam", e.target.value)}
-                />
-              </Field>
-            </div>
+          <AdminFillFields
+            value={draft}
+            onChange={change}
+            mentorNote={
+              <Callout tone="success" className="items-start">
+                <div className="flex flex-col gap-1">
+                  <span>{str(D.adminFill.mentorHint)}</span>
+                  <span className="text-[0.78125rem] text-muted">
+                    {format(str(D.adminFill.printsOn), str(mentorSide))}
+                  </span>
+                </div>
+              </Callout>
+            }
+          />
 
-            <div className="flex flex-col gap-4 rounded-2xl border border-line bg-paper p-4">
-              <span className="text-[0.8125rem] font-semibold text-muted">
-                {t(D.adminFill.teamLeader)}
-              </span>
-              <Field label={t(D.adminFill.name)}>
-                <TextInput
-                  value={draft.concertedEffortTeamLeader.name}
-                  maxLength={120}
-                  onChange={(e) => setPerson("concertedEffortTeamLeader", "name", e.target.value)}
-                />
-              </Field>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={t(D.adminFill.badge)}>
-                  <TextInput
-                    value={draft.concertedEffortTeamLeader.badgeNumber}
-                    maxLength={60}
-                    onChange={(e) =>
-                      setPerson("concertedEffortTeamLeader", "badgeNumber", e.target.value)
-                    }
-                  />
-                </Field>
-                <Field label={t(D.adminFill.tel)}>
-                  <TextInput
-                    value={draft.concertedEffortTeamLeader.tel}
-                    maxLength={60}
-                    inputMode="tel"
-                    onChange={(e) => setPerson("concertedEffortTeamLeader", "tel", e.target.value)}
-                  />
-                </Field>
-              </div>
-            </div>
-          </section>
-
-          {/* Section (4) */}
-          <section className="flex flex-col gap-4">
-            <SectionHeading n="4" phrase={D.adminFill.section4} />
-            <Callout tone="success" className="items-start">
-              <div className="flex flex-col gap-1">
-                <span>{str(D.adminFill.mentorHint)}</span>
-                <span className="text-[0.78125rem] text-muted">
-                  {format(str(D.adminFill.printsOn), str(mentorSide))}
-                </span>
-              </div>
-            </Callout>
-            <Field label={t(D.adminFill.name)}>
-              <TextInput
-                value={draft.mutualLoveMentor.name}
-                maxLength={120}
-                onChange={(e) => setPerson("mutualLoveMentor", "name", e.target.value)}
-              />
-            </Field>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label={t(D.adminFill.badge)}>
-                <TextInput
-                  value={draft.mutualLoveMentor.badgeNumber}
-                  maxLength={60}
-                  onChange={(e) => setPerson("mutualLoveMentor", "badgeNumber", e.target.value)}
-                />
-              </Field>
-              <Field label={t(D.adminFill.tel)}>
-                <TextInput
-                  value={draft.mutualLoveMentor.tel}
-                  maxLength={60}
-                  inputMode="tel"
-                  onChange={(e) => setPerson("mutualLoveMentor", "tel", e.target.value)}
-                />
-              </Field>
-            </div>
-          </section>
-
-          {status ? (
-            <Callout tone={status.ok ? "success" : "error"}>{str(status.message)}</Callout>
-          ) : null}
+          {error ? <Callout tone="error">{str(error)}</Callout> : null}
         </div>
 
         {/* ── Right: live preview ──────────────────────────────── */}
@@ -348,7 +229,7 @@ export function AdminFillEditor({
         <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3">
           <button
             type="button"
-            onClick={clearAll}
+            onClick={() => change(createEmptyAdminFills())}
             disabled={saving}
             title={str(D.adminFill.clearHint)}
             className="avct-textbutton text-[0.84rem] font-semibold text-muted transition-colors hover:text-ink disabled:opacity-40"
@@ -372,16 +253,6 @@ export function AdminFillEditor({
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function SectionHeading({ n, phrase }: { n: string; phrase: Phrase }) {
-  const { t } = useT();
-  return (
-    <div className="flex items-baseline gap-2 border-b border-line-soft pb-2">
-      <span className="font-display text-[0.95rem] font-semibold text-ink">({n})</span>
-      <span className="font-display text-[0.95rem] font-semibold text-ink">{t(phrase)}</span>
     </div>
   );
 }

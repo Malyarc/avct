@@ -6,7 +6,7 @@
  * minutes filling in a form must never see an unhandled rejection.
  */
 
-import type { AdminFills, ApplicationData } from "../form/model";
+import type { AdminFills, ApplicationData, FillStatus } from "../form/model";
 import type { GuidelinesOverride } from "../content/guidelinesContent";
 import { D } from "../i18n/dictionary";
 import type { Phrase } from "../i18n/types";
@@ -25,6 +25,10 @@ export interface ApplicationSummary {
   submittedAt: string;
   /** Non-null once the submission has been moved to the Archive. */
   archivedAt: string | null;
+  /** Whether the admin has filled none / some / all of the section (3)/(4) cells. */
+  fillStatus: FillStatus;
+  /** The admin has marked this applicant fully completed. */
+  completed: boolean;
 }
 
 export interface ApplicationRecord extends ApplicationSummary {
@@ -127,6 +131,17 @@ export function adminUpdateApplicationFills(
   return request(`/admin/applications/${encodeURIComponent(id)}`, {
     method: "PUT",
     json: { adminFills },
+  });
+}
+
+/** Mark an applicant completed / not completed (only allowed once all fields filled). */
+export function adminSetCompleted(
+  id: string,
+  completed: boolean,
+): Promise<ApiResult<{ application: ApplicationRecord }>> {
+  return request(`/admin/applications/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    json: { completed },
   });
 }
 

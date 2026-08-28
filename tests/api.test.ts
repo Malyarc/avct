@@ -69,6 +69,16 @@ function putFills(cookie: string | null, body: unknown): Request {
   });
 }
 
+const FILLED_FILLS = {
+  harmonyTeam: "和氣一組",
+  mutualLoveTeam: "互愛三組",
+  concertedEffortTeam: "協力二組",
+  concertedEffortTeamLeader: { name: "林美惠", badgeNumber: "SA71204", tel: "626-555-0193" },
+  mutualLoveMentor: { name: "王淑芬", badgeNumber: "SA60318", tel: "626-555-0175" },
+  updatedAt: "2026-08-28T00:00:00.000Z",
+  completed: false,
+};
+
 describe("PUT /api/admin/applications/:id", () => {
   beforeEach(() => {
     lastWritten = null;
@@ -138,5 +148,30 @@ describe("PUT /api/admin/applications/:id", () => {
       body: JSON.stringify({ adminFills: {} }),
     });
     expect((await handler(req, ctx)).status).toBe(404);
+  });
+
+  it("marks completed once every field is filled", async () => {
+    storedData = { track: "commissioner", adminFills: FILLED_FILLS };
+    const res = await handler(putFills(await authedCookie(), { completed: true }), ctx);
+    expect(res.status).toBe(200);
+    const payload = (await res.json()) as { application: { data: Record<string, unknown> } };
+    const fills = payload.application.data.adminFills as { completed: boolean; harmonyTeam: string };
+    expect(fills.completed).toBe(true);
+    // The fill fields are untouched by a completion toggle.
+    expect(fills.harmonyTeam).toBe("和氣一組");
+  });
+
+  it("refuses to complete while fields are still missing", async () => {
+    // beforeEach leaves the stored data without adminFills → fill status "none".
+    const res = await handler(putFills(await authedCookie(), { completed: true }), ctx);
+    expect(res.status).toBe(422);
+  });
+
+  it("allows un-completing regardless of fill status", async () => {
+    storedData = { track: "commissioner", adminFills: { ...FILLED_FILLS, completed: true } };
+    const res = await handler(putFills(await authedCookie(), { completed: false }), ctx);
+    expect(res.status).toBe(200);
+    const payload = (await res.json()) as { application: { data: Record<string, unknown> } };
+    expect((payload.application.data.adminFills as { completed: boolean }).completed).toBe(false);
   });
 });

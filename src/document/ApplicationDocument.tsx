@@ -118,6 +118,10 @@ function PageOne({ data }: { data: ApplicationData }) {
   const d = defaultsFor(data.track);
   const commissioner = hasCommissioner(data.track);
   const faithCorps = hasFaithCorps(data.track);
+  // A "both" applicant lists the mentor once — on the ㊣ Recommending Person
+  // side — and the two ◎ Commissioner mentor rows are left blank, so the
+  // ◎ block fills only for a Commissioner-only applicant.
+  const commissionerOnly = commissioner && !faithCorps;
   // Section (3)/(4) cells the department completes after submission, merged over
   // the (blank) track defaults. The single Mutual Love mentor is placed below.
   const fills = resolveTeamFills(data);
@@ -208,9 +212,9 @@ function PageOne({ data }: { data: ApplicationData }) {
         <strong>(4)</strong> ◎直屬委員Commissioner Mentor
       </div>
       <div className="doc-p" style={{ paddingLeft: "5mm" }}>
-        姓名Name:<Line width="30mm">{commissioner ? dc.directMentor.name : ""}</Line>　證號Badge
-        Number:<Line width="22mm">{commissioner ? dc.directMentor.badgeNumber : ""}</Line>
-        　電話Tel:<Line width="26mm">{commissioner ? dc.directMentor.tel : ""}</Line>
+        姓名Name:<Line width="30mm">{commissionerOnly ? dc.directMentor.name : ""}</Line>　證號Badge
+        Number:<Line width="22mm">{commissionerOnly ? dc.directMentor.badgeNumber : ""}</Line>
+        　電話Tel:<Line width="26mm">{commissionerOnly ? dc.directMentor.tel : ""}</Line>
       </div>
       <div className="doc-en-note" style={{ color: "#4a4a4a", marginTop: "0.6mm" }}>
         若與您不同社區，請其或組隊協助推薦與您同互愛(或和氣)之委員，承擔您的資深委員，並填入以下資料：
@@ -223,10 +227,12 @@ function PageOne({ data }: { data: ApplicationData }) {
         ◎同互愛(或和氣)之直屬委員Mutual Love (or Harmony) Team Mentor
       </div>
       <div className="doc-p" style={{ paddingLeft: "5mm" }}>
-        姓名Name:<Line width="30mm">{commissioner ? fills.mutualLoveMentor.name : ""}</Line>
+        {/* Commissioner-only: for "both" this ◎ row stays blank and the mentor
+            prints on the ㊣ side below, so a both-track form is filled once. */}
+        姓名Name:<Line width="30mm">{commissionerOnly ? fills.mutualLoveMentor.name : ""}</Line>
         　證號Badge Number:
-        <Line width="22mm">{commissioner ? fills.mutualLoveMentor.badgeNumber : ""}</Line>　電話Tel:
-        <Line width="26mm">{commissioner ? fills.mutualLoveMentor.tel : ""}</Line>
+        <Line width="22mm">{commissionerOnly ? fills.mutualLoveMentor.badgeNumber : ""}</Line>　電話Tel:
+        <Line width="26mm">{commissionerOnly ? fills.mutualLoveMentor.tel : ""}</Line>
       </div>
 
       <div className="doc-p" style={{ marginTop: "1.2mm" }}>㊣推薦人Recommending Person</div>
@@ -246,10 +252,8 @@ function PageOne({ data }: { data: ApplicationData }) {
         同互愛(或和氣)之推薦人Mutual Love (or Harmony) Team Mentor
       </div>
       <div className="doc-p" style={{ paddingLeft: "5mm" }}>
-        {/* The one admin-entered mentor fills every line whose track applies —
-            for "both" it prints here AND on the ◎ line above, the same way a
-            hand-filled paper satisfies both tracks' mandatory fields (the
-            direct mentor above behaves identically). */}
+        {/* Faith Corps (incl. "both"): the mentor prints here. For "both" the ◎
+            rows above are blank, so the applicant is listed once, on this side. */}
         姓名Name:<Line width="30mm">{faithCorps ? fills.mutualLoveMentor.name : ""}</Line>
         　證號Badge Number:
         <Line width="22mm">{faithCorps ? fills.mutualLoveMentor.badgeNumber : ""}</Line>　電話Tel:

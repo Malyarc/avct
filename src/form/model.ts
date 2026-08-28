@@ -44,10 +44,10 @@ export interface AdminFillPerson {
  * merged over the (blank) track defaults, and are stored inside `data` so they
  * flow through `normalizeApplication` like every other field.
  *
- * The Mutual Love mentor is entered once; the renderer writes it on every line
- * whose track applies — the ◎ Commissioner line, the ㊣ Faith Corps line, or
- * both lines for a both-track applicant — exactly the way one person hand-fills
- * the paper form's parallel blocks (the direct mentor behaves the same).
+ * The Mutual Love mentor is entered once and printed once: on the ◎ line for a
+ * Commissioner-only applicant, on the ㊣ line for Faith Corps, and — for a
+ * both-track applicant — on the ㊣ side only, leaving the two ◎ mentor rows
+ * blank so the form is never double-listed.
  */
 export interface AdminFills {
   /* (3) 落實社區組隊資料 — Community volunteer team allocation */
@@ -61,6 +61,10 @@ export interface AdminFills {
 
   /** When an admin last saved these fills (ISO-8601), or null if never. */
   updatedAt: string | null;
+
+  /** The admin has explicitly marked this applicant fully completed. Only
+      settable once every fill field is entered (`fillStatus` is "filled"). */
+  completed: boolean;
 }
 
 export interface ApplicationData {
@@ -186,7 +190,37 @@ export function createEmptyAdminFills(): AdminFills {
     concertedEffortTeamLeader: { name: "", badgeNumber: "", tel: "" },
     mutualLoveMentor: { name: "", badgeNumber: "", tel: "" },
     updatedAt: null,
+    completed: false,
   };
+}
+
+/**
+ * The nine fill-field values, in a stable order. Used to derive the fill status
+ * badge and to seed each field's input history.
+ */
+export function adminFillValues(fills: AdminFills): string[] {
+  return [
+    fills.harmonyTeam,
+    fills.mutualLoveTeam,
+    fills.concertedEffortTeam,
+    fills.concertedEffortTeamLeader.name,
+    fills.concertedEffortTeamLeader.badgeNumber,
+    fills.concertedEffortTeamLeader.tel,
+    fills.mutualLoveMentor.name,
+    fills.mutualLoveMentor.badgeNumber,
+    fills.mutualLoveMentor.tel,
+  ];
+}
+
+export type FillStatus = "none" | "partial" | "filled";
+
+/** "none" when nothing is entered, "filled" when every field is, else "partial". */
+export function fillStatusOf(fills: AdminFills): FillStatus {
+  const values = adminFillValues(fills).map((value) => value.trim());
+  const entered = values.filter(Boolean).length;
+  if (entered === 0) return "none";
+  if (entered === values.length) return "filled";
+  return "partial";
 }
 
 export function createFamilyMember(id: string): FamilyMember {
