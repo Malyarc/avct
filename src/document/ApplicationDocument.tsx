@@ -246,16 +246,14 @@ function PageOne({ data }: { data: ApplicationData }) {
         同互愛(或和氣)之推薦人Mutual Love (or Harmony) Team Mentor
       </div>
       <div className="doc-p" style={{ paddingLeft: "5mm" }}>
-        {/* Faith-corps-only: for "both" the single mentor prints on the ◎
-            Commissioner side above, so this ㊣ block stays blank — no double fill. */}
-        姓名Name:
-        <Line width="30mm">{faithCorps && !commissioner ? fills.mutualLoveMentor.name : ""}</Line>
+        {/* The one admin-entered mentor fills every line whose track applies —
+            for "both" it prints here AND on the ◎ line above, the same way a
+            hand-filled paper satisfies both tracks' mandatory fields (the
+            direct mentor above behaves identically). */}
+        姓名Name:<Line width="30mm">{faithCorps ? fills.mutualLoveMentor.name : ""}</Line>
         　證號Badge Number:
-        <Line width="22mm">
-          {faithCorps && !commissioner ? fills.mutualLoveMentor.badgeNumber : ""}
-        </Line>
-        　電話Tel:
-        <Line width="26mm">{faithCorps && !commissioner ? fills.mutualLoveMentor.tel : ""}</Line>
+        <Line width="22mm">{faithCorps ? fills.mutualLoveMentor.badgeNumber : ""}</Line>　電話Tel:
+        <Line width="26mm">{faithCorps ? fills.mutualLoveMentor.tel : ""}</Line>
       </div>
 
       <div className="doc-p" style={{ marginTop: "1.4mm" }}>

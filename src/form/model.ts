@@ -44,9 +44,10 @@ export interface AdminFillPerson {
  * merged over the (blank) track defaults, and are stored inside `data` so they
  * flow through `normalizeApplication` like every other field.
  *
- * There is exactly one Mutual Love mentor: it prints on the ◎ Commissioner block
- * (for commissioner or both) or the ㊣ Faith Corps block (faith-corps only) —
- * never both, so a "both" applicant is not double-filled.
+ * The Mutual Love mentor is entered once; the renderer writes it on every line
+ * whose track applies — the ◎ Commissioner line, the ㊣ Faith Corps line, or
+ * both lines for a both-track applicant — exactly the way one person hand-fills
+ * the paper form's parallel blocks (the direct mentor behaves the same).
  */
 export interface AdminFills {
   /* (3) 落實社區組隊資料 — Community volunteer team allocation */

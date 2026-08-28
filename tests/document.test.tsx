@@ -306,14 +306,17 @@ describe("admin fills — sections (3) and (4)", () => {
     expect(text.indexOf("Mentor-MLX9137")).toBeGreaterThan(text.indexOf("㊣推薦人"));
   });
 
-  it("never double-fills the Mutual Love mentor when both tracks are chosen", () => {
+  it("writes the one mentor entry on both lines when both tracks are chosen", () => {
     const { container } = render(
       <ApplicationDocument data={filled({ track: "both", adminFills: ADMIN_FILLS })} />,
     );
     const text = container.textContent ?? "";
-    // Entered once → printed exactly once, on the ◎ Commissioner side (no double fill).
-    expect(occurrences(text, "Mentor-MLX9137")).toBe(1);
+    // A both-track applicant hand-filling the paper satisfies both tracks'
+    // mandatory fields, so the single admin entry prints on the ◎ line AND the
+    // ㊣ line — exactly as the direct mentor (Ashley Yong) already does.
+    expect(occurrences(text, "Mentor-MLX9137")).toBe(2);
     expect(text.indexOf("Mentor-MLX9137")).toBeLessThan(text.indexOf("㊣推薦人"));
+    expect(text.lastIndexOf("Mentor-MLX9137")).toBeGreaterThan(text.indexOf("㊣推薦人"));
   });
 
   it("leaves sections (3)/(4) blank when there are no admin fills", () => {

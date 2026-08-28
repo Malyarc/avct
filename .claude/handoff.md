@@ -38,17 +38,20 @@ tel). Save writes them to `data.adminFills` — **no schema change**: it lives i
 the existing JSONB and flows through `normalizeApplication` like every other
 field — and the preview, print and PDF pick them up immediately.
 
-**One fill, never doubled.** There is a single Mutual Love mentor. It prints on
-the ◎ Commissioner block for a commissioner or a both-track applicant, and on
-the ㊣ Recommending Person block for a Faith-Corps-only applicant — never on
-both, so a both-track form is not double-filled. `resolveTeamFills` in
-`src/form/defaults.ts` is the one place fills merge over the (blank) defaults;
-the document renderer and the admin answers read-out both call it.
+**One input, printed like a hand-filled paper.** The Mutual Love mentor is a
+single input in the editor; the form writes it on every parallel line whose
+track applies — the ◎ line for a commissioner, the ㊣ line for Faith Corps, and
+BOTH lines for a both-track applicant, because the form's key marks ◎ mandatory
+for Commissioner and ㊣ mandatory for Faith Corps and that is how a person fills
+the paper (the fixed direct mentor already prints on both blocks for "both").
+`resolveTeamFills` in `src/form/defaults.ts` is the one place fills merge over
+the (blank) defaults; the document renderer and the admin answers read-out both
+call it.
 
 Server: `PUT /api/admin/applications/:id` re-normalises the stored answers and
 replaces only `adminFills`, stamping `updatedAt` itself so a client value is
 never trusted. Verified live against a local mock backend across all three
-tracks (placement DOM-checked: mentor appears exactly once, on the right side),
+tracks (placement DOM-checked: mentor on each applicable line, both for "both"),
 both languages, desktop and mobile; the save round-trip, the detail-panel
 saved / not-filled status, and the capped-height preview were all walked
 through. Lint/typecheck/130 tests/build green; layout audit 0/140.
