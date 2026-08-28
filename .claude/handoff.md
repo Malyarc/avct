@@ -26,6 +26,33 @@ the source `.docx` is present. One renderer serves preview, print and PDF.
 form reads; 中文 is Traditional Chinese throughout. Switchable in the header of
 every page, persisted per browser.
 
+## Latest change — admin form-fill for sections (3)/(4) (local, not deployed)
+
+Admins can now complete the department's own cells on a submitted application.
+From the dashboard detail panel, **Add / edit form fields** opens a focused
+editor (`src/routes/AdminFillEditor.tsx`) with a live A4 preview showing exactly
+where each value lands. The nine editable cells are the green highlights on the
+8.24.2026 sheet: section (3) team allocation (和氣 / 互愛 / 協力 and the 協力組隊長
+name/badge/tel) and the section (4) 同互愛(或和氣)之直屬委員／推薦人 (name/badge/
+tel). Save writes them to `data.adminFills` — **no schema change**: it lives in
+the existing JSONB and flows through `normalizeApplication` like every other
+field — and the preview, print and PDF pick them up immediately.
+
+**One fill, never doubled.** There is a single Mutual Love mentor. It prints on
+the ◎ Commissioner block for a commissioner or a both-track applicant, and on
+the ㊣ Recommending Person block for a Faith-Corps-only applicant — never on
+both, so a both-track form is not double-filled. `resolveTeamFills` in
+`src/form/defaults.ts` is the one place fills merge over the (blank) defaults;
+the document renderer and the admin answers read-out both call it.
+
+Server: `PUT /api/admin/applications/:id` re-normalises the stored answers and
+replaces only `adminFills`, stamping `updatedAt` itself so a client value is
+never trusted. Verified live against a local mock backend across all three
+tracks (placement DOM-checked: mentor appears exactly once, on the right side),
+both languages, desktop and mobile; the save round-trip, the detail-panel
+saved / not-filled status, and the capped-height preview were all walked
+through. Lint/typecheck/130 tests/build green; layout audit 0/140.
+
 ## Latest change — Excel-driven overhaul (not yet deployed)
 
 The 8.24.2026 sheet reshaped the form; all local, nothing pushed. Both-track
@@ -75,10 +102,12 @@ Pushing to `main` deploys. Build `npm run build`, publish `dist/`, API from
 
 Nothing blocking. In rough priority order:
 
-1. **Fill in the `TBD` team allocations.** `src/form/defaults.ts` prints `TBD`
-   for the Mutual Love team, the Concerted Effort team and its leader's name,
-   badge and phone, because the department's spreadsheet has not assigned them.
-   Those four lines print on every applicant's form until they are set.
+1. **Team allocations are now filled per applicant, not globally.** The
+   8.24.2026 (2) sheet blanked the Harmony / Mutual Love / Concerted teams, the
+   Concerted Effort team leader and the Mutual Love mentor, and the new admin
+   form-fill editor lets the department complete them per submission (stored in
+   `data.adminFills`). Nothing prints `TBD` any more — a cell is simply blank
+   until an admin fills it. There is no longer a global default to set.
 2. **Decide the fate of the shared access code.** One code, no individual
    accounts, no record of who opened which application. Fine for a small team;
    worth revisiting if more people get access.

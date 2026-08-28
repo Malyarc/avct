@@ -67,6 +67,22 @@ print. The Neon `applications.track` CHECK constraint must allow `both` — the
 widened constraint is in `db/schema.sql`, so `npm run db:migrate` has to run
 when this deploys or "both" submissions are rejected.
 
+**Admin fills complete sections (3)/(4); one Mutual Love mentor, never
+doubled.** The department's own cells — the green highlights on the 8.24.2026
+sheet — are filled per applicant by an admin, not by the applicant, and stored
+in `data.adminFills` (the applicant's copy is always empty). They are section
+(3) team allocation (和氣/互愛/協力 and the 協力組隊長 name/badge/tel) and the
+section (4) 同互愛之直屬委員／推薦人 (name/badge/tel). `resolveTeamFills()` in
+`defaults.ts` merges the fills over the (blank) track defaults and is the single
+place that merge happens — the document renderer and `AdminAnswers` both call
+it. There is exactly ONE Mutual Love mentor: `ApplicationDocument` prints it on
+the ◎ Commissioner block for `commissioner`/`both` and on the ㊣ Recommending
+Person block for Faith-Corps-only (`faithCorps && !commissioner`) — never both,
+so a "both" form is not double-filled. `AdminFillEditor` is the UI; the save
+goes through `PUT /api/admin/applications/:id`, which replaces only `adminFills`
+and stamps `updatedAt` server-side. No schema change — it rides the existing
+`data` JSONB and is sanitised by `normalizeAdminFills`.
+
 **Derived state uses `update()`, never `set()`.** A handler that computes from
 the current answers (toggling a checkbox, adding a family row) must use the
 functional `update(previous => …)`. `set(key, value)` closes over the `data` of
@@ -184,20 +200,24 @@ migration runs the page simply shows the built-in defaults.
   next to them — see `no-control-regex` in `src/form/normalize.ts` and the
   three `set-state-in-effect` sites. Revisit if typescript-eslint ships TS 7
   support and the type-aware rules become worth the second toolchain.
-- **`TBD` prints on the form** for the team allocations the department has not
-  assigned yet (Mutual Love team, Concerted Effort team and its leader). That
-  is deliberate — it comes from the department's own spreadsheet and tells the
-  admin what still needs filling. Change the values in `src/form/defaults.ts`
-  when they are known.
+- **Team allocation and the Mutual Love mentor are per-applicant admin fills,
+  not global defaults.** The 8.24.2026 (2) sheet blanked these cells, and an
+  admin now completes them per submission via the form-fill editor (stored in
+  `data.adminFills`; see the invariant above). A cell simply prints blank until
+  an admin fills it — nothing prints `TBD`. The only remaining global defaults
+  in `src/form/defaults.ts` are the ones the sheet fixes for everyone (Unity
+  team `Headquarters 美西`, the direct mentor Ashley Yong, the certification
+  start, functional groups).
 
 ## Test files
 
 | File | Covers |
 |---|---|
-| `tests/form.test.ts` | Catalog transcription, track defaults, every validation rule in isolation, `normalizeApplication` against hostile input |
-| `tests/document.test.tsx` | Eight pages, answers in the right cells, ticks, section (17) modes, signature placement, file naming |
+| `tests/form.test.ts` | Catalog transcription, track defaults, every validation rule in isolation, `normalizeApplication` / `normalizeAdminFills` against hostile input, `resolveTeamFills` merge |
+| `tests/document.test.tsx` | Eight pages, answers in the right cells, ticks, section (17) modes, signature placement, admin-fill placement (mentor once, right side, no double-fill), file naming |
 | `tests/fidelity.test.tsx` | Every phrase of the official `.docx` present in the render, sections in order, footers |
 | `tests/i18n.test.ts` | Both languages filled in for every phrase, matching placeholders, no English left in a Chinese slot |
+| `tests/api.test.ts` | The `PUT /api/admin/applications/:id` fill-save handler: admin-only, writes only `adminFills`, preserves the applicant's answers, stamps `updatedAt` server-side |
 
 Validation rules are mutation-tested: deleting any single rule from
 `src/form/steps.ts` must fail the suite.

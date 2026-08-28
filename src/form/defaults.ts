@@ -9,6 +9,7 @@
  */
 
 import type { TrackSelection } from "./catalog";
+import type { ApplicationData } from "./model";
 
 export interface PersonReference {
   name: string;
@@ -112,4 +113,48 @@ export function hasCommissioner(track: TrackSelection): boolean {
 
 export function hasFaithCorps(track: TrackSelection): boolean {
   return track === "faithCorps" || track === "both";
+}
+
+export interface ResolvedTeamFills {
+  harmonyTeam: string;
+  mutualLoveTeam: string;
+  concertedEffortTeam: string;
+  concertedEffortTeamLeader: PersonReference;
+  mutualLoveMentor: PersonReference;
+}
+
+/** Admin fill wins field-by-field; a blank fill falls back to the default. */
+function mergePerson(fill: PersonReference, base: PersonReference): PersonReference {
+  return {
+    name: fill.name || base.name,
+    badgeNumber: fill.badgeNumber || base.badgeNumber,
+    tel: fill.tel || base.tel,
+  };
+}
+
+/**
+ * Merges an application's admin fills (the green section (3)/(4) cells) over the
+ * track defaults. Those defaults are blank today, so a fill simply supplies the
+ * value; the `|| base` fallback keeps the document correct if a default is ever
+ * given a value again. This is the one place the merge happens — the document
+ * renderer and the admin answers read-out both call it, so they cannot drift.
+ *
+ * Placement of the single Mutual Love mentor across the ◎/㊣ blocks is the
+ * renderer's job (it depends on the track); this only resolves the value.
+ */
+export function resolveTeamFills(
+  data: Pick<ApplicationData, "track" | "adminFills">,
+): ResolvedTeamFills {
+  const d = defaultsFor(data.track);
+  const f = data.adminFills;
+  return {
+    harmonyTeam: f.harmonyTeam || d.harmonyTeam,
+    mutualLoveTeam: f.mutualLoveTeam || d.mutualLoveTeam,
+    concertedEffortTeam: f.concertedEffortTeam || d.concertedEffortTeam,
+    concertedEffortTeamLeader: mergePerson(
+      f.concertedEffortTeamLeader,
+      d.concertedEffortTeamLeader,
+    ),
+    mutualLoveMentor: mergePerson(f.mutualLoveMentor, d.mutualLoveMentor),
+  };
 }

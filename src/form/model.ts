@@ -30,6 +30,38 @@ export interface FamilyMember {
 /** "mon:morning" — one cell of the (13) availability grid. */
 export type AvailabilitySlot = `${WeekdayKey}:${TimeSlotKey}`;
 
+/** A Name / Badge / Tel triple, matching the form's mentor and team-leader cells. */
+export interface AdminFillPerson {
+  name: string;
+  badgeNumber: string;
+  tel: string;
+}
+
+/**
+ * The department-completed cells — the green highlights on the 8.24.2026 sheet.
+ * The applicant never sees these; an admin fills them on a submitted application
+ * from the dashboard. They print in sections (3) and (4) of the official form,
+ * merged over the (blank) track defaults, and are stored inside `data` so they
+ * flow through `normalizeApplication` like every other field.
+ *
+ * There is exactly one Mutual Love mentor: it prints on the ◎ Commissioner block
+ * (for commissioner or both) or the ㊣ Faith Corps block (faith-corps only) —
+ * never both, so a "both" applicant is not double-filled.
+ */
+export interface AdminFills {
+  /* (3) 落實社區組隊資料 — Community volunteer team allocation */
+  harmonyTeam: string;
+  mutualLoveTeam: string;
+  concertedEffortTeam: string;
+  concertedEffortTeamLeader: AdminFillPerson;
+
+  /* (4) 同互愛(或和氣)之直屬委員／推薦人 — Mutual Love (or Harmony) Team Mentor */
+  mutualLoveMentor: AdminFillPerson;
+
+  /** When an admin last saved these fills (ISO-8601), or null if never. */
+  updatedAt: string | null;
+}
+
 export interface ApplicationData {
   /* (1) 報名項目 — Application for (one track or both) */
   track: TrackSelection;
@@ -98,6 +130,10 @@ export interface ApplicationData {
   /* (16) 培訓實務課程 — Practical training duration */
   practicalDuration: string;
 
+  /* Department-completed cells for sections (3) and (4), filled by an admin
+     after submission. Empty on every applicant-submitted draft. */
+  adminFills: AdminFills;
+
   /* Consent & applicant signature */
   consent: boolean;
   signature: string | null; // PNG data URL
@@ -140,6 +176,17 @@ export const EMPTY_PRECEPTS: Record<PreceptKey, number | null> = {
   noPolitics: null,
   vegetarian: null,
 };
+
+export function createEmptyAdminFills(): AdminFills {
+  return {
+    harmonyTeam: "",
+    mutualLoveTeam: "",
+    concertedEffortTeam: "",
+    concertedEffortTeamLeader: { name: "", badgeNumber: "", tel: "" },
+    mutualLoveMentor: { name: "", badgeNumber: "", tel: "" },
+    updatedAt: null,
+  };
+}
 
 export function createFamilyMember(id: string): FamilyMember {
   return {
@@ -208,6 +255,8 @@ export function createEmptyApplication(): ApplicationData {
     precepts: { ...EMPTY_PRECEPTS },
 
     practicalDuration: "",
+
+    adminFills: createEmptyAdminFills(),
 
     consent: false,
     signature: null,

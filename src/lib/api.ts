@@ -6,7 +6,7 @@
  * minutes filling in a form must never see an unhandled rejection.
  */
 
-import type { ApplicationData } from "../form/model";
+import type { AdminFills, ApplicationData } from "../form/model";
 import type { GuidelinesOverride } from "../content/guidelinesContent";
 import { D } from "../i18n/dictionary";
 import type { Phrase } from "../i18n/types";
@@ -117,6 +117,17 @@ export function adminGetApplication(
 /** Soft-delete: moves an active submission to the Archive. */
 export function adminDeleteApplication(id: string): Promise<ApiResult<{ ok: true }>> {
   return request(`/admin/applications/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+/** Save the department-completed section (3)/(4) cells for one submission. */
+export function adminUpdateApplicationFills(
+  id: string,
+  adminFills: AdminFills,
+): Promise<ApiResult<{ application: ApplicationRecord }>> {
+  return request(`/admin/applications/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    json: { adminFills },
+  });
 }
 
 export function getGuidelinesOverride(): Promise<ApiResult<{ content: GuidelinesOverride | null }>> {

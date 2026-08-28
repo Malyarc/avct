@@ -892,6 +892,77 @@ export const D = {
   },
 
   /* ------------------------------------------------------------------ *
+   * Form-fill editor (admin) — the department-completed section (3)/(4) cells
+   * ------------------------------------------------------------------ */
+  adminFill: {
+    pageTitle: p("AVCT Admin · Form fields", "培訓報名管理・表單欄位"),
+    title: p("Form fields", "表單欄位"),
+    eyebrow: p("Talent Cultivation Team", "人才培育團隊"),
+    heading: p("Team & mentor assignment", "組隊與推薦人指派"),
+    subtitle: p(
+      "The Talent Cultivation Team completes these fields on the applicant's form. They print in sections (3) and (4); everything else is filled from the applicant's own answers.",
+      "此區由人才培育團隊在報名表上填寫，會印在第 (3)、(4) 項；其餘欄位皆由報名者本人的回答自動填入。",
+    ),
+
+    // Section (3)
+    section3: p("Community Volunteer Team", "落實社區組隊資料"),
+    harmonyTeam: p("Harmony Team", "和氣"),
+    mutualLoveTeam: p("Mutual Love Team", "互愛"),
+    concertedEffortTeam: p("Concerted Effort Team", "協力"),
+    teamLeader: p("Concerted Effort Team Leader", "協力組隊長"),
+
+    // Section (4)
+    section4: p("Mutual Love (or Harmony) Team Mentor", "同互愛（或和氣）之直屬委員／推薦人"),
+    mentorHint: p(
+      "Entered once — it prints in the one block that matches this applicant's track, never in both.",
+      "只需填寫一次，系統會依報名項目印在對應欄位，不會重複填寫。",
+    ),
+    printsOn: p("Prints on the form: %s", "印於表單：%s"),
+    sideCommissioner: p("◎ Commissioner block", "◎ 直屬委員欄"),
+    sideFaith: p("㊣ Faith Corps (Recommending Person) block", "㊣ 推薦人欄"),
+    sideBoth: p("◎ Commissioner block (trains for both)", "◎ 直屬委員欄（同時培訓委員慈誠）"),
+
+    // Shared field labels
+    name: p("Name", "姓名"),
+    badge: p("Badge number", "證號"),
+    tel: p("Tel", "電話"),
+
+    // Actions & status
+    save: p("Save form fields", "儲存表單欄位"),
+    saving: p("Saving…", "儲存中…"),
+    saved: p("Saved — the form and PDF now show these.", "已儲存，表單與 PDF 已更新。"),
+    saveFailed: p(
+      "Could not save the form fields. Please try again.",
+      "無法儲存表單欄位，請再試一次。",
+    ),
+    unsaved: p("Unsaved changes", "尚未儲存的變更"),
+    clear: p("Clear these fields", "清除這些欄位"),
+    clearHint: p(
+      "Empties every field above. You still need to save.",
+      "清空上方所有欄位，仍需按儲存才會生效。",
+    ),
+    syncNote: p(
+      "Saved to the applicant's record — the preview and PDF stay in sync.",
+      "儲存至報名者的資料，預覽與 PDF 會同步更新。",
+    ),
+
+    // Live preview
+    livePreview: p("Live preview", "即時預覽"),
+    previewCaption: p(
+      "Page 1 · sections (3)–(4) update as you type",
+      "第 1 頁・第 (3)、(4) 項會隨輸入即時更新",
+    ),
+
+    // Detail-panel entry point
+    open: p("Add / edit form fields", "新增／編輯表單欄位"),
+    notFilledYet: p(
+      "Team & mentor fields not yet completed",
+      "尚未填寫組隊與推薦人欄位",
+    ),
+    filledOn: p("Form fields saved %s", "表單欄位儲存於 %s"),
+  },
+
+  /* ------------------------------------------------------------------ *
    * Answers read-out (admin)
    * ------------------------------------------------------------------ */
   answers: {

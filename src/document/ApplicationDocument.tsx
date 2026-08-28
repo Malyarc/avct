@@ -34,6 +34,7 @@ import {
   defaultsFor,
   hasCommissioner,
   hasFaithCorps,
+  resolveTeamFills,
 } from "../form/defaults";
 import type { ApplicationData, AvailabilitySlot } from "../form/model";
 import { Ans, Cb, Lbl, Line, Page, splitDate, splitMonth } from "./parts";
@@ -117,6 +118,9 @@ function PageOne({ data }: { data: ApplicationData }) {
   const d = defaultsFor(data.track);
   const commissioner = hasCommissioner(data.track);
   const faithCorps = hasFaithCorps(data.track);
+  // Section (3)/(4) cells the department completes after submission, merged over
+  // the (blank) track defaults. The single Mutual Love mentor is placed below.
+  const fills = resolveTeamFills(data);
 
   return (
     <Page number={1}>
@@ -183,20 +187,20 @@ function PageOne({ data }: { data: ApplicationData }) {
       </div>
       <div className="doc-p" style={{ paddingLeft: "5mm" }}>
         1. 合心Unity Team (Region):<Line width="30mm">{d.unityTeam}</Line>　和氣Harmony Team:
-        <Line width="30mm">{d.harmonyTeam}</Line>
+        <Line width="30mm">{fills.harmonyTeam}</Line>
         <br />
         <span style={{ paddingLeft: "4mm" }}>
-          互愛Mutual Love Team:<Line width="26mm">{d.mutualLoveTeam}</Line>　協力Concerted
-          Effort Team:<Line width="26mm">{d.concertedEffortTeam}</Line>
+          互愛Mutual Love Team:<Line width="26mm">{fills.mutualLoveTeam}</Line>　協力Concerted
+          Effort Team:<Line width="26mm">{fills.concertedEffortTeam}</Line>
         </span>
       </div>
       <div className="doc-p" style={{ paddingLeft: "5mm" }}>
         2. 協力組隊長Concerted Effort Team Leader
         <br />
         <span style={{ paddingLeft: "4mm" }}>
-          姓名Name:<Line width="24mm">{d.concertedEffortTeamLeader.name}</Line>　證號Badge
-          Number:<Line width="22mm">{d.concertedEffortTeamLeader.badgeNumber}</Line>　電話Tel:
-          <Line width="24mm">{d.concertedEffortTeamLeader.tel}</Line>
+          姓名Name:<Line width="24mm">{fills.concertedEffortTeamLeader.name}</Line>　證號Badge
+          Number:<Line width="22mm">{fills.concertedEffortTeamLeader.badgeNumber}</Line>　電話Tel:
+          <Line width="24mm">{fills.concertedEffortTeamLeader.tel}</Line>
         </span>
       </div>
 
@@ -219,10 +223,10 @@ function PageOne({ data }: { data: ApplicationData }) {
         ◎同互愛(或和氣)之直屬委員Mutual Love (or Harmony) Team Mentor
       </div>
       <div className="doc-p" style={{ paddingLeft: "5mm" }}>
-        姓名Name:<Line width="30mm">{commissioner ? dc.mutualLoveMentor.name : ""}</Line>
+        姓名Name:<Line width="30mm">{commissioner ? fills.mutualLoveMentor.name : ""}</Line>
         　證號Badge Number:
-        <Line width="22mm">{commissioner ? dc.mutualLoveMentor.badgeNumber : ""}</Line>　電話Tel:
-        <Line width="26mm">{commissioner ? dc.mutualLoveMentor.tel : ""}</Line>
+        <Line width="22mm">{commissioner ? fills.mutualLoveMentor.badgeNumber : ""}</Line>　電話Tel:
+        <Line width="26mm">{commissioner ? fills.mutualLoveMentor.tel : ""}</Line>
       </div>
 
       <div className="doc-p" style={{ marginTop: "1.2mm" }}>㊣推薦人Recommending Person</div>
@@ -242,10 +246,16 @@ function PageOne({ data }: { data: ApplicationData }) {
         同互愛(或和氣)之推薦人Mutual Love (or Harmony) Team Mentor
       </div>
       <div className="doc-p" style={{ paddingLeft: "5mm" }}>
-        姓名Name:<Line width="30mm">{faithCorps ? df.mutualLoveMentor.name : ""}</Line>
+        {/* Faith-corps-only: for "both" the single mentor prints on the ◎
+            Commissioner side above, so this ㊣ block stays blank — no double fill. */}
+        姓名Name:
+        <Line width="30mm">{faithCorps && !commissioner ? fills.mutualLoveMentor.name : ""}</Line>
         　證號Badge Number:
-        <Line width="22mm">{faithCorps ? df.mutualLoveMentor.badgeNumber : ""}</Line>　電話Tel:
-        <Line width="26mm">{faithCorps ? df.mutualLoveMentor.tel : ""}</Line>
+        <Line width="22mm">
+          {faithCorps && !commissioner ? fills.mutualLoveMentor.badgeNumber : ""}
+        </Line>
+        　電話Tel:
+        <Line width="26mm">{faithCorps && !commissioner ? fills.mutualLoveMentor.tel : ""}</Line>
       </div>
 
       <div className="doc-p" style={{ marginTop: "1.4mm" }}>

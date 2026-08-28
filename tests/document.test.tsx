@@ -256,6 +256,72 @@ describe("ApplicationDocument", () => {
   });
 });
 
+const ADMIN_FILLS = {
+  harmonyTeam: "和氣柒組",
+  mutualLoveTeam: "互愛叁組",
+  concertedEffortTeam: "協力貳組",
+  concertedEffortTeamLeader: {
+    name: "TeamLeader-TL5521",
+    badgeNumber: "SA71204",
+    tel: "626-555-0193",
+  },
+  mutualLoveMentor: { name: "Mentor-MLX9137", badgeNumber: "SA60318", tel: "626-555-0175" },
+  updatedAt: "2026-08-27T00:00:00.000Z",
+};
+
+const occurrences = (haystack: string, needle: string) => haystack.split(needle).length - 1;
+
+describe("admin fills — sections (3) and (4)", () => {
+  it("prints the department team allocation in section (3)", () => {
+    const { container } = render(
+      <ApplicationDocument data={filled({ adminFills: ADMIN_FILLS })} />,
+    );
+    const text = container.textContent ?? "";
+    expect(text).toContain("和氣柒組");
+    expect(text).toContain("互愛叁組");
+    expect(text).toContain("協力貳組");
+    expect(text).toContain("TeamLeader-TL5521");
+    expect(text).toContain("SA71204");
+    expect(text).toContain("626-555-0193");
+  });
+
+  it("prints the Mutual Love mentor once, on the ◎ Commissioner side, for a commissioner", () => {
+    const { container } = render(
+      <ApplicationDocument data={filled({ track: "commissioner", adminFills: ADMIN_FILLS })} />,
+    );
+    const text = container.textContent ?? "";
+    expect(occurrences(text, "Mentor-MLX9137")).toBe(1);
+    // The ◎ Mutual Love block sits before the ㊣推薦人 header in document order.
+    expect(text.indexOf("Mentor-MLX9137")).toBeLessThan(text.indexOf("㊣推薦人"));
+  });
+
+  it("prints the Mutual Love mentor once, on the ㊣ Faith Corps side, for a faith-corps applicant", () => {
+    const { container } = render(
+      <ApplicationDocument
+        data={filled({ track: "faithCorps", gender: "male", adminFills: ADMIN_FILLS })}
+      />,
+    );
+    const text = container.textContent ?? "";
+    expect(occurrences(text, "Mentor-MLX9137")).toBe(1);
+    expect(text.indexOf("Mentor-MLX9137")).toBeGreaterThan(text.indexOf("㊣推薦人"));
+  });
+
+  it("never double-fills the Mutual Love mentor when both tracks are chosen", () => {
+    const { container } = render(
+      <ApplicationDocument data={filled({ track: "both", adminFills: ADMIN_FILLS })} />,
+    );
+    const text = container.textContent ?? "";
+    // Entered once → printed exactly once, on the ◎ Commissioner side (no double fill).
+    expect(occurrences(text, "Mentor-MLX9137")).toBe(1);
+    expect(text.indexOf("Mentor-MLX9137")).toBeLessThan(text.indexOf("㊣推薦人"));
+  });
+
+  it("leaves sections (3)/(4) blank when there are no admin fills", () => {
+    const { container } = render(<ApplicationDocument data={filled()} />);
+    expect(container.textContent ?? "").not.toContain("Mentor-MLX9137");
+  });
+});
+
 describe("fileStem", () => {
   it("makes a safe, readable file name from any name", () => {
     expect(fileStem("Wei-Ling Chen 陳薇玲")).toBe("Wei-Ling-Chen-陳薇玲");

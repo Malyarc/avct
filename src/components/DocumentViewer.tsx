@@ -74,6 +74,7 @@ export function DocumentViewer({
   className = "",
   showZoom = true,
   toolbarExtra,
+  frameClassName = "",
 }: {
   data: ApplicationData;
   mode?: "applicant" | "official";
@@ -81,6 +82,10 @@ export function DocumentViewer({
   className?: string;
   showZoom?: boolean;
   toolbarExtra?: ReactNode;
+  /** Extra classes on the scroll frame — e.g. a height cap so the full
+      seven-page document scrolls inside a fixed viewport instead of growing
+      the page. */
+  frameClassName?: string;
 }) {
   const { s: str } = useT();
   const frameRef = useRef<HTMLDivElement>(null);
@@ -138,7 +143,7 @@ export function DocumentViewer({
 
       <div
         ref={frameRef}
-        className="min-w-0 overflow-x-auto rounded-2xl bg-sunken p-4 no-scrollbar sm:p-6"
+        className={`min-w-0 overflow-x-auto rounded-2xl bg-sunken p-4 no-scrollbar sm:p-6 ${frameClassName}`}
       >
         <ApplicationDocument
           rootRef={documentRef}

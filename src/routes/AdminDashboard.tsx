@@ -17,6 +17,7 @@ import { applicationsToCsv } from "../lib/csv";
 import { downloadBlob, exportDocumentAsPdf, type ExportProgress } from "../document/pdf";
 import { DocumentViewer } from "../components/DocumentViewer";
 import { AdminAnswers } from "./AdminAnswers";
+import { AdminFillEditor } from "./AdminFillEditor";
 import { LanguageToggle } from "../components/Chrome";
 import { useT } from "../i18n/language";
 import { D, format } from "../i18n/dictionary";
@@ -25,6 +26,7 @@ import {
   AlertIcon,
   Button,
   Callout,
+  CheckIcon,
   CloseIcon,
   DownloadIcon,
   MailIcon,
@@ -100,6 +102,7 @@ export function AdminDashboard({
   const [recordError, setRecordError] = useState<Phrase | null>(null);
   const [loadingRecord, setLoadingRecord] = useState(false);
   const [tab, setTab] = useState<Tab>("form");
+  const [editing, setEditing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<Phrase | null>(null);
@@ -150,15 +153,16 @@ export function AdminDashboard({
     };
   }, [selectedId]);
 
-  // Escape closes the detail panel.
+  // Escape closes the detail panel (but not while the fill editor is open — it
+  // owns its own navigation back).
   useEffect(() => {
-    if (!selectedId) return;
+    if (!selectedId || editing) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setSelectedId(null);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selectedId]);
+  }, [selectedId, editing]);
 
   const filtered = useMemo(() => {
     if (!rows) return [];
@@ -216,6 +220,7 @@ export function AdminDashboard({
     setView(next);
     setRows(null);
     setSelectedId(null);
+    setEditing(false);
     setConfirmingDelete(false);
     setDeleteError(null);
   };
@@ -235,6 +240,16 @@ export function AdminDashboard({
     setSelectedId(null);
     await load();
   };
+
+  if (editing && record) {
+    return (
+      <AdminFillEditor
+        record={record}
+        onBack={() => setEditing(false)}
+        onSaved={(updated) => setRecord(updated)}
+      />
+    );
+  }
 
   return (
     <div className="flex min-h-dvh flex-col bg-paper">
@@ -421,6 +436,7 @@ export function AdminDashboard({
                         onClick={() => {
                           setSelectedId(row.id);
                           setTab("form");
+                          setEditing(false);
                           setConfirmingDelete(false);
                           setDeleteError(null);
                         }}
@@ -586,6 +602,35 @@ export function AdminDashboard({
                 </div>
 
                 {pdfError ? <Callout tone="error">{pdfError}</Callout> : null}
+
+                {/* Department-completed cells for sections (3)/(4). */}
+                <div className="flex flex-col gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => setEditing(true)}
+                    className="w-full rounded-lg"
+                  >
+                    <PencilIcon size={14} />
+                    {str(D.adminFill.open)}
+                  </Button>
+                  {record.data.adminFills.updatedAt ? (
+                    <span className="flex items-center gap-1.5 pl-0.5 text-[0.75rem] text-accent-text">
+                      <CheckIcon size={13} className="flex-none" />
+                      {format(
+                        str(D.adminFill.filledOn),
+                        new Date(record.data.adminFills.updatedAt).toLocaleDateString(
+                          isZh ? "zh-Hant" : undefined,
+                          { day: "numeric", month: "short", year: "numeric" },
+                        ),
+                      )}
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5 pl-0.5 text-[0.75rem] text-amber-ink">
+                      <AlertIcon size={13} className="flex-none" />
+                      {str(D.adminFill.notFilledYet)}
+                    </span>
+                  )}
+                </div>
 
                 <div className="flex gap-2">
                   <Button

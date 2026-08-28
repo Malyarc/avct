@@ -21,7 +21,7 @@ import {
   findChoice,
   type Choice,
 } from "../form/catalog";
-import { defaultsFor, hasCommissioner, hasFaithCorps } from "../form/defaults";
+import { defaultsFor, hasCommissioner, hasFaithCorps, resolveTeamFills } from "../form/defaults";
 import type { ApplicationData, AvailabilitySlot } from "../form/model";
 import { useT, type Translate } from "../i18n/language";
 import { D } from "../i18n/dictionary";
@@ -59,6 +59,11 @@ function Row({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
+/** "Name · Badge · Tel", dropping any part left blank. */
+function personLine(person: { name: string; badgeNumber: string; tel: string }): string {
+  return [person.name, person.badgeNumber, person.tel].filter(Boolean).join(" · ");
+}
+
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-1">
@@ -73,6 +78,7 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
   const lang = tr.lang;
   const L = (phrase: Phrase) => tr.s(phrase);
   const d = defaultsFor(data.track);
+  const fills = resolveTeamFills(data);
   const track = TRACKS.find((candidate) => candidate.key === data.track);
   const availability = new Set<AvailabilitySlot>(data.availability);
 
@@ -273,9 +279,9 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
 
       <Group title={L(D.answers.mentors)}>
         <Row label={L(D.answers.unityTeam)} value={d.unityTeam} />
-        <Row label={L(D.answers.harmonyTeam)} value={d.harmonyTeam} />
-        <Row label={L(D.answers.mutualLoveTeam)} value={d.mutualLoveTeam} />
-        <Row label={L(D.answers.concertedTeam)} value={d.concertedEffortTeam} />
+        <Row label={L(D.answers.harmonyTeam)} value={fills.harmonyTeam} />
+        <Row label={L(D.answers.mutualLoveTeam)} value={fills.mutualLoveTeam} />
+        <Row label={L(D.answers.concertedTeam)} value={fills.concertedEffortTeam} />
         <Row
           label={
             data.track === "faithCorps"
@@ -284,11 +290,8 @@ export function AdminAnswers({ data }: { data: ApplicationData }) {
           }
           value={`${d.directMentor.name} · ${d.directMentor.badgeNumber} · ${d.directMentor.tel}`}
         />
-        <Row
-          label={L(D.answers.mutualLoveMentor)}
-          value={`${d.mutualLoveMentor.name} · ${d.mutualLoveMentor.badgeNumber}`}
-        />
-        <Row label={L(D.answers.teamLeader)} value={d.concertedEffortTeamLeader.name} />
+        <Row label={L(D.answers.mutualLoveMentor)} value={personLine(fills.mutualLoveMentor)} />
+        <Row label={L(D.answers.teamLeader)} value={personLine(fills.concertedEffortTeamLeader)} />
       </Group>
 
       <Group title={L(D.answers.consent)}>

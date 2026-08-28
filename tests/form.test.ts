@@ -30,9 +30,11 @@ import {
   defaultsFor,
   hasCommissioner,
   hasFaithCorps,
+  resolveTeamFills,
 } from "../src/form/defaults";
 import {
   applicantFullName,
+  createEmptyAdminFills,
   createEmptyApplication,
   createFamilyMember,
   isApplicationStarted,
@@ -41,6 +43,7 @@ import {
 import {
   MAX_IMAGE_DATA_URL_LENGTH,
   isSafeImageDataUrl,
+  normalizeAdminFills,
   normalizeApplication,
 } from "../src/form/normalize";
 import { STEPS, firstIncompleteStep, isStepComplete, validateAll } from "../src/form/steps";
@@ -205,6 +208,51 @@ describe("defaults", () => {
     // An unchosen track fills neither.
     expect(hasCommissioner("")).toBe(false);
     expect(hasFaithCorps("")).toBe(false);
+  });
+});
+
+/* ------------------------------------------------------------------ *
+ * resolveTeamFills — the admin-fill / defaults merge for sections (3) & (4)
+ * ------------------------------------------------------------------ */
+
+const teamFillsInput = (
+  track: ApplicationData["track"],
+  fills: Partial<ApplicationData["adminFills"]>,
+) => ({ track, adminFills: { ...createEmptyAdminFills(), ...fills } });
+
+describe("resolveTeamFills", () => {
+  it("merges the admin fills over the (blank) track defaults", () => {
+    const r = resolveTeamFills(
+      teamFillsInput("commissioner", {
+        harmonyTeam: "和氣一組",
+        mutualLoveTeam: "互愛三組",
+        concertedEffortTeam: "協力二組",
+        concertedEffortTeamLeader: { name: "林美惠", badgeNumber: "SA71204", tel: "626-555-0193" },
+        mutualLoveMentor: { name: "王淑芬", badgeNumber: "SA60318", tel: "626-555-0175" },
+      }),
+    );
+    expect(r.harmonyTeam).toBe("和氣一組");
+    expect(r.mutualLoveTeam).toBe("互愛三組");
+    expect(r.concertedEffortTeam).toBe("協力二組");
+    expect(r.concertedEffortTeamLeader).toEqual({
+      name: "林美惠",
+      badgeNumber: "SA71204",
+      tel: "626-555-0193",
+    });
+    expect(r.mutualLoveMentor).toEqual({
+      name: "王淑芬",
+      badgeNumber: "SA60318",
+      tel: "626-555-0175",
+    });
+  });
+
+  it("keeps the Unity-team default and leaves every unfilled cell blank", () => {
+    const r = resolveTeamFills(teamFillsInput("commissioner", { harmonyTeam: "和氣一組" }));
+    expect(r.harmonyTeam).toBe("和氣一組");
+    expect(r.mutualLoveTeam).toBe("");
+    expect(r.concertedEffortTeam).toBe("");
+    expect(r.concertedEffortTeamLeader).toEqual({ name: "", badgeNumber: "", tel: "" });
+    expect(r.mutualLoveMentor.name).toBe("");
   });
 });
 
@@ -583,5 +631,60 @@ describe("normalizeApplication", () => {
   it("produces something the validator still accepts after a round trip", () => {
     const normalised = normalizeApplication(completeApplication());
     expect(validateAll(normalised)).toEqual({});
+  });
+
+  it("defaults adminFills to empty, and reads them back when present", () => {
+    expect(normalizeApplication({}).adminFills).toEqual(createEmptyAdminFills());
+    const withFills = normalizeApplication({ adminFills: { harmonyTeam: "和氣一組" } });
+    expect(withFills.adminFills.harmonyTeam).toBe("和氣一組");
+    // Unknown keys inside adminFills are dropped, like everywhere else.
+    const hostile = normalizeApplication({
+      adminFills: { evil: "<script>", harmonyTeam: "和氣" },
+    });
+    expect((hostile.adminFills as unknown as Record<string, unknown>).evil).toBeUndefined();
+    expect(hostile.adminFills.harmonyTeam).toBe("和氣");
+  });
+});
+
+/* ------------------------------------------------------------------ *
+ * normalizeAdminFills — the admin-only section (3)/(4) sanitiser
+ * ------------------------------------------------------------------ */
+
+describe("normalizeAdminFills", () => {
+  it("returns empty fills for anything that is not an object", () => {
+    const empty = createEmptyAdminFills();
+    expect(normalizeAdminFills(null)).toEqual(empty);
+    expect(normalizeAdminFills(undefined)).toEqual(empty);
+    expect(normalizeAdminFills("nope")).toEqual(empty);
+    expect(normalizeAdminFills(42)).toEqual(empty);
+  });
+
+  it("trims, keeps well-formed values, and strips control characters", () => {
+    const f = normalizeAdminFills({
+      harmonyTeam: "  和氣一組  ",
+      mutualLoveMentor: {
+        name: "Wang\u0000 Shu-Fen",
+        badgeNumber: "SA60318",
+        tel: "626-555-0175",
+      },
+      updatedAt: "2026-08-27T00:00:00.000Z",
+    });
+    expect(f.harmonyTeam).toBe("和氣一組");
+    expect(f.mutualLoveMentor.name).toBe("Wang Shu-Fen");
+    expect(f.mutualLoveMentor.badgeNumber).toBe("SA60318");
+    expect(f.updatedAt).toBe("2026-08-27T00:00:00.000Z");
+  });
+
+  it("caps text length and rejects bad shapes and timestamps", () => {
+    const f = normalizeAdminFills({
+      harmonyTeam: "和".repeat(500),
+      concertedEffortTeamLeader: "not-an-object",
+      mutualLoveMentor: { name: 123, badgeNumber: null, tel: ["x"] },
+      updatedAt: "yesterday",
+    });
+    expect(f.harmonyTeam.length).toBe(120);
+    expect(f.concertedEffortTeamLeader).toEqual({ name: "", badgeNumber: "", tel: "" });
+    expect(f.mutualLoveMentor).toEqual({ name: "", badgeNumber: "", tel: "" });
+    expect(f.updatedAt).toBeNull();
   });
 });

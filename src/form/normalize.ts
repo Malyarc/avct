@@ -29,6 +29,8 @@ import {
   EMPTY_PRECEPTS,
   EMPTY_SKILLS,
   createEmptyApplication,
+  type AdminFillPerson,
+  type AdminFills,
   type ApplicationData,
   type AvailabilitySlot,
   type FamilyMember,
@@ -102,6 +104,36 @@ function familyMember(value: unknown, index: number): FamilyMember {
     faithCorpsNo: text(raw.faithCorpsNo, 40),
     honoraryBoardNo: text(raw.honoraryBoardNo, 40),
     tel: text(raw.tel, 40),
+  };
+}
+
+function adminFillPerson(value: unknown): AdminFillPerson {
+  const raw = (value ?? {}) as Record<string, unknown>;
+  return {
+    name: text(raw.name, 120),
+    badgeNumber: text(raw.badgeNumber, 60),
+    tel: text(raw.tel, 60),
+  };
+}
+
+function isoTimestamp(value: unknown): string | null {
+  return typeof value === "string" && !Number.isNaN(Date.parse(value)) ? value : null;
+}
+
+/**
+ * Sanitises the department-completed cells for sections (3) and (4). Runs on the
+ * server for every admin save and on read-back for every stored application, so
+ * a hand-edited JSONB blob can never smuggle unexpected shapes into the render.
+ */
+export function normalizeAdminFills(value: unknown): AdminFills {
+  const raw = (value ?? {}) as Record<string, unknown>;
+  return {
+    harmonyTeam: text(raw.harmonyTeam, 120),
+    mutualLoveTeam: text(raw.mutualLoveTeam, 120),
+    concertedEffortTeam: text(raw.concertedEffortTeam, 120),
+    concertedEffortTeamLeader: adminFillPerson(raw.concertedEffortTeamLeader),
+    mutualLoveMentor: adminFillPerson(raw.mutualLoveMentor),
+    updatedAt: isoTimestamp(raw.updatedAt),
   };
 }
 
@@ -202,6 +234,8 @@ export function normalizeApplication(input: unknown): ApplicationData {
     precepts,
 
     practicalDuration: oneOf(raw.practicalDuration, PRACTICAL_DURATIONS),
+
+    adminFills: normalizeAdminFills(raw.adminFills),
 
     consent: raw.consent === true,
     signature: isSafeImageDataUrl(raw.signature) ? raw.signature : null,

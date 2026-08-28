@@ -13,7 +13,7 @@
  */
 
 import type { Config, Context } from "@netlify/functions";
-import { normalizeApplication } from "../../src/form/normalize";
+import { normalizeAdminFills, normalizeApplication } from "../../src/form/normalize";
 import { normalizeGuidelinesOverride } from "../../src/content/guidelinesContent";
 import { validateAll } from "../../src/form/steps";
 import { sql, hasDatabase, ConfigError } from "./_lib/db.mts";
@@ -253,6 +253,59 @@ async function adminGet(id: string): Promise<Response> {
   }
 }
 
+/**
+ * Save the department-completed cells (sections (3)/(4)) for one submission.
+ * Only `data.adminFills` is touched: the stored answers are re-normalised and
+ * everything the applicant submitted is preserved verbatim, so this endpoint can
+ * never be used to rewrite an application. The updated record is returned so the
+ * dashboard can refresh the preview without a second round-trip.
+ */
+async function adminUpdateFills(id: string, request: Request): Promise<Response> {
+  if (!UUID.test(id)) return notFound("No such application.");
+  if (!hasDatabase()) return serverError("The database is not configured.");
+
+  let body: unknown;
+  try {
+    body = await readJson(request);
+  } catch (cause) {
+    if (cause instanceof RangeError) {
+      return json({ error: "That request is too large." }, 413);
+    }
+    return badRequest("The request could not be read.");
+  }
+
+  const fills = normalizeAdminFills((body as { adminFills?: unknown } | null)?.adminFills);
+  // The server stamps the time; a client value is never trusted.
+  fills.updatedAt = new Date().toISOString();
+
+  try {
+    const rows = (await sql()`
+      SELECT data FROM applications WHERE id = ${id}::uuid
+    `) as ApplicationRow[];
+    if (rows.length === 0) return notFound("No such application.");
+
+    const next = { ...normalizeApplication(rows[0].data), adminFills: fills };
+
+    const [updated] = (await sql()`
+      UPDATE applications
+         SET data = ${JSON.stringify(next)}::jsonb
+       WHERE id = ${id}::uuid
+   RETURNING id, reference, track, chinese_name, first_name, surname, email,
+             tel_mobile, submitted_at, archived_at, data
+    `) as ApplicationRow[];
+
+    return json({
+      application: {
+        ...toSummary(updated),
+        data: normalizeApplication(updated.data),
+      },
+    });
+  } catch (cause) {
+    console.error("admin update fills failed", cause);
+    return serverError("Could not save the form fields.");
+  }
+}
+
 /* ------------------------------------------------------------------ *
  * Guidelines content (public read, admin write)
  * ------------------------------------------------------------------ */
@@ -350,8 +403,9 @@ export default async function handler(
     if (match) {
       const id = decodeURIComponent(match[1]);
       if (method === "GET") return adminGet(id);
+      if (method === "PUT") return adminUpdateFills(id, request);
       if (method === "DELETE") return adminDelete(id);
-      return methodNotAllowed(["GET", "DELETE"]);
+      return methodNotAllowed(["GET", "PUT", "DELETE"]);
     }
   }
 
